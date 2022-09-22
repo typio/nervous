@@ -8,14 +8,12 @@
         "directory": "packages/light"
     },
     "scripts": {
+        "test": "uvu -r tsm test",
         "lint": "prettier --plugin-search-dir . --check . && eslint .",
         "format": "prettier --plugin-search-dir . --write ."
     },
-    "dependencies": {},
     "devDependencies": {
-        "tsx": "3.9.0"
-    },
-    "engines": {
-        "node": ">=16.14"
+        "tsx": "3.9.0",
+        "uvu": "^0.5.6"
     }
 }
