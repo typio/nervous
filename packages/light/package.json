@@ -1,0 +1,21 @@
+{
+    "name": "light",
+    "version": "0.0.0",
+    "exports": "./src/tensor.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/typio/light",
+        "directory": "packages/light"
+    },
+    "scripts": {
+        "lint": "prettier --plugin-search-dir . --check . && eslint .",
+        "format": "prettier --plugin-search-dir . --write ."
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "tsx": "3.9.0"
+    },
+    "engines": {
+        "node": ">=16.14"
+    }
+}
