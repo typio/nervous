@@ -1,5 +1,5 @@
 <script>
-	import { tensor } from 'light';
+	import * as t from 'light';
 
-	console.log(tensor);
+	console.log(t.tensor2d([[1,2],[3,4]]));
 </script>
