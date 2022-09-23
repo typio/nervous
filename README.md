@@ -1,6 +1,6 @@
 ## Overview
 
-[Docs](docs-light.vercel.app) [Demos](demos-light.vercel.app)
+[Docs](https://docs-light.vercel.app) • [Demos](https://demos-light.vercel.app)
 
 A Light, Modular, Deep Learning Framework
 
