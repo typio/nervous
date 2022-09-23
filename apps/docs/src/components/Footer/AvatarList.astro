@@ -4,7 +4,7 @@ type Props = {
 	path: string;
 };
 const { path } = Astro.props as Props;
-const resolvedPath = `examples/docs/${path}`;
+const resolvedPath = `apps/docs/${path}`;
 const url = `https://api.github.com/repos/typio/light/commits?path=${resolvedPath}`;
 const commitsURL = `https://github.com/typio/light/commits/main/${resolvedPath}`;
 
