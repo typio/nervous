@@ -1,0 +1,13 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "display": "Astro",
+    "extends": "./base.json",
+    "compilerOptions": {},
+    "include": [
+        "src",
+        "env.d.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}

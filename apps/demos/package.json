@@ -12,16 +12,20 @@
 		"format": "prettier --plugin-search-dir . --write ."
 	},
 	"dependencies": {
-		"light": "workspace:*"
+		"light": "workspace:*",
+		"p5-svelte": "^3.1.2",
+		"tsconfig": "workspace:*"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "1.0.0-next.80",
 		"@sveltejs/kit": "next",
+		"@types/p5": "^1.4.2",
 		"@typescript-eslint/eslint-plugin": "^5.27.0",
 		"@typescript-eslint/parser": "^5.27.0",
 		"eslint": "^8.16.0",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-plugin-svelte3": "^4.0.0",
+		"p5": "^1.4.2",
 		"prettier": "^2.6.2",
 		"prettier-plugin-svelte": "^2.7.0",
 		"svelte": "^3.44.0",

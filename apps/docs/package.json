@@ -11,6 +11,9 @@
     "preview": "astro preview",
     "astro": "astro"
   },
+  "devDependencies": {
+    "tsconfig": "workspace:*"
+  },
   "dependencies": {
     "astro": "^1.2.8",
     "preact": "^10.7.3",
