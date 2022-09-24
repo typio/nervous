@@ -13,4 +13,3 @@ Deep learning framework
 ```bash
 $ npm ...
 ```
-

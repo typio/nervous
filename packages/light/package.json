@@ -1,19 +1,20 @@
 {
-    "name": "light",
-    "version": "0.0.0",
-    "exports": "./src/tensor.ts",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/typio/light",
-        "directory": "packages/light"
-    },
-    "scripts": {
-        "test": "uvu -r tsm test",
-        "lint": "prettier --plugin-search-dir . --check . && eslint .",
-        "format": "prettier --plugin-search-dir . --write ."
-    },
-    "devDependencies": {
-        "tsx": "3.9.0",
-        "uvu": "^0.5.6"
-    }
+	"name": "light",
+	"version": "0.0.0",
+	"exports": "./src/tensor.ts",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/typio/light",
+		"directory": "packages/light"
+	},
+	"scripts": {
+		"test": "uvu -r tsm test",
+		"lint": "prettier --plugin-search-dir . --check . && eslint .",
+		"format": "prettier --plugin-search-dir . --write ."
+	},
+	"devDependencies": {
+		"prettier": "^2.6.2",
+		"tsx": "3.9.0",
+		"uvu": "^0.5.6"
+	}
 }
