@@ -1,5 +1,6 @@
 # light
 > lightweight, minimal, modular, ML framework
+
 [Docs](https://docs-light.vercel.app) • [Demos](https://demos-light.vercel.app)
 
 ## Overview
