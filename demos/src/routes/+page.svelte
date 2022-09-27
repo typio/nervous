@@ -1,8 +1,10 @@
 <script lang="ts">
-	import * as t from 'light';
-
 	import P5 from 'p5-svelte';
 	import type { Sketch } from 'p5-svelte/types';
+
+	import * as light from 'light'
+
+	light.tensor([1,2,3]).print()
 
 	let range1Val = 0.5;
 	let range2Val = 255;
@@ -18,10 +20,11 @@
 			p5.noStroke();
 			p5.fill(255, 80, 0, range2Val);
 			p5.ellipse(p5.mouseX, p5.mouseY, 150 * range1Val, 150 * range1Val);
-			console.log(p5.mouseX, p5.mouseY);
 		};
 	};
 </script>
+
+<h1>No machine learning here yet...</h1>
 
 <div class="sketch-1">
 	<P5 {sketch} />

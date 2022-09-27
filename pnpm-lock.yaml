@@ -10,7 +10,7 @@ importers:
       prettier: 2.7.1
       turbo: 1.5.3
 
-  apps/demos:
+  demos:
     specifiers:
       '@sveltejs/adapter-auto': 1.0.0-next.80
       '@sveltejs/kit': next
@@ -33,12 +33,12 @@ importers:
       typescript: ^4.7.4
       vite: ^3.1.0
     dependencies:
-      light: link:../../packages/light
+      light: link:../packages/light
       p5-svelte: 3.1.2_@types+p5@1.4.3+p5@1.4.2
-      tsconfig: link:../../packages/tsconfig
+      tsconfig: link:../packages/tsconfig
     devDependencies:
       '@sveltejs/adapter-auto': 1.0.0-next.80
-      '@sveltejs/kit': 1.0.0-next.502_svelte@3.50.1+vite@3.1.3
+      '@sveltejs/kit': 1.0.0-next.504_svelte@3.50.1+vite@3.1.3
       '@types/p5': 1.4.3
       '@typescript-eslint/eslint-plugin': 5.38.0_wsb62dxj2oqwgas4kadjymcmry
       '@typescript-eslint/parser': 5.38.0_irgkl5vooow2ydyo6aokmferha
@@ -55,7 +55,7 @@ importers:
       typescript: 4.8.3
       vite: 3.1.3
 
-  apps/docs:
+  docs:
     specifiers:
       '@algolia/client-search': ^4.13.1
       '@astrojs/preact': ^1.1.0
@@ -84,15 +84,17 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
-      tsconfig: link:../../packages/tsconfig
+      tsconfig: link:../packages/tsconfig
 
   packages/light:
     specifiers:
       prettier: ^2.6.2
+      tsconfig: workspace:*
       tsx: 3.9.0
       uvu: ^0.5.6
     devDependencies:
       prettier: 2.7.1
+      tsconfig: link:../tsconfig
       tsx: 3.9.0
       uvu: 0.5.6
 
@@ -870,8 +872,8 @@ packages:
       - supports-color
     dev: true
 
-  /@sveltejs/kit/1.0.0-next.502_svelte@3.50.1+vite@3.1.3:
-    resolution: {integrity: sha512-S2MLydojG1G9mQXcM0cAY6CyYtPQ3QeiTTxQe/TQbV1r1zTYwqRea9DVeRJd3EECWvWM46BnW/6yEAs9N5GvXg==}
+  /@sveltejs/kit/1.0.0-next.504_svelte@3.50.1+vite@3.1.3:
+    resolution: {integrity: sha512-KrhlSHT3aCVnhRgUoN6aGIjIw3nWEdNwfoZcE1x65F5D7Ju/K9D8dQwyal9v0aBAZyN9nFuXxsYGaMLE9sppfw==}
     engines: {node: '>=16.14'}
     hasBin: true
     requiresBuild: true

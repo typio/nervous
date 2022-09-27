@@ -1,6 +1,6 @@
 type Rank1To6Array = number[] | number[][] | number[][][] | number[][][][] | number[][][][][] | number[][][][][][]
 
-const calcShape = (values: Rank1To6Array) => {
+const calcShape = (values: Rank1To6Array): number[] => {
     let shape: number[] = []
     let subValues: Rank1To6Array | number = values
     while (Array.isArray(subValues)) {
@@ -11,29 +11,38 @@ const calcShape = (values: Rank1To6Array) => {
     return shape
 }
 
-const lengthFromShape = (shape: number[]): number => {
+const flatLengthFromShape = (shape: number[]): number => {
     return shape.reduce((previousValue, currentValue) => previousValue * currentValue, 1)
 }
 
-const tensorToString = (values, shape) => {
+const toNested = (values: number[], shape: number[]): any => {
+    // thank you https://stackoverflow.com/a/69584753/6806458
 
+    if (flatLengthFromShape(shape) !== values.length)
+        throw new Error("New shape is not compatable with initial value length.")
+
+    let elementI = 0
+
+    const nest = (shapeI: number) => {
+        let result: any = []
+        if (shapeI === shape.length - 1) {
+            result = result.concat(values.slice(elementI, elementI + shape[shapeI]))
+            elementI += shape[shapeI]
+        } else {
+            for (let i = 0; i < shape[shapeI]; i++) {
+                result.push(nest(shapeI + 1))
+            }
+        }
+        return result
+    }
+    return nest(0)
 }
 
-export class Tensor {
+class Tensor {
     readonly values: Float32Array
     readonly rank: number
     readonly shape: number[]
 
-    /**
-     * Pass a nested array
-     * ```ts
-     * new Tensor([[1, 2],[3, 4]])
-     * ```
-     * Or pass a flat array and a shape
-     * ```ts
-     * new Tensor([1, 2, 3, 4], [2, 2])
-     * ```
-     */
     constructor(values: number | Rank1To6Array, shape?: number[]) {
         if (values !== undefined && shape === undefined) {
             if (!Array.isArray(values)) {
@@ -48,13 +57,13 @@ export class Tensor {
             let flatValues = values.flat(5)
             this.values = new Float32Array(flatValues)
         } else if (values !== undefined && shape !== undefined) {
-            if (typeof values[0] !== 'number')
+            if (Array.isArray(values[0]))
                 throw new Error('If shape is given, values must be flat array, e.g. [1, 2, 3].')
 
             // @ts-ignore flatValues will always be number[]
             let flatValues: number[] = values
 
-            if (lengthFromShape(shape) !== flatValues.length) throw new Error("Values don't fit into shape.")
+            if (flatLengthFromShape(shape) !== flatValues.length) throw new Error("Values don't fit into shape.")
 
             this.shape = shape
             this.rank = shape.length
@@ -62,16 +71,40 @@ export class Tensor {
         }
     }
 
-    print() {
-        tensorToString(this.values, this.shape)
+    /** return nested tensor values */
+    getNested() {
+        return toNested((Array.from(this.values)), this.shape)
     }
 
+    /** return flat tensor values */
+    getFlat() {
+        return Array.from(this.values)
+    }
+
+    /** console.log nested tensor values */
+    print() {
+        console.log(JSON.stringify(this.getNested()))
+    }
+
+    /** Reshape tensor into provided shape */
+    reshape(shape: number[]) {
+        return new Tensor(Array.from(this.values), shape)
+    }
+
+    // mul(n: number) {
+
+    // }
+
+    // dot(tensor: Tensor) {
+    //     if (this.rank !== 2 || tensor.rank !== 2)
+    //         throw new Error
+    // }
 }
 
 /**
  * Pass a value
  * ```ts
- * scalar(1)
+ * scalar(4)
  * ```
  */
 export const scalar = (value: number) => {
@@ -81,80 +114,14 @@ export const scalar = (value: number) => {
 /**
  * Pass a nested array
  * ```ts
- * tensor1d([1, 2, 3])
- * ```
- */
-export const tensor1d = (values: number[], shape?: number[]) => {
-    return new Tensor(values, shape)
-}
-
-/**
- * Pass a nested array
- * ```ts
- * tensor2d([[1, 2], [3, 4]])
+ * tensor([[[1, 2, 3]]])
  * ```
  * Or pass a flat array and a shape
  * ```ts
- * tensor2d([1, 2, 3, 4], [2, 2])
+ * tensor([1, 2, 3, 4], [2, 2])
  * ```
  */
-export const tensor2d = (values: number[][] | number[], shape?: number[]) => {
-    return new Tensor(values, shape)
-}
-
-/**
- * Pass a nested array
- * ```ts
- * tensor3d([[[1, 2, 3]]])
- * ```
- * Or pass a flat array and a shape
- * ```ts
- * tensor3d([1, 2, 3, 4], [2, 2])
- * ```
- */
-export const tensor3d = (values: number[][][] | number[], shape?: number[]) => {
-    return new Tensor(values, shape)
-}
-
-/**
- * Pass a nested array
- * ```ts
- * tensor4d([[1, 2],[3, 4]])
- * ```
- * Or pass a flat array and a shape
- * ```ts
- * tensor4d([1, 2, 3, 4], [2, 2])
- * ```
- */
-export const tensor4d = (values: number[][][][] | number[], shape?: number[]) => {
-    return new Tensor(values, shape)
-}
-
-/**
- * Pass a nested array
- * ```ts
- * tensor5d([[1, 2],[3, 4]])
- * ```
- * Or pass a flat array and a shape
- * ```ts
- * tensor5d([1, 2, 3, 4], [2, 2])
- * ```
- */
-export const tensor5d = (values: number[][][][][] | number[], shape?: number[]) => {
-    return new Tensor(values, shape)
-}
-
-/**
- * Pass a nested array
- * ```ts
- * tensor6d([[1, 2],[3, 4]])
- * ```
- * Or pass a flat array and a shape
- * ```ts
- * tensor6d([1, 2, 3, 4], [2, 2])
- * ```
- */
-export const tensor6d = (values: number[][][][][][] | number[], shape?: number[]) => {
+export const tensor = (values: number | Rank1To6Array, shape?: number[]) => {
     return new Tensor(values, shape)
 }
 
@@ -183,7 +150,7 @@ export const eye = (dim: number[] | number, offset?: number) => {
     let values = new Array(rowN * colN).fill(0)
     while (idx < rowN * colN) {
         values[idx] = 1
-        idx += rowN + 1
+        idx += colN + 1
     }
 
     return new Tensor(values, [rowN, colN])
@@ -206,23 +173,29 @@ export const random = (shape: number[], min?: number, max?: number, integer?: bo
     if (min !== undefined && max !== undefined)
         if (integer)
             return new Tensor(
-                Array.from({ length: lengthFromShape(shape) }, () => Math.floor(Math.random() * (max - min) + min)),
+                Array.from({ length: flatLengthFromShape(shape) }, () => Math.floor(Math.random() * (max - min) + min)),
                 shape
             )
         else
             return new Tensor(
-                Array.from({ length: lengthFromShape(shape) }, () => Math.random() * (max - min) + min),
+                Array.from({ length: flatLengthFromShape(shape) }, () => Math.random() * (max - min) + min),
                 shape
             )
 
     return new Tensor(
-        Array.from({ length: lengthFromShape(shape) }, () => Math.random()),
+        Array.from({ length: flatLengthFromShape(shape) }, () => Math.random()),
         shape
     )
 }
 
+/**
+ * Pass shape of matrix
+ * ```ts
+ * fill([2, 2], 1)
+ * ```
+ */
 export const fill = (shape: number[], value: number) => {
-    return new Tensor(new Array(lengthFromShape(shape)).fill(value), shape)
+    return new Tensor(new Array(flatLengthFromShape(shape)).fill(value), shape)
 }
 
 export const zeroes = (shape: number[]) => {
