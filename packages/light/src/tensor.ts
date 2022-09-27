@@ -40,7 +40,7 @@ const toNested = (values: number[], shape: number[]): any => {
 
 class Tensor {
     readonly values: Float32Array
-    readonly rank: number
+    readonly rank: 0 | 1 | 2 | 3 | 4 | 5 | 6
     readonly shape: number[]
 
     constructor(values: number | Rank1To6Array, shape?: number[]) {
@@ -52,7 +52,7 @@ class Tensor {
                 this.rank = 0
             } else {
                 this.shape = calcShape(values)
-                this.rank = this.shape.length
+                this.rank = this.shape.length as typeof this.rank
             }
             let flatValues = values.flat(5)
             this.values = new Float32Array(flatValues)
@@ -63,27 +63,29 @@ class Tensor {
             // @ts-ignore flatValues will always be number[]
             let flatValues: number[] = values
 
-            if (flatLengthFromShape(shape) !== flatValues.length) throw new Error("Values don't fit into shape.")
+            if (flatLengthFromShape(shape) !== flatValues.length)
+                throw new Error("Values don't fit into shape.")
 
             this.shape = shape
-            this.rank = shape.length
+            this.rank = shape.length as typeof this.rank // good ts? 🤔
             this.values = new Float32Array(flatValues)
         }
     }
 
     /** return nested tensor values */
-    getNested() {
+    getValues() {
+        if (this.rank === 0) return this.values[0]
         return toNested((Array.from(this.values)), this.shape)
     }
 
     /** return flat tensor values */
-    getFlat() {
+    getFlatValues() {
         return Array.from(this.values)
     }
 
     /** console.log nested tensor values */
     print() {
-        console.log(JSON.stringify(this.getNested()))
+        console.log(JSON.stringify(this.getValues()))
     }
 
     /** Reshape tensor into provided shape */
@@ -91,14 +93,42 @@ class Tensor {
         return new Tensor(Array.from(this.values), shape)
     }
 
-    // mul(n: number) {
+    mul(m: Tensor | number) {
+        if (typeof m === 'number')
+            return new Tensor(Array.from(this.values.map(e => e *= m)), this.shape)
 
-    // }
+        if (this.rank === 1 && m.rank === 1) {
+            let newV: number[] = []
+            this.values.forEach((_, i) => newV[i] = this.values[i] * m.values[i])
+            return new Tensor(newV)
+        }
 
-    // dot(tensor: Tensor) {
-    //     if (this.rank !== 2 || tensor.rank !== 2)
-    //         throw new Error
-    // }
+        if (this.rank === 2)
+            if (this.shape[0] !== m.shape[1] || this.shape[1] !== m.shape[0])
+                throw new Error("Tensors not compatible shapes for multiplication.")
+
+
+        // if (this.rank !== 2 || tensor.rank !== 2)
+        //     throw new Error()
+        throw new Error("Tensor multiplication on rank > 2 tensors not yet supported.")
+    }
+
+    /** switch rows and columns of a >=2d Tensor */
+    transpose() {
+        if (this.rank === 0)
+            return this
+        if (this.rank === 1) {
+            return new Tensor(Array.from(this.values), [this.shape[0], 1])
+        }
+        if (this.rank === 2) {
+            // super idiomatic 👍
+            return new Tensor(
+                this.getValues()[0].map((_, j) => this.getValues().map(i => i[j]))
+            )
+        }
+
+        throw new Error("Transpose on tensor of rank > 2 is not yet supported.")
+    }
 }
 
 /**
@@ -114,7 +144,7 @@ export const scalar = (value: number) => {
 /**
  * Pass a nested array
  * ```ts
- * tensor([[[1, 2, 3]]])
+ * tensor([[1,2],[3,4]])
  * ```
  * Or pass a flat array and a shape
  * ```ts
