@@ -93,6 +93,23 @@ class Tensor {
         return new Tensor(Array.from(this.values), shape)
     }
 
+    /** switch rows and columns of a >=2d Tensor */
+    transpose() {
+        if (this.rank === 0)
+            return this
+        if (this.rank === 1) {
+            return new Tensor(Array.from(this.values), [this.shape[0], 1])
+        }
+        if (this.rank === 2) {
+            // super idiomatic 👍
+            return new Tensor(
+                this.getValues()[0].map((_, j) => this.getValues().map(i => i[j]))
+            )
+        }
+
+        throw new Error("Transpose on tensor of rank > 2 is not yet supported.")
+    }
+
     mul(m: Tensor | number) {
         if (typeof m === 'number')
             return new Tensor(Array.from(this.values.map(e => e *= m)), this.shape)
@@ -113,22 +130,20 @@ class Tensor {
         throw new Error("Tensor multiplication on rank > 2 tensors not yet supported.")
     }
 
-    /** switch rows and columns of a >=2d Tensor */
-    transpose() {
-        if (this.rank === 0)
-            return this
-        if (this.rank === 1) {
-            return new Tensor(Array.from(this.values), [this.shape[0], 1])
-        }
-        if (this.rank === 2) {
-            // super idiomatic 👍
-            return new Tensor(
-                this.getValues()[0].map((_, j) => this.getValues().map(i => i[j]))
-            )
-        }
-
-        throw new Error("Transpose on tensor of rank > 2 is not yet supported.")
+    add(a: number) {
+        return new Tensor(Array.from(this.values.map(e => e + a)), this.shape)
     }
+
+    /** create tensor of exponentials of all values on e, or given base  */
+    exp(base?: number) {
+        return new Tensor(Array.from(this.values.map(e => (base ?? Math.E) ** e)), this.shape)
+    }
+
+    /** returns sum of all tensor values */
+    sum(): number {
+        return this.values.reduce((previousValue, currentValue) => previousValue + currentValue, 0)
+    }
+
 }
 
 /**
