@@ -14,12 +14,14 @@
 	"dependencies": {
 		"light": "workspace:*",
 		"p5-svelte": "^3.1.2",
+		"pako": "^2.0.4",
 		"tsconfig": "workspace:*"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-vercel": "1.0.0-next.77",
 		"@sveltejs/kit": "next",
 		"@types/p5": "^1.4.2",
+		"@types/pako": "^2.0.0",
 		"@typescript-eslint/eslint-plugin": "^5.27.0",
 		"@typescript-eslint/parser": "^5.27.0",
 		"eslint": "^8.16.0",
