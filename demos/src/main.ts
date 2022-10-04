@@ -1,33 +1,32 @@
+import pako from 'pako'
 import p5 from "p5"
 
-// import trainImagesFile from './t10k-images.idx3-ubyte?raw'
-// import labelLabelsFile from './t10k-labels.idx1-ubyte?raw'
+import trainImagesFile from './t10k-images-idx3-ubyte.gz.data'
+import labelLabelsFile from './t10k-labels-idx1-ubyte.gz.data'
+
+
+let res = pako.ungzip(trainImagesFile)
 
 const s = p => {
     let pixelValues = []
 
-    // let dataFileBuffer = new ArrayBuffer(trainImagesFile.length)
-    // let labelFileBuffer = new ArrayBuffer(labelLabelsFile.length)
+    let dataFileBuffer = pako.ungzip(trainImagesFile)
+    let labelFileBuffer = pako.ungzip(labelLabelsFile)
 
-    // for (let i = 0; i < trainImagesFile.length; i++) {
-    //     dataFileBuffer[i] = trainImagesFile.charCodeAt(i)
-    //     labelFileBuffer[i] = labelLabelsFile.charCodeAt(i)
-    // }
+    for (let image = 0; image <= 1000; image++) {
+        let pixels = []
 
-    // for (let image = 0; image <= 400; image++) {
-    //     let pixels = []
+        for (let y = 0; y < 28; y++) {
+            for (let x = 0; x < 28; x++) {
+                pixels.push(dataFileBuffer[(image * 28 * 28) + (x + (y * 28)) + 16])
+            }
+        }
 
-    //     for (let y = 0; y < 28; y++) {
-    //         for (let x = 0; x < 28; x++) {
-    //             pixels.push(dataFileBuffer[(image * 28 * 28) + (x + (y * 28)) + 16])
-    //         }
-    //     }
+        let imageData = {}
+        imageData[JSON.stringify(labelFileBuffer[image + 8])] = pixels
 
-    //     let imageData = {}
-    //     imageData[JSON.stringify(labelFileBuffer[image + 8])] = pixels
-
-    //     pixelValues.push(imageData)
-    // }
+        pixelValues.push(imageData)
+    }
 
     let gp
     p.setup = () => {
@@ -38,27 +37,23 @@ const s = p => {
     }
 
     p.draw = function () {
-        p.clear(0, 1, 0, 0)
-        p.fill(0, 0, 255)
-        p.strokeWeight(5);
-        p.stroke(255,0,0)
-        p.rect(30, 20, 55, 55, 15);
-        // for (let image = 0; image <= 400; image++) {
-        //     gp.reset()
-        //     gp.loadPixels()
-        //     for (let x = 0; x < 28; x++) {
-        //         for (let y = 0; y < 28; y++) {
-        //             let index = (p.width * y + x) * 4
-        //             gp.pixels[index + 0] = Object.values(pixelValues[image])[0][(28 * y) + x]
-        //             gp.pixels[index + 1] = Object.values(pixelValues[image])[0][(28 * y) + x]
-        //             gp.pixels[index + 2] = Object.values(pixelValues[image])[0][(28 * y) + x]
-        //             gp.pixels[index + 3] = 255
-        //         }
-        //     }
-        //     gp.updatePixels()
-        //     p.image(gp, Math.floor(image % 40) * 28, Math.floor(image / 40) * 50, p.width, p.height)
-        //     p.text(Object.keys(pixelValues[image])[0], 9 + Math.floor(image % 40) * 28, Math.floor(image / 40) * 50 + 40)
-        // }
+        p.clear(0, 0, 0, 0)
+        for (let image = 0; image <= 1000; image++) {
+            gp.reset()
+            gp.loadPixels()
+            for (let x = 0; x < 28; x++) {
+                for (let y = 0; y < 28; y++) {
+                    let index = (p.width * y + x) * 4
+                    gp.pixels[index + 0] = Object.values(pixelValues[image])[0][(28 * y) + x]
+                    gp.pixels[index + 1] = Object.values(pixelValues[image])[0][(28 * y) + x]
+                    gp.pixels[index + 2] = Object.values(pixelValues[image])[0][(28 * y) + x]
+                    gp.pixels[index + 3] = 255
+                }
+            }
+            gp.updatePixels()
+            p.image(gp, Math.floor(image % 40) * 28, Math.floor(image / 40) * 50, p.width, p.height)
+            p.text(Object.keys(pixelValues[image])[0], 9 + Math.floor(image % 40) * 28, Math.floor(image / 40) * 50 + 40)
+        }
     }
 }
 

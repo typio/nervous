@@ -16,9 +16,11 @@ importers:
       esbuild: ^0.15.10
       http-server: ^14.1.1
       p5: ^1.4.2
+      pako: ^2.0.4
     dependencies:
       esbuild: 0.15.10
       p5: 1.4.2
+      pako: 2.0.4
     devDependencies:
       concurrently: 7.4.0
       http-server: 14.1.1
@@ -3127,6 +3129,10 @@ packages:
 
   /p5/1.4.2:
     resolution: {integrity: sha512-J5zqZ/l1NIbJSuNr/FH9nDYgBRg7/NubStNPnx1fQCMSAgxI6peKDHs9i5iaG9EuwbJzjuG6/5bX/D0lqqrP9A==}
+    dev: false
+
+  /pako/2.0.4:
+    resolution: {integrity: sha512-v8tweI900AUkZN6heMU/4Uy4cXRc2AYNRggVmTR+dEncawDJgCdLMximOVA2p4qO57WMynangsfGRb5WD6L1Bg==}
     dev: false
 
   /parse-entities/4.0.0:
