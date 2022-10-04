@@ -2,7 +2,7 @@
   "name": "@light/demos",
   "type": "module",
   "version": "0.0.1",
-  "description": "",
+  "description": "Light demos",
   "scripts": {
     "dev": "concurrently \"esbuild src/main.ts --bundle --sourcemap --outfile=build/out.js --watch\" \"http-server -s\"",
     "build": "esbuild src/main.ts --bundle --minify --sourcemap --outfile=build/out.js"
