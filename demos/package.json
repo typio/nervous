@@ -4,8 +4,8 @@
   "version": "0.0.1",
   "description": "Light demos",
   "scripts": {
-    "dev": "concurrently \"esbuild src/main.ts --bundle --sourcemap --loader:.data=binary --outfile=src/build/out.js --watch\" \"http-server src/ -s -p 3333\"",
-    "build": "esbuild src/main.ts --bundle --minify --sourcemap --loader:.data=binary --outfile=src/build/out.js"
+    "dev": "concurrently \"esbuild src/main.ts --bundle --sourcemap --loader:.data=binary --outdir=src/build/ --watch\" \"http-server src/ -s -p 3333\"",
+    "build": "esbuild src/main.ts --bundle --minify --sourcemap --loader:.data=binary --outdir=src/build/"
   },
   "keywords": [],
   "author": "",
