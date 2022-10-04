@@ -1,6 +1,7 @@
 {
-  "name": "demos",
-  "version": "1.0.0",
+  "name": "@example/demos",
+  "type": "module",
+  "version": "0.0.1",
   "description": "",
   "scripts": {
     "dev": "concurrently \"esbuild src/main.ts --bundle --sourcemap --outfile=build/out.js --watch\" \"http-server -s\"",
