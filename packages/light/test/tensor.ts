@@ -241,20 +241,40 @@ test('transpose', () => {
     assert.equal(tensor.transpose().getValues(), [[1, 4], [2, 5], [3, 6]])
 })
 
+test('dot', () => {
+    // 1d tensor on 1d tensor
+    assert.equal(lt.tensor([10, 20, 30]).dot(lt.tensor([1, 2, 3])).getValues(), 140)
+
+    // 1d tensor on 2d tensor
+    // assert.equal(lt.tensor([10, 20, 30]).dot(lt.tensor([1, 2, 3])).getValues(), 140)
+
+    // 2d tensor on 2d tensor
+    assert.equal(
+        lt.tensor([[1, 2, 3], [4, 5, 6]]).dot(lt.tensor([[1, 2], [3, 4], [5, 6]])).getValues(),
+        [[22, 28],
+        [49, 64]]
+    )
+})
+
 test('mul', () => {
     // scalar on nd tensor
     let tensor = lt.tensor([[1, 2], [3, 4]])
     assert.equal(tensor.mul(2).getValues(), [[2, 4], [6, 8]])
 
+    // nd tensor on scalar
+    tensor = lt.tensor([[1, 2], [3, 4]])
+    let scalar = lt.scalar(2)
+    assert.equal(scalar.mul(tensor).getValues(), [[2, 4], [6, 8]])
+
     // 1d tensor on 1d tensor
     assert.equal(lt.tensor([10, 20, 30]).mul(lt.tensor([1, 2, 3])).getValues(), [10, 40, 90])
 })
 
-// test('exp', () => {
-//     let tensor = lt.tensor([[1, 2], [3, 4]])
-//     assert.equal(Math.floor(tensor.exp().sum()), 70)
-//     assert.equal(tensor.exp(2).getValues(), [[1, 4], [9, 16]])
-// })
+test('exp', () => {
+    let tensor = lt.tensor([[1, 2], [3, 4]])
+    assert.equal(Math.floor(tensor.exp().sum()), 84)
+    assert.equal(tensor.exp(2).getValues(), [[2, 4], [8, 16]])
+})
 
 test('sum', () => {
     let tensor = lt.tensor([[1, 2], [3, 4]])
