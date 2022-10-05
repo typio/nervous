@@ -103,16 +103,48 @@ class Tensor {
         if (this.rank === 2) {
             // super idiomatic 👍
             return new Tensor(
-                this.getValues()[0].map((_, j) => this.getValues().map(i => i[j]))
+                this.getValues()[0].map((_: any, j: number) => this.getValues().map((i: number[]) => i[j]))
             )
         }
 
         throw new Error("Transpose on tensor of rank > 2 is not yet supported.")
     }
 
+    dot(m: Tensor | number) {
+        if (typeof m === 'number' || this.rank === 0)
+            throw new Error("Please use Tensor.mul() for tensor scalar multiplication.")
+
+        if (this.rank === 1 && m.rank === 1) {
+            let newV: number = 0;
+            this.values.forEach((_, i) => newV += this.values[i] * m.values[i])
+            return new Tensor(newV)
+        }
+
+        if (this.rank === 2 && m.rank === 2) {
+            if (this.shape[0] !== m.shape[1] || this.shape[1] !== m.shape[0])
+                throw new Error("Tensors not compatible shapes for multiplication.")
+
+            let A = toNested(Array.from(this.values), this.shape)
+            let B = toNested(Array.from(m.values), m.shape)
+
+            return new Tensor(A.map((row: number[], i: number) =>
+                B[0].map((_: any, j: number) =>
+                    row.reduce((acc: number, _: any, n: number) =>
+                        acc + A[i][n] * B[n][j], 0
+                    )
+                )
+            ))
+        }
+
+        throw new Error("Tensor multiplication on rank > 2 tensors not yet supported.")
+    }
+
     mul(m: Tensor | number) {
         if (typeof m === 'number')
-            return new Tensor(Array.from(this.values.map(e => e *= m)), this.shape)
+            return new Tensor(Array.from(this.values.map(el => el *= m)), this.shape)
+
+        if (this.rank === 0)
+            return new Tensor(Array.from(m.values.map(el => el *= this.values[0])), m.shape)
 
         if (this.rank === 1 && m.rank === 1) {
             let newV: number[] = []
@@ -120,23 +152,32 @@ class Tensor {
             return new Tensor(newV)
         }
 
-        if (this.rank === 2)
+        if (this.rank === 2 && m.rank === 2) {
             if (this.shape[0] !== m.shape[1] || this.shape[1] !== m.shape[0])
                 throw new Error("Tensors not compatible shapes for multiplication.")
 
+            let A = toNested(Array.from(this.values), this.shape)
+            let B = toNested(Array.from(m.values), m.shape)
 
-        // if (this.rank !== 2 || tensor.rank !== 2)
-        //     throw new Error()
+            return new Tensor(A.map((row: number[], i: number) =>
+                B[0].map((_: any, j: number) =>
+                    row.reduce((acc: number, _: any, n: number) =>
+                        acc + A[i][n] * B[n][j], 0
+                    )
+                )
+            ))
+        }
+
         throw new Error("Tensor multiplication on rank > 2 tensors not yet supported.")
     }
 
     add(a: number) {
-        return new Tensor(Array.from(this.values.map(e => e + a)), this.shape)
+        return new Tensor(Array.from(this.values.map(el => el + a)), this.shape)
     }
 
     /** create tensor of exponentials of all values on e, or given base  */
     exp(base?: number) {
-        return new Tensor(Array.from(this.values.map(e => (base ?? Math.E) ** e)), this.shape)
+        return new Tensor(Array.from(this.values.map(el => (base ?? Math.E) ** el)), this.shape)
     }
 
     /** returns sum of all tensor values */
