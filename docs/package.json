@@ -12,7 +12,6 @@
     "astro": "astro"
   },
   "devDependencies": {
-    "tsconfig": "workspace:*"
   },
   "dependencies": {
     "astro": "^1.2.8",

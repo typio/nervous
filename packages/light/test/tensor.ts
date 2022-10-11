@@ -1,7 +1,7 @@
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 
-import * as lt from '../src/tensor'
+import * as lt from '../src/index'
 
 test('scalar', () => {
     let tensor = lt.scalar(4)
@@ -261,26 +261,99 @@ test('mul', () => {
     let tensor = lt.tensor([[1, 2], [3, 4]])
     assert.equal(tensor.mul(2).getValues(), [[2, 4], [6, 8]])
 
-    // nd tensor on scalar
-    tensor = lt.tensor([[1, 2], [3, 4]])
+    // tensor scalar on nd tensor
     let scalar = lt.scalar(2)
-    assert.equal(scalar.mul(tensor).getValues(), [[2, 4], [6, 8]])
+    assert.equal(tensor.mul(scalar).getValues(), [[2, 4], [6, 8]])
 
     // 1d tensor on 1d tensor
     assert.equal(lt.tensor([10, 20, 30]).mul(lt.tensor([1, 2, 3])).getValues(), [10, 40, 90])
 })
 
+test('div', () => {
+    // scalar on nd tensor
+    let tensor = lt.tensor([[4, 8], [12, 16]])
+    assert.equal(tensor.div(2).getValues(), [[2, 4], [6, 8]])
+
+    // tensor scalar on nd tensor
+    let scalar = lt.scalar(2)
+    assert.equal(tensor.div(scalar).getValues(), [[2, 4], [6, 8]])
+
+    // 1d tensor on 1d tensor
+    assert.equal(lt.tensor([10, 22, 36]).div(lt.tensor([1, 2, 3])).getValues(), [10, 11, 12])
+})
+
+test('add', () => {
+    // scalar on nd tensor
+    let tensor = lt.tensor([[1, 2], [3, 4]])
+    assert.equal(tensor.add(2).getValues(), [[3, 4], [5, 6]])
+
+    // nd tensor on nd tensor
+    tensor = lt.tensor([[1, 2], [3, 4]])
+    let tensor2 = lt.tensor([[2, 3], [4, 5]])
+    assert.equal(tensor.add(tensor2).getValues(), [[3, 5], [7, 9]])
+})
+
+test('minus', () => {
+    // scalar on nd tensor
+    let tensor = lt.tensor([[1, 2], [3, 4]])
+    assert.equal(tensor.minus(2).getValues(), [[-1, 0], [1, 2]])
+
+    // nd tensor on nd tensor
+    tensor = lt.tensor([[1, 2], [3, 4]])
+    let tensor2 = lt.tensor([[42, 55], [2, -100]])
+    assert.equal(tensor.minus(tensor2).getValues(), [[-41, -53], [1, 104]])
+})
+
 test('exp', () => {
     let tensor = lt.tensor([[1, 2], [3, 4]])
-    assert.equal(Math.floor(tensor.exp().sum()), 84)
+    assert.equal(Math.floor(tensor.exp().sum().getValues()), 84)
     assert.equal(tensor.exp(2).getValues(), [[2, 4], [8, 16]])
 })
 
 test('sum', () => {
-    let tensor = lt.tensor([[1, 2], [3, 4]])
-    assert.equal(tensor.sum(), 10)
+    let tensor = lt.tensor([[1, 2, 5], [3, 4, 6]])
+    assert.equal(tensor.sum().getValues(), 21)
+    assert.equal(tensor.sum(0).getValues(), [4, 6, 11])
+    assert.equal(tensor.sum(1).getValues(), [[8], [13]])
+
+    let tensor2 = lt.tensor([[1, 2], [3, 4], [5, 6]])
+    assert.equal(tensor2.sum().getValues(), 21)
+    assert.equal(tensor2.sum(0).getValues(), [9, 12])
+    assert.equal(tensor2.sum(1).getValues(), [[3], [7], [11]])
 })
 
+test('applyMax', () => {
+    let tensor = lt.tensor([[-12, -92], [1234, -123]])
+    assert.equal(tensor.applyMax(0).getFlatValues(), [0, 0, 1234, 0])
+})
 
+test('applyMin', () => {
+    let tensor = lt.tensor([[12, 92], [-1234, 123]])
+    assert.equal(tensor.applyMin(0).getFlatValues(), [0, 0, -1234, 0])
+})
+
+test('getMax', () => {
+    let tensor = lt.tensor([[-12, 92, 12], [1234, -123, 3]])
+    assert.equal(tensor.getMax(), 1234)
+    assert.equal((tensor.getMax(0) as lt.Tensor).getValues(), [1234, 92, 12])
+    assert.equal((tensor.getMax(1) as lt.Tensor).getValues(), [[92], [1234]])
+
+    let tensor2 = lt.tensor([[1, 2], [3, 4], [5, 6]])
+    assert.equal(tensor2.getMax(), 6)
+    assert.equal((tensor2.getMax(0) as lt.Tensor).getValues(), [5, 6])
+    assert.equal((tensor2.getMax(1) as lt.Tensor).getValues(), [[2], [4], [6]])
+})
+
+test('getMin', () => {
+    let tensor = lt.tensor([[-12, 92, 12], [1234, -123, 3]])
+    assert.equal(tensor.getMin(), -123)
+    assert.equal((tensor.getMin(0) as lt.Tensor).getValues(), [-12, -123, 3])
+    assert.equal((tensor.getMin(1) as lt.Tensor).getValues(), [[-12], [-123]])
+
+    let tensor2 = lt.tensor([[1, 2], [3, 4], [5, 6]])
+    assert.equal(tensor2.getMin(), 1)
+    assert.equal((tensor2.getMin(0) as lt.Tensor).getValues(), [1, 2])
+    assert.equal((tensor2.getMin(1) as lt.Tensor).getValues(), [[1], [3], [5]])
+})
 
 test.run()
