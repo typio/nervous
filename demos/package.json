@@ -14,6 +14,7 @@
     "http-server": "^14.1.1"
   },
   "dependencies": {
+    "light": "workspace:*",
     "esbuild": "^0.15.10",
     "p5": "^1.4.2",
     "pako": "^2.0.4"

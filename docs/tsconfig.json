@@ -1,9 +1,9 @@
 {
-	"extends": "tsconfig/astro.json",
 	"include": [
 		"**/*.ts"
 	],
 	"exclude": [
 		"node_modules"
-	]
+	],
+	"skipLibCheck": true
 }

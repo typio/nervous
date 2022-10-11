@@ -14,6 +14,7 @@
       "outputs": []
     },
     "test": {},
+    "bench": {},
     "dev": {
       "cache": false
     }
