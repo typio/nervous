@@ -1,11 +1,6 @@
 ---
-<<<<<<< HEAD
 import "../styles/theme.css";
 import "../styles/index.css";
-=======
-import '../styles/theme.css';
-import '../styles/index.css';
->>>>>>> origin/main
 ---
 
 <!-- Global Metadata -->
@@ -13,11 +8,7 @@ import '../styles/index.css';
 <meta name="viewport" content="width=device-width" />
 <meta name="generator" content={Astro.generator} />
 
-<<<<<<< HEAD
 <link rel="icon" type="image/png" href="/stolen-favicon.png" />
-=======
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
->>>>>>> origin/main
 
 <link rel="sitemap" href="/sitemap.xml" />
 
@@ -30,18 +21,11 @@ import '../styles/index.css';
 />
 
 <!-- Scrollable a11y code helper -->
-<<<<<<< HEAD
 <script src="/make-scrollable-code-focusable.js" is:inline></script>
-=======
-<script src="/make-scrollable-code-focusable.js" is:inline>
-
-</script>
->>>>>>> origin/main
 
 <!-- This is intentionally inlined to avoid FOUC -->
 <script is:inline>
 	const root = document.documentElement;
-<<<<<<< HEAD
 	const theme = localStorage.getItem("theme");
 	if (
 		theme === "dark" ||
@@ -50,13 +34,6 @@ import '../styles/index.css';
 		root.classList.add("theme-dark");
 	} else {
 		root.classList.remove("theme-dark");
-=======
-	const theme = localStorage.getItem('theme');
-	if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-		root.classList.add('theme-dark');
-	} else {
-		root.classList.remove('theme-dark');
->>>>>>> origin/main
 	}
 </script>
 

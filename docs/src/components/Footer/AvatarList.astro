@@ -5,13 +5,8 @@ type Props = {
 };
 const { path } = Astro.props as Props;
 const resolvedPath = `docs/${path}`;
-<<<<<<< HEAD
 const url = `https://api.github.com/repos/typio/nervous/commits?path=${resolvedPath}`;
 const commitsURL = `https://github.com/typio/nervous/commits/main/${resolvedPath}`;
-=======
-const url = `https://api.github.com/repos/typio/light/commits?path=${resolvedPath}`;
-const commitsURL = `https://github.com/typio/light/commits/main/${resolvedPath}`;
->>>>>>> origin/main
 
 type Commit = {
 	author: {

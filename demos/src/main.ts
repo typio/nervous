@@ -1,11 +1,7 @@
 import pako from 'pako'
 import p5 from "p5"
 
-<<<<<<< HEAD
 import * as lt from "nervous"
-=======
-import * as lt from "light"
->>>>>>> origin/main
 
 let trainImagesFilePromise = import('./train-images-idx3-ubyte.gz.data')
 let trainlabelLabelsPromise = import('./train-labels-idx1-ubyte.gz.data')
@@ -111,7 +107,6 @@ const s = (p) => {
         gp.pixelDensity(1)
         p.noLoop()
 
-<<<<<<< HEAD
         let thing = window.document.getElementById('loading_msg')
         if (thing !== null)
             thing.innerHTML = "Loaded."
@@ -131,30 +126,12 @@ const s = (p) => {
 
         console.log(batch_inputs.dot(layer1_weights).add(layer1_biases))
 
-=======
-        window.document.getElementById('loading_msg').innerHTML = "Loaded."
-
-        console.log(trainPixels)
-        console.log(trainLabels)
-
-        let batch = lt.tensor(trainPixels)
-        let labels = lt.tensor(trainLabels)
-
-        batch.print()
-        labels.print()
-
-        // let X = lt.tensor(Object.values(trainPixelValues[0])[0], [1, layer_dims[0]])
->>>>>>> origin/main
         // let firstLayer = new Layer(layer_dims[0], layer_dims[1])
         // let secondLayer = new Layer(layer_dims[1], layer_dims[2])
 
 
         // console.log(
-<<<<<<< HEAD
         //     new Softmax(secondLayer.forward(new ReLU(firstLayer.forward(batch)).forward())).forward()
-=======
-        //     new Softmax(secondLayer.forward(new ReLU(firstLayer.forward(X)).forward())).forward()
->>>>>>> origin/main
         // )
 
 
