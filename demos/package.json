@@ -1,0 +1,22 @@
+{
+  "name": "@nervous/demos",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "nervous demos",
+  "scripts": {
+    "dev": "concurrently \"esbuild src/main.ts --bundle --sourcemap --loader:.data=binary --outdir=src/build/ --watch\" \"http-server src/ -s -p 3333\"",
+    "build": "esbuild src/main.ts --bundle --minify --sourcemap --loader:.data=binary --outdir=src/build/"
+  },
+  "keywords": [],
+  "author": "",
+  "devDependencies": {
+    "concurrently": "^7.4.0",
+    "http-server": "^14.1.1"
+  },
+  "dependencies": {
+    "nervous": "workspace:*",
+    "esbuild": "^0.15.10",
+    "p5": "^1.4.2",
+    "pako": "^2.0.4"
+  }
+}

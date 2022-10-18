@@ -1,0 +1,24 @@
+{
+  "name": "nervous",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "demos/*",
+    "docs/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "test": "turbo run test --filter=./packages/*",
+    "bench": "turbo run bench --filter=./packages/*",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+  },
+  "devDependencies": {
+    "prettier": "latest",
+    "turbo": "latest"
+  },
+  "dependencies": {},
+  "packageManager": "pnpm@7.1.7"
+}
