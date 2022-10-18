@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "name": "@nervous/docs",
+=======
+  "name": "@light/docs",
+>>>>>>> origin/main
   "type": "module",
   "version": "0.0.1",
   "private": true,
@@ -11,7 +15,12 @@
     "preview": "astro preview",
     "astro": "astro"
   },
+<<<<<<< HEAD
   "devDependencies": {},
+=======
+  "devDependencies": {
+  },
+>>>>>>> origin/main
   "dependencies": {
     "astro": "^1.2.8",
     "preact": "^10.7.3",
@@ -26,4 +35,8 @@
     "@types/node": "^18.0.0",
     "@types/react-dom": "^18.0.0"
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main
