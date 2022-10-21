@@ -108,7 +108,7 @@ const toNested = (values: number[], shape: number[]) => {
 }
 
 export class Tensor {
-    readonly values: Float32Array = new Float32Array()
+    readonly values: Float32Array = new Float32Array(0)
     readonly rank: 0 | 1 | 2 | 3 | 4 | 5 | 6 = 0
     readonly shape: number[] = [0]
 
@@ -236,7 +236,11 @@ export class Tensor {
             return new Tensor(newV)
         }
 
-        throw new Error("Tensor multiplication on rank > 2 tensors not yet supported.")
+        throw new Error("Tensor dot on rank > 2 tensors not yet supported.")
+    }
+
+    inverse() {
+        throw new Error("Not impl., maybe ever")
     }
 
     /** create tensor of elementwise matrix multiplication, if using a "scalar" tensor put scalar in mul argument */
@@ -264,8 +268,37 @@ export class Tensor {
         return elementwise_op(this, m, 'mod')
     }
 
+    /** create tensor with sigmoid done to all values  */
+    sigmoid() {
+        let newV = []
+        for (let i = 0; i < this.values.length; i++) {
+            newV[i] = 1 / (1 + Math.E ** -this.values[i])
+        }
+        return new Tensor(newV, this.shape)
+    }
+
+    /** create tensor with softplus done to all values  */
+    softplus() {
+        let newV = []
+        for (let i = 0; i < this.values.length; i++) {
+            newV[i] = Math.log(1 + Math.E ** this.values[i])
+        }
+        return new Tensor(newV, this.shape)
+    }
+
+    /** create tensor with relu done to all values  */
+    relu() {
+        let newV = []
+        for (let i = 0; i < this.values.length; i++) {
+            let v = this.values[i]
+            newV[i] = v > 0 ? v : 0
+        }
+        return new Tensor(newV, this.shape)
+    }
+
     /** create tensor of exponentials of all values on e, or given base  */
     exp(base?: number) {
+
         let newV = []
         if (base !== undefined)
             for (let i = 0; i < this.values.length; i++)
@@ -276,7 +309,32 @@ export class Tensor {
         return new Tensor(newV, this.shape)
     }
 
-    /** returns sum of all tensor values, if 2d matrix axis can be specified: 0 for columns 1 for rows*/
+    /** return the lp norm, default p is 2  */
+    lpnorm(p?: number) {
+        if (p !== undefined) {
+            let vals = this.values
+            for (let i = 0; i < vals.length; i++) {
+                vals[i] = vals[i] ** p
+            }
+            let sum = 0
+            for (let i = 0; i < vals.length; i++) {
+                sum += vals[i]
+            }
+            return sum ** (1 / p)
+        } else {
+            let vals = this.values
+            for (let i = 0; i < vals.length; i++) {
+                vals[i] = vals[i] ** 2
+            }
+            let sum = 0
+            for (let i = 0; i < vals.length; i++) {
+                sum += vals[i]
+            }
+            return sum ** (1 / 2)
+        }
+    }
+
+    /** returns sum in Tensor of all tensor values, if 2d matrix axis can be specified: 0 for columns 1 for rows*/
     sum(axis?: 0 | 1): Tensor {
         if (this.rank === 0) return this
         if (axis === 0) {

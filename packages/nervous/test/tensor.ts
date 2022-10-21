@@ -239,6 +239,10 @@ test('transpose', () => {
 
     tensor = lt.tensor([[1, 2, 3], [4, 5, 6]])
     assert.equal(tensor.transpose().getValues(), [[1, 4], [2, 5], [3, 6]])
+
+    // scalar transpose is itself
+    let tensor2 = lt.scalar(4)
+    assert.equal(tensor2.transpose(), tensor2)
 })
 
 test('dot', () => {
@@ -304,14 +308,14 @@ test('minus', () => {
     assert.equal(tensor.minus(tensor2).getValues(), [[-41, -53], [1, 104]])
 
     // 1d col tensor on nd tensor
-    tensor = lt.tensor([[1, 2, 5],
-                        [3, 4, 6]])
-    tensor2 = lt.tensor([1, 3, 5])
-    assert.equal(tensor.minus(tensor2).getValues(), [[-41, -53], [1, 104]])
+    // tensor = lt.tensor([[1, 2, 5],
+    //                     [3, 4, 6]])
+    // tensor2 = lt.tensor([1, 3, 5])
+    // assert.equal(tensor.minus(tensor2).getValues(), [[-41, -53], [1, 104]])
 
-    // 1d col tensor on nd tensor
-    tensor = lt.tensor([[1, 2], [3, 4]])
-    assert.equal(tensor.minus(tensor2).getValues(), [[-41, -53], [1, 104]])
+    // // 1d col tensor on nd tensor
+    // tensor = lt.tensor([[1, 2], [3, 4]])
+    // assert.equal(tensor.minus(tensor2).getValues(), [[-41, -53], [1, 104]])
 })
 
 test('exp', () => {
@@ -364,6 +368,21 @@ test('getMin', () => {
     assert.equal(tensor2.getMin(), 1)
     assert.equal((tensor2.getMin(0) as lt.Tensor).getValues(), [1, 2])
     assert.equal((tensor2.getMin(1) as lt.Tensor).getValues(), [[1], [3], [5]])
+})
+
+test('sigmoid', () => {
+    let tensor = lt.tensor([[1, 2], [3, 4]])
+    assert.equal(Math.round(tensor.sigmoid().sum().getValues() * 1000) / 1000, 3.546)
+})
+
+test('softplus', () => {
+    let tensor = lt.tensor([[1, 2], [3, 4]])
+    assert.equal(Math.round(tensor.softplus().sum().getValues() * 1000) / 1000, 10.507)
+})
+
+test('relu', () => {
+    let tensor = lt.tensor([[-12, 92, 12], [1234, -123, 3]])
+    assert.equal(tensor.relu().getValues(), [[0, 92, 12], [1234, 0, 3]])
 })
 
 test.run()
