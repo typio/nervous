@@ -219,6 +219,11 @@ test('random', () => {
     assert.not.equal(tensor.values[0] % 1, 0)
 })
 
+test('diag', () => {
+    let tensor = lt.diag([4, 3, 2, 5])
+    assert.equal(tensor.getValues(), [[4, 0, 0, 0], [0, 3, 0, 0], [0, 0, 2, 0], [0, 0, 0, 5]])
+})
+
 
 test('reshape', () => {
     let tensor = lt.tensor([1, 2, 3, 4, 5, 6], [3, 2])

@@ -26,7 +26,7 @@ export const flatLengthFromShape = (shape: number[]) => {
     return shape.reduce((previousValue, currentValue) => previousValue * currentValue, 1)
 }
 
-const do_op = (first: number, second: number, op: string) => {
+const doOp = (first: number, second: number, op: string) => {
     if (op === 'add')
         return first + second
     else if (op === 'sub')
@@ -41,31 +41,31 @@ const do_op = (first: number, second: number, op: string) => {
         throw new Error("Invalid operation code passed")
 }
 
-const elementwise_op = (m: Tensor, n: number | Tensor, op: string, axis?) => {
+const elementwiseOp = (m: Tensor, n: number | Tensor, op: string, axis?) => {
     let newV = toArr(m.values)
     if (typeof n === 'number') {
         for (let i = 0; i < newV.length; i++) {
-            newV[i] = do_op(newV[i], n, op)
+            newV[i] = doOp(newV[i], n, op)
         }
     } else if (n.rank === 0) {
         for (let i = 0; i < newV.length; i++) {
-            newV[i] = do_op(newV[i], n.values[0], op)
+            newV[i] = doOp(newV[i], n.values[0], op)
         }
         // if input is row, op v[i] to each v[i][j]
     } else if (axis === 1 || (axis === undefined && n.shape[0] === 1 && n.shape[1] === m.shape[1])) {
         for (let i = 0; i < newV.length; i++) {
-            newV[i] = do_op(newV[i], n.values[i], op)
+            newV[i] = doOp(newV[i], n.values[i], op)
         }
         // if input is col, op v[i] to each v[i][j]
     } else if (axis === 1 || n.shape[1] === 1) {
         for (let i = 0; i < newV.length; i++) {
-            newV[i] = do_op(newV[i], n.values[i], op)
+            newV[i] = doOp(newV[i], n.values[i], op)
         }
     } else {
         if (m.values.length !== n.values.length)
             throw new Error("Tensors can't be of different sizes for elementwise operation")
         for (let i = 0; i < newV.length; i++) {
-            newV[i] = do_op(newV[i], n.values[i], op)
+            newV[i] = doOp(newV[i], n.values[i], op)
         }
     }
     return tensor(newV, m.shape)
@@ -245,27 +245,27 @@ export class Tensor {
 
     /** create tensor of elementwise matrix multiplication, if using a "scalar" tensor put scalar in mul argument */
     mul(m: Tensor | number) {
-        return elementwise_op(this, m, 'mul')
+        return elementwiseOp(this, m, 'mul')
     }
 
     /** create tensor of elementwise matrix division, if using a "scalar" tensor put scalar in div argument */
     div(d: Tensor | number) {
-        return elementwise_op(this, d, 'div')
+        return elementwiseOp(this, d, 'div')
     }
 
     /** create tensor with number a OR each value of a tensor a added to each value of input tensor  */
     add(a: number | Tensor) {
-        return elementwise_op(this, a, 'add')
+        return elementwiseOp(this, a, 'add')
     }
 
     /** create tensor with number m OR each value of a tensor m subtracted from each value of input tensor  */
     minus(s: number | Tensor) {
-        return elementwise_op(this, s, 'sub')
+        return elementwiseOp(this, s, 'sub')
     }
 
     /** create tensor with number m OR each value of a tensor m mod with each value of input tensor  */
     mod(m: number | Tensor) {
-        return elementwise_op(this, m, 'mod')
+        return elementwiseOp(this, m, 'mod')
     }
 
     /** create tensor with sigmoid done to all values  */
@@ -309,8 +309,8 @@ export class Tensor {
         return new Tensor(newV, this.shape)
     }
 
-    /** return the lp norm, default p is 2  */
-    lpnorm(p?: number) {
+    /** return the lp norm as number, default p is 2  */
+    lpNorm(p?: number): number {
         if (p !== undefined) {
             let vals = this.values
             for (let i = 0; i < vals.length; i++) {
@@ -321,6 +321,11 @@ export class Tensor {
                 sum += vals[i]
             }
             return sum ** (1 / p)
+        } else if (p === Infinity) { // lp norm where p === Inf simplifies to value of largest magnitude el
+            let max = -Infinity
+            for (let i = 0; i < this.values.length; i++)
+                max = this.values[i] > max ? this.values[i] : max
+            return max
         } else {
             let vals = this.values
             for (let i = 0; i < vals.length; i++) {
@@ -332,6 +337,14 @@ export class Tensor {
             }
             return sum ** (1 / 2)
         }
+    }
+
+    /** return Frobenius Norm as number, represents the size of a matrix */
+    fNorm() {
+        let fNorm = 0
+        for (let i = 0; i < this.values.length; i++)
+            fNorm += this.values[i] ** 2
+        return Math.sqrt(fNorm)
     }
 
     /** returns sum in Tensor of all tensor values, if 2d matrix axis can be specified: 0 for columns 1 for rows*/
@@ -459,6 +472,10 @@ export class Tensor {
     }
 }
 
+//
+//  TENSOR CREATORS
+//
+
 /**
  * Pass a value
  * ```ts
@@ -496,6 +513,23 @@ export const tensor = (values: number | Rank1To6Array, shape?: number[]) => {
  */
 export const oneHot = (dim: number[] | number, index: number | number[]) => {
     throw new Error('Not implemented.')
+}
+
+/**
+ * Pass array of values to create 2d diagonal matrix
+ */
+export const diag = (values: number[]) => {
+    // TODO: think about adding custom dimensions
+    let vLen = values.length
+    let m = new Array(vLen * vLen).fill(0)
+    let mI = 0
+    let vI = 0
+    while (vI < vLen) {
+        m[mI] = values[vI]
+        mI += vLen + 1
+        vI++
+    }
+    return new Tensor(m, [vLen, vLen])
 }
 
 /**
