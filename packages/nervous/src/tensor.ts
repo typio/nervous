@@ -347,6 +347,11 @@ export class Tensor {
         return Math.sqrt(fNorm)
     }
 
+    /** returns sum of diagonal elements as number */
+    trace() {
+
+    }
+
     /** returns sum in Tensor of all tensor values, if 2d matrix axis can be specified: 0 for columns 1 for rows*/
     sum(axis?: 0 | 1): Tensor {
         if (this.rank === 0) return this
@@ -519,7 +524,7 @@ export const oneHot = (dim: number[] | number, index: number | number[]) => {
  * Pass array of values to create 2d diagonal matrix
  */
 export const diag = (values: number[]) => {
-    // TODO: think about adding custom dimensions
+    // TODO: think about adding custom dimensions or single number values input
     let vLen = values.length
     let m = new Array(vLen * vLen).fill(0)
     let mI = 0
