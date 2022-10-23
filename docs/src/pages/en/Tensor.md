@@ -20,16 +20,16 @@ Tensors are created with the funtion `tensor()`
 
 ```ts
 // Pass a nested array
-lt.tensor([[1, 2], [3, 4]])
+nv.tensor([[1, 2], [3, 4]])
 // Or pass a flat array and a shape
-lt.tensor([1, 2, 3, 4], [2, 2])
+nv.tensor([1, 2, 3, 4], [2, 2])
 ```
 
 Scalars are represented as `rank = 0` tensors and can be created with
 ```ts
-lt.tensor(3.14)
+nv.tensor(3.14)
 // or
-lt.scalar(3.14)
+nv.scalar(3.14)
 ```
 
 ## Fun Facts
@@ -37,7 +37,7 @@ lt.scalar(3.14)
 Our Tensor class is unusual in that all operations return a new Tensor object 
 instead of mutating the original e.g.
 ```ts
-let tensor = lt.tensor([[1, 2], [3, 4]])
+let tensor = nv.tensor([[1, 2], [3, 4]])
 
 tensor.mul(2).print()
 /* console.log

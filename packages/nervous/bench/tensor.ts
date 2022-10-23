@@ -1,6 +1,6 @@
 import Benchmark from 'benchmark'
 
-import * as lt from '../src/index'
+import * as nv from '../src/index'
 
 let suite = new Benchmark.Suite
 
