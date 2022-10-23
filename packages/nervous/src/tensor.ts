@@ -143,7 +143,7 @@ export class Tensor {
         }
     }
 
-    /** return nested tensor values */
+    /** return nested number array of tensor values, returns type number if scalar */
     getValues() {
         if (this.rank === 0) return this.values[0]
         return toNested(toArr(this.values), this.shape)
@@ -349,7 +349,17 @@ export class Tensor {
 
     /** returns sum of diagonal elements as number */
     trace() {
-
+        let shape0 = this.shape[0]
+        if (this.rank === 2 && shape0 === this.shape[1]) {
+            let sum = 0
+            for (let i = 0; i < shape0; i++) {
+                sum += this.values[i * shape0 + i]
+            }
+            return sum
+        } else if (this.rank === 0) {
+            return this.values[0]
+        }
+        throw new Error("Must be square 2d matrix")
     }
 
     /** returns sum in Tensor of all tensor values, if 2d matrix axis can be specified: 0 for columns 1 for rows*/

@@ -341,6 +341,32 @@ test('sum', () => {
     assert.equal(tensor2.sum(1).getValues(), [[3], [7], [11]])
 })
 
+test('trace', () => {
+    let tensor = lt.tensor([[1, 2, 5], [3, 4, 6], [2, 5, 23]])
+    assert.equal(tensor.trace(), 28)
+
+    let scalar = lt.scalar(2)
+    assert.equal(scalar.getValues(), scalar.trace())
+})
+
+test('fnorm_from_trace', () => {
+    let tensor = lt.tensor([[1, 2, 5, 5123], [3, 4, 6, 2145], [2, 5, 23, 6661], [4555, 123.23, 12312, 12345]])
+    assert.equal(Math.round(tensor.fNorm()), Math.round(Math.sqrt(tensor.dot(tensor.transpose()).trace())))
+})
+
+test('trace_invariant_to_transpose', () => {
+    let tensor = lt.tensor([[1, 2, 5, 5123], [3, 4, 6, 2145], [2, 5, 23, 6661], [4555, 123.23, 12312, 12345]])
+    assert.equal(Math.round(tensor.trace()), Math.round(tensor.transpose().trace()))
+})
+
+test('trace_and_product_invarience', () => {
+    let tensor1 = lt.tensor([[65, 76, 14], [6, 98, 69], [44, 22, 56]])
+    let tensor2 = lt.tensor([[79, 22, 93], [29, 57, 60], [63, 23, 27]])
+    let tensor3 = lt.tensor([[20, 96, 22], [95, 26, 3], [4, 49, 32]])
+    assert.equal(tensor1.dot(tensor2).dot(tensor3).trace(), tensor3.dot(tensor1).dot(tensor2).trace())
+    assert.equal(tensor1.dot(tensor2).dot(tensor3).trace(), tensor2.dot(tensor3).dot(tensor1).trace())
+})
+
 test('applyMax', () => {
     let tensor = lt.tensor([[-12, -92], [1234, -123]])
     assert.equal(tensor.applyMax(0).getFlatValues(), [0, 0, 1234, 0])
