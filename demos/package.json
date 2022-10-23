@@ -4,8 +4,9 @@
   "version": "0.0.1",
   "description": "nervous demos",
   "scripts": {
-    "dev": "concurrently \"pnpm run build --watch\" \"npx tailwindcss -o src/dist/output.css --watch\" \"live-server src/ --port=3333 --no-browser\"",
-    "build": "node esbuild.cjs"
+    "dev": "concurrently \"pnpm run esbuild-watch\" \"npx tailwindcss -o src/dist/output.css --watch\" \"live-server src/ --port=3333 --no-browser\"",
+    "esbuild-watch": "node esbuild.cjs watch",
+    "build": "node esbuild.cjs && npx tailwindcss -o src/dist/output.css"
   },
   "keywords": [],
   "author": "",

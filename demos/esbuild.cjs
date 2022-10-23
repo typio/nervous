@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 const fs = require('fs')
+
+const args = process.argv.slice(2)
+
 let files = []
 
 const getFiles = (path) => {
@@ -22,6 +25,6 @@ require("esbuild")
     // minify: true,
     loader: { ".data": "binary" },
     outdir: "src/dist/",
-    watch: true,
+    watch: (args.findIndex(e => e === 'watch') !== -1)
   })
   .catch(() => process.exit(1))

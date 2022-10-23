@@ -1,7 +1,7 @@
 import pako from 'pako'
 import p5 from "p5"
 
-import * as lt from "nervous"
+import * as nv from "nervous"
 
 let trainImagesFilePromise = import('./train-images-idx3-ubyte.gz.data')
 let trainlabelLabelsPromise = import('./train-labels-idx1-ubyte.gz.data')
@@ -50,26 +50,26 @@ testImagesFilePromise.then((data) => {
 
 let layer_dims = [784, 16, 10]
 class Layer {
-    weights: lt.Tensor
-    biases: lt.Tensor
-    output: lt.Tensor
+    weights: nv.Tensor
+    biases: nv.Tensor
+    output: nv.Tensor
 
     constructor(inputsLength, neuronsLength) {
-        this.weights = lt.random([inputsLength, neuronsLength])
+        this.weights = nv.random([inputsLength, neuronsLength])
         console.log('weights', this.weights)
 
-        this.biases = lt.zeroes([1, neuronsLength])
+        this.biases = nv.zeroes([1, neuronsLength])
     }
 
-    forward(inputs: lt.Tensor): lt.Tensor {
+    forward(inputs: nv.Tensor): nv.Tensor {
         return (inputs.dot(this.weights)).add(this.biases)
     }
 }
 
 class ReLU {
-    inputs: lt.Tensor
+    inputs: nv.Tensor
 
-    constructor(inputs: lt.Tensor) {
+    constructor(inputs: nv.Tensor) {
         this.inputs = inputs
     }
 
@@ -79,9 +79,9 @@ class ReLU {
 }
 
 class Softmax {
-    inputs: lt.Tensor
+    inputs: nv.Tensor
 
-    constructor(inputs: lt.Tensor) {
+    constructor(inputs: nv.Tensor) {
         this.inputs = inputs
     }
 
@@ -111,16 +111,16 @@ const s = (p) => {
         if (thing !== null)
             thing.innerHTML = "Loaded."
 
-        let batch_inputs = lt.tensor(trainPixels.slice(0, 64))
-        let batch_labels = lt.tensor(trainLabels.slice(0, 64))
+        let batch_inputs = nv.tensor(trainPixels.slice(0, 64))
+        let batch_labels = nv.tensor(trainLabels.slice(0, 64))
 
-        let layer1_weights = lt.random([784, 16])
-        let layer1_biases = lt.random([16, 1])
+        let layer1_weights = nv.random([784, 16])
+        let layer1_biases = nv.random([16, 1])
         console.log(layer1_biases)
 
 
-        let layer2_weights = lt.random([16, 10])
-        let layer2_biases = lt.random([1, 10])
+        let layer2_weights = nv.random([16, 10])
+        let layer2_biases = nv.random([1, 10])
 
 
 
