@@ -12,6 +12,7 @@ importers:
 
   demos:
     specifiers:
+      '@types/p5': ^1.4.3
       concurrently: ^7.4.0
       esbuild: ^0.15.10
       live-server: ^1.2.2
@@ -25,6 +26,7 @@ importers:
       p5: 1.4.2
       pako: 2.0.4
     devDependencies:
+      '@types/p5': 1.4.3
       concurrently: 7.4.0
       live-server: 1.2.2
       tailwindcss: 3.2.1
@@ -841,6 +843,10 @@ packages:
   /@types/node/18.8.4:
     resolution: {integrity: sha512-WdlVphvfR/GJCLEMbNA8lJ0lhFNBj4SW3O+O5/cEGw9oYrv0al9zTwuQsq+myDUXgNx2jgBynoVgZ2MMJ6pbow==}
     dev: false
+
+  /@types/p5/1.4.3:
+    resolution: {integrity: sha512-UjgBi1/VU0Dz1/JxzRZrDKlC54rMELWW+6oHx1pRKzKkVgwzvP+dEjZ1JbeMjK12VJMUjDx4lhGUmnUL2jBASQ==}
+    dev: true
 
   /@types/parse5/6.0.3:
     resolution: {integrity: sha512-SuT16Q1K51EAVPz1K29DJ/sXjhSQ0zjvsypYJ6tlwVsRV9jwW5Adq2ch8Dq8kDBCkYnELS7N7VNCSB5nC56t/g==}

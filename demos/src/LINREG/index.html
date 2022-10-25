@@ -8,15 +8,24 @@
     <title>Linear Regression</title>
 </head>
 
-<body>
-    <h1 class="text-3xl text-red-300">Demos</h1>
-    <nav>
-        <a href="/XOR">XOR</a>
-        <a href="/LINREG">Linear Regression</a>
-        <a href="/MNIST">MNIST digit recognition</a>
+<body class="">
+    <nav class='mt-6 ml-6 mb-6'>
+        <a class="text-3xl text-red-600" href='/'>Demos</a>
     </nav>
+
+    <div class='max-w-xl mx-auto'>
+        <div id='p5CanvasParent' class='w-fit mx-auto overflow-clip rounded-md
+         shadow-md'></div>
+
+        <div id='p5UI' class='mt-4 p-3 bg-red-500 rounded shadow text-white font-medium w-fit float-right'></div>
+    </div>
+
+    <!-- <button>Clear Points</button> -->
 
     <script src="../dist/LINREG/main.js"></script>
 </body>
 
 </html>
+
+<style>
+</style>

@@ -9,13 +9,27 @@
 </head>
 
 <body>
-    <h1 class="text-3xl text-red-300">Demos</h1>
-    <nav>
-        <a href="/XOR">XOR</a>
-        <a href="/LINREG">Linear Regression</a>
-        <a href="/MNIST">MNIST digit recognition</a>
+    <nav class='mt-6 ml-6'>
+        <a class="text-3xl text-red-600" href='/'>Demos</a>
     </nav>
-    <p>A webpage containing demonstrations of the <a href="https://github.com/typio/nervous">nervous</a> machine learning framework.</p>
+    <div class="max-w-5xl mx-auto">
+
+        <p class="px-4 pt-4 text-red-900">A webpage containing demonstrations of the <a href="https://github.com/typio/nervous">nervous</a> machine learning framework.</p>
+        <div class="flex flex-wrap">
+            <div class="rounded shadow  p-6 mt-4 mx-4 w-screen sm:w-auto">
+                <a href="/LINREG" class="font-medium text-red-500 hover:border-b-4 border-red-500">Linear Regression</a>
+                <p class="text-red-900 text-sm">Not done...</p>
+            </div>
+            <div class=" rounded shadow  p-6 mt-4 mx-4 w-screen sm:w-auto">
+                <a href="/XOR" class=" font-medium text-red-500 hover:border-b-4 border-red-500">XOR</a>
+                <p class="text-red-900 text-sm">Not started...</p>
+            </div>
+            <div class="rounded shadow  p-6 mt-4 mx-4 w-screen sm:w-auto">
+                <a href="/MNIST" class="font-medium text-red-500 hover:border-b-4 border-red-500">MNIST digit recognition</a>
+                <p class="text-red-900 text-sm">Not done...</p>
+            </div>
+        </div>
+    </div>
 
     <script src="dist/main.js"></script>
 </body>
