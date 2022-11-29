@@ -14,16 +14,38 @@
     </nav>
 
     <div class='max-w-xl mx-auto'>
+        <h1>Click to add points</h1>
         <div id='p5CanvasParent' class='w-fit mx-auto overflow-clip rounded-md
          shadow-md'></div>
 
-        <button id='clear-points-btn' class='mt-4 p-3 bg-red-500 rounded shadow text-white font-medium w-fit float-right'>Clear
-            Points</button>
+        <button id='clear-points-btn'
+            class='mt-4 p-3 bg-red-500 rounded shadow text-white font-medium w-fit float-right'>
+            Clear Points
+        </button>
+
+        <p id="webgl_vendor"></p>
+        <p id="webgl_renderer"></p>
     </div>
 
     <!-- <button>Clear Points</button> -->
 
     <script src="../dist/LINREG/main.js"></script>
+
+    <script>
+        let canvas = document.createElement('canvas',{})
+
+        var gl = canvas.getContext("webgl"); // or webgl
+        console.log(gl.getParameter(gl.RENDERER));
+        console.log(gl.getParameter(gl.VENDOR));
+
+        let debug = gl.getExtension('WEBGL_debug_renderer_info');
+        webgl_vendor = document.getElementById('webgl_vendor')
+        webgl_renderer = document.getElementById('webgl_renderer')
+        webgl_vendor.innerHTML = 'WebGL Vendor: ' + gl.getParameter(debug.UNMASKED_VENDOR_WEBGL)
+        webgl_renderer.innerHTML = 'WebGL Renderer: ' + gl.getParameter(debug.UNMASKED_RENDERER_WEBGL)
+
+        console.log(gl.getParameter(debug.UNMASKED_VENDOR_WEBGL)); // drivers
+        console.log(gl.getParameter(debug.UNMASKED_RENDERER_WEBGL))</script>
 </body>
 
 </html>
