@@ -2,9 +2,19 @@ import p5 from "p5"
 
 import * as nv from "nervous"
 
-import fish from './fish.json'
+import fishes from './fish.json'
 
 const s = (p) => {
+    const fishColors = new Map([
+        ['Bream', 'dodgerblue'],
+        ['Pike', 'magenta'],
+        ['Whitefish', 'peru'],
+        ['Parkki', 'darkgray'],
+        ['Perch', 'limegreen'],
+        ['Smelt', 'powderblue'],
+        ['Roach', 'crimson']
+    ]);
+
     let x_range = [-150, 1800]
     let y_range = [-10, 70]
 
@@ -69,24 +79,14 @@ const s = (p) => {
             p.circle(points[i].x, points[i].y, 5)
         }
 
-        for (let i = 0; i < fish.length; i++) {
+
+
+        for (let i = 0; i < fishes.length; i++) {
             p.stroke(0, 0, 0, 0)
-            if (fish[i].Species === 'Bream') {
-                p.fill(p.color('dodgerblue'))
-            } else if (fish[i].Species === 'Pike') {
-                p.fill(p.color('magenta'))
-            } else if (fish[i].Species === 'Whitefish') {
-                p.fill(p.color('sandybrown'))
-            } else if (fish[i].Species === 'Parkki') {
-                p.fill(p.color('darkgray'))
-            } else if (fish[i].Species === 'Perch') {
-                p.fill(p.color('limegreen'))
-            } else if (fish[i].Species === 'Smelt') {
-                p.fill(p.color('powderblue'))
-            }
+            p.fill(p.color(fishColors.get(fishes[i].Species)))
             p.circle(
-                p.map(fish[i].Weight, x_range[0], x_range[1], 0, p.width),
-                p.map(fish[i].Length1, y_range[0], y_range[1], p.height, 0), 6)
+                p.map(fishes[i].Weight, x_range[0], x_range[1], 0, p.width),
+                p.map(fishes[i].Length1, y_range[0], y_range[1], p.height, 0), 6)
         }
 
         // draw line
@@ -96,6 +96,20 @@ const s = (p) => {
             p.map(y_range[0] * m, y_range[0], y_range[1], p.height, 0),
             p.map(x_range[1], x_range[0], x_range[1], 0, p.width),
             p.map(y_range[1] * m, y_range[0], y_range[1], p.height, 0))
+
+        // draw legend
+        p.stroke(0, 0, 0, 0)
+        p.fill(p.color('white'))
+        p.rect(p.width - 100, 10, 90, 150)
+
+        let i = 0
+        fishColors.forEach((color, fish) => {
+            p.fill(p.color(color))
+            p.rect(p.width - 90, 20 + i * 20, 10, 10)
+            p.textAlign(p.LEFT, p.CENTER)
+            p.text(fish, p.width - 70, 25 + i * 20)
+            i++
+        });
     }
 
     p.mouseClicked = () => {
