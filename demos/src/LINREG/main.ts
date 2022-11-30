@@ -7,22 +7,23 @@ import fishes from './fish.json'
 const s = (p) => {
     const fishColors = new Map([
         ['Bream', 'dodgerblue'],
-        ['Pike', 'magenta'],
-        ['Whitefish', 'peru'],
-        ['Parkki', 'darkgray'],
-        ['Perch', 'limegreen'],
-        ['Smelt', 'powderblue'],
-        ['Roach', 'crimson']
+        ['Pike', 'mediumvioletred'],
+        ['Whitefish', 'gold'],
+        ['Parkki', 'mediumaquamarine'],
+        ['Perch', 'lime'],
+        ['Smelt', 'blue'],
+        ['Roach', 'red']
     ]);
 
-    let x_range = [-150, 1800]
+    let x_range = [-300, 1800]
     let y_range = [-10, 70]
 
     let points: [{ x: number, y: number }] = []
     let m = 1
 
+
     p.setup = () => {
-        p.createCanvas(Math.min(512, p.windowWidth * .8), Math.min(512, p.windowHeight * .7))
+        p.createCanvas(Math.min(400, p.windowWidth * .8), Math.min(400, p.windowHeight * .7))
         p.textAlign(p.CENTER, p.CENTER);
     }
 
@@ -48,38 +49,45 @@ const s = (p) => {
         // draw graph ticks
         p.stroke(0, 0, 0, 50)
         p.fill(0, 0, 0, 150)
-        for (let i = x_range[0]; i <= x_range[1]; i += 150) {
+        let xnum_yPos = p.map(0, y_range[0], y_range[1], p.height,0)+10
+        for (let i = x_range[0]; i <= x_range[1]; i += 150) { 
             p.line(
                 p.map(i, x_range[0], x_range[1], 0, p.width),
                 p.height,
                 p.map(i, x_range[0], x_range[1], 0, p.width),
                 0
             )
+            p.textAlign(p.CENTER, p.TOP)
             p.text(i,
                 p.map(i, x_range[0], x_range[1], 0, p.width),
-                p.height - 25)
+                xnum_yPos)
         }
+        p.text('Weight (g)', p.width/2, p.height - 20)
 
-        for (let i = y_range[0]; i <= y_range[1]; i += 10) {
+        let ynum_xPos = p.map(0, x_range[0], x_range[1],0,p.width)-10
+        for (let i = y_range[0]; i <= y_range[1]; i += 10) { 
             p.line(
                 0,
                 p.map(i, y_range[0], y_range[1], p.height, 0),
                 p.width,
                 p.map(i, y_range[0], y_range[1], p.height, 0)
             )
+            p.textAlign(p.RIGHT, p.CENTER)
             p.text(i,
-                25,
+                ynum_xPos,
                 p.map(i, y_range[0], y_range[1], p.height, 0)
             )
-
         }
+        let textGraphics = p.createGraphics(100,100)
+        textGraphics.rotate(Math.PI/2)
+        let t = textGraphics.text('Length (cm)',0,0)
+        p.image(textGraphics,10,p.height/2-t.width/2,100,100)
 
         // draw points
         for (let i = 0; i < points.length; i++) {
+            p.fill(p.color('black'))
             p.circle(points[i].x, points[i].y, 5)
         }
-
-
 
         for (let i = 0; i < fishes.length; i++) {
             p.stroke(0, 0, 0, 0)
@@ -100,10 +108,10 @@ const s = (p) => {
         // draw legend
         p.stroke(0, 0, 0, 0)
         p.fill(p.color('white'))
-        p.rect(p.width - 100, 10, 90, 150)
+        p.rect(p.width - 100, 10, 90, 170)
 
         let i = 0
-        fishColors.forEach((color, fish) => {
+        fishColors.set('Custom','black').forEach((color, fish) => {
             p.fill(p.color(color))
             p.rect(p.width - 90, 20 + i * 20, 10, 10)
             p.textAlign(p.LEFT, p.CENTER)
