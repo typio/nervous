@@ -5,6 +5,7 @@
 
 ## Overview
 
-Attempting to be a mini [tensorflow/tfjs](https://github.com/tensorflow/tfjs) with GPU utilization through a WebGL backend.
+A take what you need ML framework for the browser. Providing [example models](https://nervous-demos.vercel.app) and the components to easily create your own.
 
-Take what you need ML framework for the browser. Providing [example models](https://nervous-demos.vercel.app) and the components to easily create your own.
+Mini and understandable functional ML library, with GPU acceleration using WebGPU. WebGPU has not yet been released as a standard but experimental implementations can be enabled on the major browsers.
+
