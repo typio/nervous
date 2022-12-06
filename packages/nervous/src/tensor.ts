@@ -21,6 +21,14 @@ const calcShape = (values: Rank1To6Array) => {
     return shape
 }
 
+const randomNormalNumber = (mean, std) => {
+    let u = 0;
+    let v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return mean + std * Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+}
+
 export const flatLengthFromShape = (shape: number[]) => {
     // reduce is fine considering max array length is 6
     return shape.reduce((previousValue, currentValue) => previousValue * currentValue, 1)
@@ -199,7 +207,7 @@ export class Tensor {
     }
 
     /** create tensor of dot product */
-    dot(m: Tensor | number) {
+    matMul(m: Tensor | number) {
         if (typeof m === 'number' || this.rank === 0)
             throw new Error("Please use Tensor.mul() for tensor scalar multiplication.")
 
@@ -236,7 +244,10 @@ export class Tensor {
             return new Tensor(newV)
         }
 
-        throw new Error("Tensor dot on rank > 2 tensors not yet supported.")
+        console.log(this, m);
+
+
+        throw new Error("Tensor matMul on rank > 2 tensors not yet supported.")
     }
 
     inverse() {
@@ -268,22 +279,46 @@ export class Tensor {
         return elementwiseOp(this, m, 'mod')
     }
 
-    /** create tensor with sigmoid done to all values  */
-    sigmoid() {
+    broadcast(func) {
         let newV = []
         for (let i = 0; i < this.values.length; i++) {
-            newV[i] = 1 / (1 + Math.E ** -this.values[i])
+            newV[i] = func(this.values[i])
         }
         return new Tensor(newV, this.shape)
     }
 
+    /** create tensor with sigmoid done to all values  */
+    sigmoid() {
+        return this.broadcast((n: number) => 1 / (1 + Math.E ** -n))
+    }
+
     /** create tensor with softplus done to all values  */
     softplus() {
-        let newV = []
+        return this.broadcast((n: number) => Math.log(1 + Math.E ** n))
+    }
+
+    // round(decimals: number) {
+    //     return this.broadcast((n: number) => Math.floor(n * (10 ** decimals)) / 10 ** decimals)
+    // }
+
+    // return 1d tensor of softmax on flat values of tensor
+    softmax() {
+        const eValues = [];
         for (let i = 0; i < this.values.length; i++) {
-            newV[i] = Math.log(1 + Math.E ** this.values[i])
+            eValues.push(Math.E ** this.values[i]);
         }
-        return new Tensor(newV, this.shape)
+
+        let eValuesSum = 0;
+        for (let i = 0; i < eValues.length; i++) {
+            eValuesSum += eValues[i];
+        }
+
+        const output = [];
+        for (let i = 0; i < eValues.length; i++) {
+            output.push(eValues[i] / eValuesSum);
+        }
+
+        return new Tensor(output, [1, this.values.length]);
     }
 
     /** create tensor with relu done to all values  */
@@ -627,6 +662,25 @@ export const random = (shape: number[], min?: number, max?: number, integer?: bo
         )
 }
 
+export const randomNormal = (shape: number[], mean?: number, std?: number) => {
+    if (mean === undefined)
+        mean = 0
+
+    if (std === undefined)
+        std = 1
+
+    if (shape.constructor === Array)
+        return new Tensor(
+            Array.from({ length: flatLengthFromShape(shape) }, () => randomNormalNumber(mean, std)),
+            shape
+        )
+    else
+        return new Tensor(
+            // @ts-ignore: I checked the type
+            Array.from({ length: shape }, () => randomNormalNumber(mean, std))
+        )
+}
+
 /**
  * Pass shape of matrix
  * ```ts
@@ -640,7 +694,7 @@ export const fill = (shape: number | number[], value: number) => {
         return new Tensor(new Array(shape).fill(value))
 }
 
-export const zeroes = (shape: number | number[]) => {
+export const zeros = (shape: number | number[]) => {
     return fill(shape, 0)
 }
 

@@ -4,6 +4,9 @@ import * as nv from "nervous"
 
 import fishes from './fish.json'
 
+console.log(nv.random([2, 3]).getValues());
+
+
 const s = (p) => {
     const fishColors = new Map([
         ['Bream', 'dodgerblue'],
@@ -49,8 +52,8 @@ const s = (p) => {
         // draw graph ticks
         p.stroke(0, 0, 0, 50)
         p.fill(0, 0, 0, 150)
-        let xnum_yPos = p.map(0, y_range[0], y_range[1], p.height,0)+10
-        for (let i = x_range[0]; i <= x_range[1]; i += 150) { 
+        let xnum_yPos = p.map(0, y_range[0], y_range[1], p.height, 0) + 10
+        for (let i = x_range[0]; i <= x_range[1]; i += 150) {
             p.line(
                 p.map(i, x_range[0], x_range[1], 0, p.width),
                 p.height,
@@ -62,10 +65,10 @@ const s = (p) => {
                 p.map(i, x_range[0], x_range[1], 0, p.width),
                 xnum_yPos)
         }
-        p.text('Weight (g)', p.width/2, p.height - 20)
+        p.text('Weight (g)', p.width / 2, p.height - 20)
 
-        let ynum_xPos = p.map(0, x_range[0], x_range[1],0,p.width)-10
-        for (let i = y_range[0]; i <= y_range[1]; i += 10) { 
+        let ynum_xPos = p.map(0, x_range[0], x_range[1], 0, p.width) - 10
+        for (let i = y_range[0]; i <= y_range[1]; i += 10) {
             p.line(
                 0,
                 p.map(i, y_range[0], y_range[1], p.height, 0),
@@ -78,16 +81,16 @@ const s = (p) => {
                 p.map(i, y_range[0], y_range[1], p.height, 0)
             )
         }
-        let textGraphics = p.createGraphics(100,100)
-        textGraphics.rotate(Math.PI/2)
-        let t = textGraphics.text('Length (cm)',0,0)
-        p.image(textGraphics,10,p.height/2-t.width/2,100,100)
+        let textGraphics = p.createGraphics(100, 100)
+        textGraphics.rotate(Math.PI / 2)
+        let t = textGraphics.text('Length (cm)', 0, 0)
+        p.image(textGraphics, 10, p.height / 2 - t.width / 2, 100, 100)
 
         // draw points
-        for (let i = 0; i < points.length; i++) {
-            p.fill(p.color('black'))
-            p.circle(points[i].x, points[i].y, 5)
-        }
+        // for (let i = 0; i < points.length; i++) {
+        //     p.fill(p.color('black'))
+        //     p.circle(points[i].x, points[i].y, 5)
+        // }
 
         for (let i = 0; i < fishes.length; i++) {
             p.stroke(0, 0, 0, 0)
@@ -111,7 +114,7 @@ const s = (p) => {
         p.rect(p.width - 100, 10, 90, 170)
 
         let i = 0
-        fishColors.set('Custom','black').forEach((color, fish) => {
+        fishColors.set('Custom', 'black').forEach((color, fish) => {
             p.fill(p.color(color))
             p.rect(p.width - 90, 20 + i * 20, 10, 10)
             p.textAlign(p.LEFT, p.CENTER)
@@ -121,11 +124,24 @@ const s = (p) => {
     }
 
     p.mouseClicked = () => {
-        points.push({ x: p.mouseX, y: p.mouseY })
+        fishes.push({
+            Height: 0,
+            Length1: Math.max(0, p.map(p.mouseY, p.height, 0, y_range[0], y_range[1])),
+            Length2: 0,
+            Length3: 0,
+            Species: "Custom",
+            Weight: Math.max(0, p.map(p.mouseX, 0, p.width, x_range[0], x_range[1])),
+            Width: 0
+        })
     }
 
     let clearPoints = () => {
-        points = []
+        for (let i = 0; i < fishes.length; i++) {
+            if (fishes[i].Species === 'Custom') {
+                fishes.splice(i, 1);
+                i--;
+            }
+        }
     }
 
     document.getElementById('clear-points-btn').onclick = clearPoints
