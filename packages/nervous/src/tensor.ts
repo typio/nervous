@@ -3,10 +3,14 @@
 type Rank1To6Array = number[] | number[][] | number[][][] | number[][][][] | number[][][][][] | number[][][][][][]
 
 /** Convert FloatArray to Array (Array.from() is slow...) */
-const toArr = (floatArr: Float32Array | Float64Array) => {
+const toArr = (floatArr: Float32Array | Float64Array, decimals?: number) => {
     let arr = []
-    for (let i = 0; i < floatArr.length; i++)
-        arr[i] = floatArr[i]
+    if (decimals === undefined)
+        for (let i = 0; i < floatArr.length; i++)
+            arr[i] = floatArr[i]
+    else
+        for (let i = 0; i < floatArr.length; i++)
+            arr[i] = Number(floatArr[i].toFixed(decimals))
     return arr
 }
 
@@ -56,19 +60,20 @@ const elementwiseOp = (m: Tensor, n: number | Tensor, op: string, axis?) => {
             newV[i] = doOp(newV[i], n, op)
         }
     } else if (n.rank === 0) {
+        let scalarValue = n.values[0]
         for (let i = 0; i < newV.length; i++) {
-            newV[i] = doOp(newV[i], n.values[0], op)
+            newV[i] = doOp(newV[i], scalarValue, op)
         }
-        // if input is row, op v[i] to each v[i][j]
-    } else if (axis === 1 || (axis === undefined && n.shape[0] === 1 && n.shape[1] === m.shape[1])) {
+    } else if (axis === 1) {
+        if ((n.rank === 1 && n.shape[0] !== m.shape[1]) || (n.shape[0] === 1 && n.shape[1] !== m.shape[1]))
+            throw new Error(`Second tensor of shape ${n.shape} should equal first tensor shape on axis=1 but is ${m.shape[1]}`)
         for (let i = 0; i < newV.length; i++) {
-            newV[i] = doOp(newV[i], n.values[i], op)
+            newV[i] = doOp(newV[i], n.values[i % n.values.length], op)
         }
-        // if input is col, op v[i] to each v[i][j]
-    } else if (axis === 1 || n.shape[1] === 1) {
-        for (let i = 0; i < newV.length; i++) {
-            newV[i] = doOp(newV[i], n.values[i], op)
-        }
+        // } else if (axis === 0) {
+        //     for (let i = 0; i < newV.length; i++) {
+        //         newV[i] = doOp(newV[i], n.values[i], op)
+        //     }
     } else {
         if (m.values.length !== n.values.length)
             throw new Error("Tensors can't be of different sizes for elementwise operation")
@@ -151,15 +156,19 @@ export class Tensor {
         }
     }
 
+    select(dim: number, index: number) {
+
+    }
+
     /** return nested number array of tensor values, returns type number if scalar */
-    getValues() {
+    getValues(decimals?) {
         if (this.rank === 0) return this.values[0]
-        return toNested(toArr(this.values), this.shape)
+        return toNested(toArr(this.values, decimals), this.shape)
     }
 
     /** return flat tensor values */
-    getFlatValues() {
-        return toArr(this.values)
+    getFlatValues(decimals?) {
+        return toArr(this.values, decimals)
     }
 
     /** console.log nested tensor values */
@@ -207,11 +216,14 @@ export class Tensor {
     }
 
     /** create tensor of dot product */
-    matMul(m: Tensor | number) {
-        if (typeof m === 'number' || this.rank === 0)
-            throw new Error("Please use Tensor.mul() for tensor scalar multiplication.")
+    matmul(m: Tensor | number) {
+        if (typeof m === 'number' || this.rank === 0) {
+            console.log(this, m);
 
-        // if 1d * 1d OR 2d (1 row, n cols) * 2d (2 rows, 1 col)
+            throw new Error("Please use Tensor.mul() for tensor scalar multiplication.")
+        }
+
+        // if 1d * 1d 
         if ((this.rank === 1 && m.rank === 1) || (this.rank === 2 && m.rank === 2 && this.shape[0] === 1 && m.shape[1] === 1)) {
             let newV: number = 0
             for (let i = 0; i < this.values.length; i++)
@@ -219,6 +231,23 @@ export class Tensor {
             return new Tensor(newV)
         }
 
+        // 1d * 2d
+        if ((this.rank === 1 && m.rank > 1) || (m.rank === 1 && this.rank > 1)) {
+            if (this.rank === 1) {
+                let newV = (new Array(m.shape[1])).fill(0)
+                for (let i = 0; i < m.shape[1]; i++) {
+                    for (let j = 0; j < this.shape[0]; j++) {
+                        newV[i] += this.values[j] * m.values[j * m.shape[1] + i];
+                    }
+                }
+
+                return new Tensor(newV)
+            } else {
+
+            }
+        }
+
+        // 2d * 2d
         if (this.rank === 2 && m.rank === 2) {
             if (this.shape[1] !== m.shape[0])
                 throw new Error("Tensors not compatible shapes for multiplication.")
@@ -244,10 +273,7 @@ export class Tensor {
             return new Tensor(newV)
         }
 
-        console.log(this, m);
-
-
-        throw new Error("Tensor matMul on rank > 2 tensors not yet supported.")
+        throw new Error("Tensor matmul on rank > 2 tensors not yet supported.")
     }
 
     inverse() {
@@ -255,31 +281,36 @@ export class Tensor {
     }
 
     /** create tensor of elementwise matrix multiplication, if using a "scalar" tensor put scalar in mul argument */
-    mul(m: Tensor | number) {
-        return elementwiseOp(this, m, 'mul')
+    mul(m: Tensor | number, axis?: number) {
+        return elementwiseOp(this, m, 'mul', axis)
     }
 
     /** create tensor of elementwise matrix division, if using a "scalar" tensor put scalar in div argument */
-    div(d: Tensor | number) {
-        return elementwiseOp(this, d, 'div')
+    div(d: Tensor | number, axis?: number) {
+        return elementwiseOp(this, d, 'div', axis)
     }
 
     /** create tensor with number a OR each value of a tensor a added to each value of input tensor  */
-    add(a: number | Tensor) {
-        return elementwiseOp(this, a, 'add')
+    add(a: number | Tensor, axis?: number) {
+        return elementwiseOp(this, a, 'add', axis)
     }
 
     /** create tensor with number m OR each value of a tensor m subtracted from each value of input tensor  */
-    minus(s: number | Tensor) {
-        return elementwiseOp(this, s, 'sub')
+    minus(s: number | Tensor, axis?: number) {
+        return elementwiseOp(this, s, 'sub', axis)
     }
 
     /** create tensor with number m OR each value of a tensor m mod with each value of input tensor  */
-    mod(m: number | Tensor) {
-        return elementwiseOp(this, m, 'mod')
+    mod(m: number | Tensor, axis?: number) {
+        return elementwiseOp(this, m, 'mod', axis)
     }
 
-    broadcast(func) {
+    /** create tensor with relu done to all values  */
+    pow(exp: number) {
+        return this.broadcast((x: number) => x ** exp)
+    }
+
+    broadcast(func: (any)) {
         let newV = []
         for (let i = 0; i < this.values.length; i++) {
             newV[i] = func(this.values[i])
@@ -301,47 +332,69 @@ export class Tensor {
     //     return this.broadcast((n: number) => Math.floor(n * (10 ** decimals)) / 10 ** decimals)
     // }
 
-    // return 1d tensor of softmax on flat values of tensor
+    // return softmax
     softmax() {
-        const eValues = [];
-        for (let i = 0; i < this.values.length; i++) {
-            eValues.push(Math.E ** this.values[i]);
+        let minusMaxTensor: Tensor = this
+        if (this.rank === 0 || this.rank === 1) {
+            minusMaxTensor = tensor(this.minus(this.getmax()).getFlatValues(), [1, this.values.length])
+        } else if (this.rank === 2) {
+            let newV = new Array(this.shape[0])
+            for (let i = 0; i < this.shape[0]; i++) {
+                let row = tensor(this.getValues()[i])
+                newV[i] = row.minus(row.getmax()).getFlatValues()
+            }
+            minusMaxTensor = tensor(newV)
+        } else throw new Error(`Softmax only supports [0-2]d tensors, yours is ${this.rank}d`)
+
+
+        let outputs = (new Array(minusMaxTensor.shape[0] * minusMaxTensor.shape[1]))
+
+        for (let j = 0; j < minusMaxTensor.shape[0]; j++) {
+            let eValues = [];
+            for (let i = 0; i < minusMaxTensor.shape[1]; i++) {
+                eValues.push(Math.E ** minusMaxTensor.values[j * minusMaxTensor.shape[1] + i]);
+            }
+
+            let eValuesSum = 0;
+            for (let i = 0; i < eValues.length; i++) {
+                eValuesSum += eValues[i];
+            }
+
+            for (let i = 0; i < eValues.length; i++) {
+                outputs[j * minusMaxTensor.shape[1] + i] = eValues[i] / eValuesSum
+            }
         }
 
-        let eValuesSum = 0;
-        for (let i = 0; i < eValues.length; i++) {
-            eValuesSum += eValues[i];
-        }
-
-        const output = [];
-        for (let i = 0; i < eValues.length; i++) {
-            output.push(eValues[i] / eValuesSum);
-        }
-
-        return new Tensor(output, [1, this.values.length]);
+        return new Tensor(outputs, minusMaxTensor.shape);
     }
 
     /** create tensor with relu done to all values  */
-    relu() {
-        let newV = []
-        for (let i = 0; i < this.values.length; i++) {
-            let v = this.values[i]
-            newV[i] = v > 0 ? v : 0
-        }
-        return new Tensor(newV, this.shape)
+    reLU() {
+        return this.broadcast((x: number) => x > 0 ? x : 0)
     }
+
+    /** create tensor with relu done to all values  */
+    gradientReLU() {
+        return this.broadcast((x: number) => x > 0 ? 1 : 0)
+    }
+
 
     /** create tensor of exponentials of all values on e, or given base  */
     exp(base?: number) {
+        if (base === undefined)
+            base = Math.E
 
-        let newV = []
-        if (base !== undefined)
-            for (let i = 0; i < this.values.length; i++)
-                newV[i] = base ** this.values[i]
-        else
-            for (let i = 0; i < this.values.length; i++)
-                newV[i] = Math.E ** this.values[i]
-        return new Tensor(newV, this.shape)
+        return this.broadcast((x: number) => base ** x)
+    }
+
+    /** create tensor of log on all values */
+    log() {
+        return this.broadcast((x: number) => Math.log(x))
+    }
+
+    /** get the mean of all values */
+    mean() {
+        return (this.sum().getValues() / this.values.length)
     }
 
     /** return the lp norm as number, default p is 2  */
@@ -435,22 +488,17 @@ export class Tensor {
 
     /** returns tensor with elementwise max of old value vs input number */
     applyMax(n: number) {
-        let newV = []
-        for (let i = 0; i < this.values.length; i++)
-            newV[i] = (this.values[i] > n) ? this.values[i] : n
-        return tensor(newV, this.shape)
+        return this.broadcast((x: number) => (x > n) ? x : n)
     }
 
     /** returns tensor with elementwise min of old value vs input number */
     applyMin(n: number) {
-        let newV = []
-        for (let i = 0; i < this.values.length; i++)
-            newV[i] = (this.values[i] < n) ? this.values[i] : n
-        return tensor(newV, this.shape)
+        return this.broadcast((x: number) => (x < n) ? x : n)
+
     }
 
     /** returns maximum vlaue in tensor, pass axis for tensor of maximums per an axis (only 2d, 0 for cols 1 for rows) */
-    getMax(axis?: 0 | 1) {
+    getmax(axis?: 0 | 1) {
         if (axis === undefined) {
             let currVal = this.values[0]
             let max = currVal
@@ -486,7 +534,7 @@ export class Tensor {
     }
 
     /** returns minimum vlaue in tensor, pass axis for tensor of minimums per an axis (only 2d, 0 for cols 1 for rows)*/
-    getMin(axis?: 0 | 1) {
+    getmin(axis?: 0 | 1) {
         if (axis === undefined) {
             let currVal = this.values[0]
             let min = currVal
@@ -519,6 +567,36 @@ export class Tensor {
             }
             return tensor(newV, [this.shape[0], 1])
         }
+    }
+
+    argmax() {
+        let maxI = 0
+        if (this.rank === 0)
+            return 0
+        else if (this.rank === 1 || this.shape[0] === 1) {
+            for (let i = 0; i < this.values.length; i++) {
+                if (this.values[i] > this.values[maxI])
+                    maxI = i
+            }
+        } else
+            throw new Error("Doesn't handle rank > 1")
+
+        return maxI
+    }
+
+    argmin() {
+        let minI = 0
+        if (this.rank === 0)
+            return 0
+        else if (this.rank === 1 || this.shape[0] === 1) {
+            for (let i = 0; i < this.values.length; i++) {
+                if (this.values[i] < this.values[minI])
+                    minI = i
+            }
+        } else
+            throw new Error("Doesn't handle rank > 1")
+
+        return minI
     }
 }
 

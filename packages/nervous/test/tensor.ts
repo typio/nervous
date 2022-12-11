@@ -250,16 +250,24 @@ test('transpose', () => {
     assert.equal(tensor2.transpose(), tensor2)
 })
 
-test('matMul', () => {
+test('matmul', () => {
     // 1d tensor on 1d tensor
-    assert.equal(nv.tensor([10, 20, 30]).matMul(nv.tensor([1, 2, 3])).getValues(), 140)
+    assert.equal(nv.tensor([10, 20, 30]).matmul(nv.tensor([1, 2, 3])).getValues(), 140)
 
     // 1d tensor on 2d tensor
-    // assert.equal(nv.tensor([10, 20, 30]).matMul(nv.tensor([1, 2, 3])).getValues(), 140)
+    assert.equal(nv.tensor([10, 20, 30]).matmul(nv.tensor([[1, 2, 3], [4, 5, 6], [4, 5, 6]])).getValues(), [210, 270, 330])
+
+    let t1 = nv.tensor([79, 65, 94, 28, 34])
+    let t2 = nv.tensor([[66, 45, 21],
+    [41, 99, 52],
+    [22, 25, 3],
+    [50, 73, 1],
+    [35, 7, 16]])
+    assert.equal(t1.matmul(t2).getValues(), [12537, 14622, 5893])
 
     // 2d tensor on 2d tensor
     assert.equal(
-        nv.tensor([[1, 2, 3], [4, 5, 6]]).matMul(nv.tensor([[1, 2], [3, 4], [5, 6]])).getValues(),
+        nv.tensor([[1, 2, 3], [4, 5, 6]]).matmul(nv.tensor([[1, 2], [3, 4], [5, 6]])).getValues(),
         [[22, 28],
         [49, 64]]
     )
@@ -312,11 +320,11 @@ test('minus', () => {
     let tensor2 = nv.tensor([[42, 55], [2, -100]])
     assert.equal(tensor.minus(tensor2).getValues(), [[-41, -53], [1, 104]])
 
-    // 1d col tensor on nd tensor
-    // tensor = nv.tensor([[1, 2, 5],
-    //                     [3, 4, 6]])
-    // tensor2 = nv.tensor([1, 3, 5])
-    // assert.equal(tensor.minus(tensor2).getValues(), [[-41, -53], [1, 104]])
+    // 2d minus 1d
+    tensor = nv.tensor([[1, 2, 5],
+    [3, 4, 6]])
+    tensor2 = nv.tensor([1, 3, 5])
+    assert.equal(tensor.minus(tensor2, 1).getValues(), [[0, -1, 0], [2, 1, 1]])
 
     // // 1d col tensor on nd tensor
     // tensor = nv.tensor([[1, 2], [3, 4]])
@@ -327,6 +335,10 @@ test('exp', () => {
     let tensor = nv.tensor([[1, 2], [3, 4]])
     assert.equal(Math.floor(tensor.exp().sum().getValues()), 84)
     assert.equal(tensor.exp(2).getValues(), [[2, 4], [8, 16]])
+})
+
+test('pow', () => {
+    // TODO:
 })
 
 test('sum', () => {
@@ -351,7 +363,7 @@ test('trace', () => {
 
 test('fnorm_from_trace', () => {
     let tensor = nv.tensor([[1, 2, 5, 5123], [3, 4, 6, 2145], [2, 5, 23, 6661], [4555, 123.23, 12312, 12345]])
-    assert.equal(Math.round(tensor.fNorm()), Math.round(Math.sqrt(tensor.matMul(tensor.transpose()).trace())))
+    assert.equal(Math.round(tensor.fNorm()), Math.round(Math.sqrt(tensor.matmul(tensor.transpose()).trace())))
 })
 
 test('trace_invariant_to_transpose', () => {
@@ -363,8 +375,8 @@ test('trace_and_product_invarience', () => {
     let tensor1 = nv.tensor([[65, 76, 14], [6, 98, 69], [44, 22, 56]])
     let tensor2 = nv.tensor([[79, 22, 93], [29, 57, 60], [63, 23, 27]])
     let tensor3 = nv.tensor([[20, 96, 22], [95, 26, 3], [4, 49, 32]])
-    assert.equal(tensor1.matMul(tensor2).matMul(tensor3).trace(), tensor3.matMul(tensor1).matMul(tensor2).trace())
-    assert.equal(tensor1.matMul(tensor2).matMul(tensor3).trace(), tensor2.matMul(tensor3).matMul(tensor1).trace())
+    assert.equal(tensor1.matmul(tensor2).matmul(tensor3).trace(), tensor3.matmul(tensor1).matmul(tensor2).trace())
+    assert.equal(tensor1.matmul(tensor2).matmul(tensor3).trace(), tensor2.matmul(tensor3).matmul(tensor1).trace())
 })
 
 test('applyMax', () => {
@@ -377,29 +389,46 @@ test('applyMin', () => {
     assert.equal(tensor.applyMin(0).getFlatValues(), [0, 0, -1234, 0])
 })
 
-test('getMax', () => {
+test('getmax', () => {
     let tensor = nv.tensor([[-12, 92, 12], [1234, -123, 3]])
-    assert.equal(tensor.getMax(), 1234)
-    assert.equal((tensor.getMax(0) as nv.Tensor).getValues(), [1234, 92, 12])
-    assert.equal((tensor.getMax(1) as nv.Tensor).getValues(), [[92], [1234]])
+    assert.equal(tensor.getmax(), 1234)
+    assert.equal((tensor.getmax(0) as nv.Tensor).getValues(), [1234, 92, 12])
+    assert.equal((tensor.getmax(1) as nv.Tensor).getValues(), [[92], [1234]])
 
     let tensor2 = nv.tensor([[1, 2], [3, 4], [5, 6]])
-    assert.equal(tensor2.getMax(), 6)
-    assert.equal((tensor2.getMax(0) as nv.Tensor).getValues(), [5, 6])
-    assert.equal((tensor2.getMax(1) as nv.Tensor).getValues(), [[2], [4], [6]])
+    assert.equal(tensor2.getmax(), 6)
+    assert.equal((tensor2.getmax(0) as nv.Tensor).getValues(), [5, 6])
+    assert.equal((tensor2.getmax(1) as nv.Tensor).getValues(), [[2], [4], [6]])
 })
 
-test('getMin', () => {
+test('getmin', () => {
     let tensor = nv.tensor([[-12, 92, 12], [1234, -123, 3]])
-    assert.equal(tensor.getMin(), -123)
-    assert.equal((tensor.getMin(0) as nv.Tensor).getValues(), [-12, -123, 3])
-    assert.equal((tensor.getMin(1) as nv.Tensor).getValues(), [[-12], [-123]])
+    assert.equal(tensor.getmin(), -123)
+    assert.equal((tensor.getmin(0) as nv.Tensor).getValues(), [-12, -123, 3])
+    assert.equal((tensor.getmin(1) as nv.Tensor).getValues(), [[-12], [-123]])
 
     let tensor2 = nv.tensor([[1, 2], [3, 4], [5, 6]])
-    assert.equal(tensor2.getMin(), 1)
-    assert.equal((tensor2.getMin(0) as nv.Tensor).getValues(), [1, 2])
-    assert.equal((tensor2.getMin(1) as nv.Tensor).getValues(), [[1], [3], [5]])
+    assert.equal(tensor2.getmin(), 1)
+    assert.equal((tensor2.getmin(0) as nv.Tensor).getValues(), [1, 2])
+    assert.equal((tensor2.getmin(1) as nv.Tensor).getValues(), [[1], [3], [5]])
 })
+
+test('argmin', () => {
+    assert.equal(nv.tensor([0, -1, 2, 3]).argmin(), 1)
+})
+
+test('argmax', () => {
+    assert.equal(nv.tensor([0, -1, 2, 3]).argmax(), 3)
+})
+
+test('log', () => {
+    // TODO:
+})
+
+test('mean', () => {
+    // TODO:
+})
+
 
 test('sigmoid', () => {
     let tensor = nv.tensor([[1, 2], [3, 4]])
@@ -409,19 +438,32 @@ test('sigmoid', () => {
 
 test('softplus', () => {
     let tensor = nv.tensor([[1, 2], [3, 4]])
-    assert.equal(tensor.softplus().getFlatValues().map(n => Math.round(n * 10E3) / 10E3),
+    assert.equal(tensor.softplus().getFlatValues().map(n => Math.round(n * 1E4) / 1E4),
         [1.3133, 2.1269, 3.0486, 4.0181])
 })
 
-test('relu', () => {
+test('reLU', () => {
     let tensor = nv.tensor([[-12, 92, 12], [1234, -123, 3]])
-    assert.equal(tensor.relu().getValues(), [[0, 92, 12], [1234, 0, 3]])
+    assert.equal(tensor.reLU().getValues(), [[0, 92, 12], [1234, 0, 3]])
 })
 
 test('softmax', () => {
     let tensor = nv.tensor([-1., 2., -10., 4., 2.9412])
-    assert.equal(tensor.softmax().getFlatValues().map(n => Math.round(n * 10E3) / 10E3),
+    assert.equal(tensor.softmax().getFlatValues(4),
         [0.0045, 0.0909, 0.0000, 0.6716, 0.2330])
+
+    assert.equal(
+        nv.tensor([
+            [2, 2, 8],
+            [0, 0, 1],
+            [9, 3, 2]
+        ]).softmax().getValues(3),
+        [
+            [0.002, 0.002, 0.995],
+            [0.212, 0.212, 0.576],
+            [0.997, 0.002, 0.001]
+        ])
+
 })
 
 test.run()
