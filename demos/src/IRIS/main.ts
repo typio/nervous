@@ -1,9 +1,23 @@
+import p5 from "p5"
 import * as d3 from "d3";
-
 import * as nv from "nervous"
 
+const iris_data = fetch('./iris.data')
+    .then(response => response.text())
+    .then((data) => {
+        data = data.split('\n')
+        let prettyData = ' SL\t SW\t PL\t PW\t Species\n'
+        for (let i = 0; i < data.length; i++) {
+            prettyData += data[i] + '\n'
+        }
+        // prettyData.unshift(['pl','pw','sl','sw','Species'])
+        document.getElementById('iris_data').innerText = prettyData
+
+        return data
+    })
+
 const prepareData = async () => {
-    const text = await d3.text("iris.data");
+    const text = await d3.text("./iris.data");
     let data = d3.csvParseRows(text).slice(0, -1) // has a weird 0th element
     data = data.sort(() => Math.random() - 0.5) // shuffle
 
@@ -21,8 +35,8 @@ const prepareData = async () => {
 }
 
 const forward = (input: nv.Tensor, W: nv.Tensor, b: nv.Tensor) => {
-    let scores = input.matmul(W).add(b, 1)
-    return scores
+    let output = input.matmul(W).add(b, 1)
+    return output
 }
 
 const oneHotEncode = (vocab, value) => {
@@ -33,20 +47,21 @@ const oneHotEncode = (vocab, value) => {
 }
 
 const evaluate = (inputData: nv.Tensor, inputLabels: nv.Tensor, W: nv.Tensor, b: nv.Tensor) => {
-    let scores = forward(inputData, W, b)
-    let scoresArr = scores.getValues()
-    let correctScoresArr = inputLabels.getValues()
+    let output = forward(inputData, W, b)
+    let outputArr = output.getValues()
+    let correctOutputArr = inputLabels.getValues()
 
     let correctN = 0
-    for (let i = 0; i < scoresArr.length; i++) {
-        if (nv.tensor(scoresArr[i]).argmax() === nv.tensor(correctScoresArr[i]).argmax())
+    for (let i = 0; i < outputArr.length; i++) {
+        if (nv.tensor(outputArr[i]).argmax() === nv.tensor(correctOutputArr[i]).argmax())
             correctN++
     }
 
-    return Number((correctN / scoresArr.length * 100).toFixed(2))
+    return [output, Number((correctN / outputArr.length * 100).toFixed(2))]
 }
 
 let step_count_el = document.getElementById("step")
+let fit_btn_el = document.getElementById('fit_btn')
 
 let train_steps_input = document.getElementById("training_steps")
 let training_steps = Number(train_steps_input?.value)
@@ -54,8 +69,16 @@ train_steps_input.addEventListener('change', () => { training_steps = train_step
 
 const LR = Number(document.getElementById("learning_rate")?.value)
 
+let weight_vals = [[0]]
+let bias_vals = []
+let output_vals = []
+
+let stop_signal = true
+
+let accuracies = []
 
 const main = async () => {
+    accuracies = []
     let step_count = 0
 
     const STEP_SIZE = 1
@@ -64,11 +87,12 @@ const main = async () => {
     let b = nv.zeros(3)
 
     let [trainData, trainLabels, testData, testLabels] = await prepareData()
-    let vocab = Array.from(new Set(trainLabels.concat(testLabels)))
+    // let vocab = Array.from(new Set(trainLabels.concat(testLabels)))
+    let vocab = ['Iris-versicolor', 'Iris-virginica', 'Iris-setosa'] // fixed order so I can label on diagram 
+
 
     trainLabels = trainLabels.map((t: any) => oneHotEncode(vocab, t))
     testLabels = testLabels.map((t: any) => oneHotEncode(vocab, t))
-
 
     trainData = nv.tensor(trainData)
     trainLabels = nv.tensor(trainLabels)
@@ -81,32 +105,31 @@ const main = async () => {
     document.getElementById("final_train_acc").innerHTML = ""
     document.getElementById("final_test_acc").innerHTML = ""
 
-    document.getElementById("init_train_acc").innerHTML = evaluate(trainData, trainLabels, W, b)
-    document.getElementById("init_test_acc").innerHTML = evaluate(testData, testLabels, W, b)
+    document.getElementById("init_train_acc").innerHTML = evaluate(trainData, trainLabels, W, b)[1] + "%"
+    document.getElementById("init_test_acc").innerHTML = evaluate(testData, testLabels, W, b)[1] + "%"
 
-
+    weight_vals = W.getValues()
+    bias_vals = b.getValues()
     const fit = () => {
-        let scores = forward(trainData, W, b)
+        let [output, accuracy] = evaluate(trainData, trainLabels, W, b)
+        accuracies.push(accuracy)
 
-        let probs = scores.softmax()
+        let probs = output.softmax()
 
         let correct_logprobs = probs.mul(trainLabels).sum(1).log().mul(-1)
 
         let data_loss = correct_logprobs.sum().getValues() / train_samples_n
         let reg_loss = 0.5 * LR * W.mul(W).sum().getValues()
         let loss = data_loss + reg_loss
-        // if (i % 200 === 0) {
-        //     console.log(`Iteration ${i}: Loss ${loss}`)
+
         step_count++
 
-        // }
-
-        let dscores = probs.minus(trainLabels)
-        dscores = dscores.div(train_samples_n)
+        let dOutput = probs.minus(trainLabels)
+        dOutput = dOutput.div(train_samples_n)
 
 
-        let dW = trainData.transpose().matmul(dscores)
-        let db = dscores.sum(0)
+        let dW = trainData.transpose().matmul(dOutput)
+        let db = dOutput.sum(0)
 
         dW = dW.add(W.mul(LR))
 
@@ -114,21 +137,115 @@ const main = async () => {
         W = W.add(dW.mul(-1 * STEP_SIZE))
         b = b.add(db.mul(-1 * STEP_SIZE))
 
-        if (step_count <= training_steps) {
+        weight_vals = W.getValues(3)
+        bias_vals = b.getValues(3)
+        output_vals = output.getValues(3)
+
+        if (step_count <= training_steps && !stop_signal) {
             step_count_el.innerHTML = step_count
             requestAnimationFrame(fit)
         }
         else {
-            document.getElementById("final_train_acc").innerHTML = evaluate(trainData, trainLabels, W, b)
-            document.getElementById("final_test_acc").innerHTML = evaluate(testData, testLabels, W, b)
-
+            fit_btn_el.innerText = '▶'
+            stop_signal = true
+            document.getElementById("final_train_acc").innerHTML = evaluate(trainData, trainLabels, W, b)[1] + "%"
+            document.getElementById("final_test_acc").innerHTML = evaluate(testData, testLabels, W, b)[1] + "%"
         }
     }
     requestAnimationFrame(fit)
 }
 
-const fit = () => {
+fit_btn_el?.addEventListener("click", () => {
+    if (stop_signal) {
+        stop_signal = false
+        main();
+        fit_btn_el.innerText = '■'
+    } else {
+        stop_signal = true
+    }
+})
 
+const s = (p) => {
+    p.setup = () => {
+        p.createCanvas(400, 400)
+        p.textAlign(p.CENTER, p.CENTER);
+    }
+
+    p.draw = () => {
+        p.clear(0)
+        p.background(244, 244, 255)
+
+        p.fill(p.color('black'))
+        p.text('x', 100, 15)
+
+        p.text('SL', 50, 50)
+        p.text('SW', 50, 150)
+        p.text('PL', 50, 250)
+        p.text('PW', 50, 350)
+
+        p.text('W', 140, 40)
+        p.text('b', 270, 70)
+        p.text('y', 300, 65)
+
+        p.text('Versicolor', 360, 100)
+        p.text('Virginica', 360, 200)
+        p.text('Setosa', 360, 300)
+
+
+        // first layer
+        for (let i = 0; i < 4; i++) {
+            // lines
+            for (let j = 0; j < 3; j++) {
+                p.line(100, 50 + i * 100, 300, 100 + j * 100)
+
+                let t = .2
+                let y_offset = 5//j % 2 == 0 ? 5 : -5
+                let m = ((100 + j * 100) - (50 + i * 100) + y_offset) / (200)
+                let midX = ((1 - t) * (100) + t * (300))
+                let midY = ((1 - t) * (50 + i * 100) + t * (100 + j * 100)) - y_offset
+
+                p.fill(p.color('red'))
+                p.textStyle(p.BOLD);
+                if (weight_vals.length == 4) {
+                    if (weight_vals[0].length == 3) {
+                        p.translate(midX, midY)
+                        p.rotate(Math.atan(m))
+                        p.text(weight_vals[i][j], 0, 0)
+                        p.rotate(-Math.atan(m))
+                        p.translate(-midX, -midY)
+                    }
+                }
+                p.fill(p.color('white'))
+
+                p.ellipse(100, 50 + i * 100, 40)
+            }
+
+            // second layer
+            for (let i = 0; i < 3; i++) {
+                p.fill(p.color('white'))
+                p.ellipse(300, 100 + i * 100, 40)
+                if (bias_vals.length === 3) {
+                    // console.log(bias_vals[i]);
+                    p.fill(p.color('red'))
+                    p.text(bias_vals[i], 300, 100 + i * 100)
+                }
+            }
+        }
+
+        // acc graph
+        p.strokeWeight(0)
+        p.fill(p.color('white'))
+        p.rect(280, 5, 120, 50)
+        p.fill(p.color('limegreen'))
+        for (let i = 0; i < accuracies.length; i++) {
+            p.ellipse(280 + (i / accuracies.length) * 120, accuracies[i] * -.45 + 50, 2)
+        }
+        p.strokeWeight(1)
+        p.fill(p.color('dodgerblue'))
+        p.text('Accuracy', 350, 65)
+        p.text(0, 270, 50)
+        p.text(1, 270, 5)
+    }
 }
 
-document.getElementById('fit_btn')?.addEventListener("click", main)
+new p5(s, document.getElementById('p5CanvasParent') ?? undefined)
