@@ -25,6 +25,7 @@ require("esbuild")
     // minify: true,
     loader: { ".data": "binary" },
     outdir: "src/dist/",
-    watch: (args.findIndex(e => e === 'watch') !== -1)
+    watch: (args.findIndex(e => e === 'watch') !== -1),
+    // external: ['@webgpu/types'],
   })
   .catch(() => process.exit(1))

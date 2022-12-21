@@ -14,6 +14,7 @@ importers:
     specifiers:
       '@types/d3': ^7.4.0
       '@types/p5': ^1.4.3
+      '@webgpu/types': ^0.1.23
       concurrently: ^7.4.0
       d3: ^7.7.0
       esbuild: ^0.15.10
@@ -30,6 +31,7 @@ importers:
     devDependencies:
       '@types/d3': 7.4.0
       '@types/p5': 1.4.3
+      '@webgpu/types': 0.1.23
       concurrently: 7.4.0
       live-server: 1.2.2
       nervous: link:../packages/nervous
@@ -1087,6 +1089,10 @@ packages:
       vscode-nls: 5.2.0
       vscode-uri: 2.1.2
     dev: false
+
+  /@webgpu/types/0.1.23:
+    resolution: {integrity: sha512-SxHrhOTH1C7EcbnVZ3DzzliQs10QJO19GoUtzVJLIqDD0VeAdtxLEoNnP5zkCDKyMFvx3ptU7jESdaOIUqAuJg==}
+    dev: true
 
   /accepts/1.3.8:
     resolution: {integrity: sha512-PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==}

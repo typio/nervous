@@ -13,6 +13,7 @@
   "devDependencies": {
     "@types/d3": "^7.4.0",
     "@types/p5": "^1.4.3",
+    "@webgpu/types": "^0.1.23",
     "concurrently": "^7.4.0",
     "live-server": "^1.2.2",
     "nervous": "workspace:0.0.0",
