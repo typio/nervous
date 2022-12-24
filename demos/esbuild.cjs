@@ -23,7 +23,7 @@ require("esbuild")
     entryPoints: files,
     bundle: true,
     // minify: true,
-    loader: { ".data": "binary" },
+    loader: { ".data": "binary", ".wgsl": "text" },
     outdir: "src/dist/",
     watch: (args.findIndex(e => e === 'watch') !== -1),
     // external: ['@webgpu/types'],

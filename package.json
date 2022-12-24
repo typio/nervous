@@ -4,6 +4,8 @@
   "private": true,
   "workspaces": [
     "demos/*",
+    "demos-vite-svelte/*",
+    "nervous-site/*",
     "docs/*",
     "packages/*"
   ],
