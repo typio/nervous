@@ -17,7 +17,7 @@
 	"scripts": {
 		"build": "tsc --declaration --emitDeclarationOnly --declarationDir types ./src/index.ts",
 		"test": "uvu -r tsm test",
-		"bench": "tsx bench/tensor.ts",
+		"bench": "tsx bench/index.ts",
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
 		"format": "prettier --plugin-search-dir . --write ."
 	},

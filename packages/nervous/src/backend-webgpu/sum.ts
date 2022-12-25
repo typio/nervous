@@ -1,0 +1,7 @@
+import { Tensor } from "../tensor"
+
+/** returns sum in Tensor of all tensor values, if 2d matrix axis can be specified: 0 for columns 1 for rows*/
+export const sum = (a: Tensor, axis?: 0 | 1): Tensor => {
+    throw new Error('Method is not yet implemented in webgpu backend 😞')
+
+}

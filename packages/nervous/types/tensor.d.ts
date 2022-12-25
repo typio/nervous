@@ -1,90 +1,66 @@
-declare type Rank1To6Array = number[] | number[][] | number[][][] | number[][][][] | number[][][][][] | number[][][][][][];
-export declare const flatLengthFromShape: (shape: number[]) => number;
+export declare type Rank1To4Array = Float32Array | number[] | number[][] | number[][][] | number[][][][];
+export declare type BinaryOp = "Add" | "Sub" | "Mul" | "Div" | "Mod";
 export declare class Tensor {
     readonly values: Float32Array;
-    readonly rank: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    readonly rank: 0 | 1 | 2 | 3 | 4;
     readonly shape: number[];
-    constructor(values: number | Rank1To6Array, shape?: number[]);
-    /** return nested tensor values */
-    getValues(): any;
+    constructor(values: number | Rank1To4Array, shape?: number[]);
+    select(dim: number, index: number): void;
+    /** return nested number array of tensor values, returns type number if scalar */
+    getValues(decimals?: number): any;
     /** return flat tensor values */
-    getFlatValues(): any[];
-    /** console.log nested tensor values */
-    print(): void;
+    getFlatValues(decimals?: number): any[];
     /** Reshape tensor into provided shape */
     reshape(shape: number[]): Tensor;
     /** switch rows and columns of a >=2d Tensor */
-    transpose(): Tensor;
+    transpose(): any;
     /** create tensor of dot product */
-    dot(m: Tensor | number): Tensor;
+    matmul(m: Tensor | number): Tensor;
+    inverse(): void;
     /** create tensor of elementwise matrix multiplication, if using a "scalar" tensor put scalar in mul argument */
-    mul(m: Tensor | number): Tensor;
+    mul(m: Tensor | number, axis?: number): Tensor;
     /** create tensor of elementwise matrix division, if using a "scalar" tensor put scalar in div argument */
-    div(m: Tensor | number): Tensor;
+    div(d: Tensor | number, axis?: number): Tensor;
     /** create tensor with number a OR each value of a tensor a added to each value of input tensor  */
-    add(a: number | Tensor): Tensor;
+    add(a: number | Tensor, axis?: number): Tensor;
     /** create tensor with number m OR each value of a tensor m subtracted from each value of input tensor  */
-    minus(m: number | Tensor): Tensor;
+    minus(s: number | Tensor, axis?: number): Tensor;
+    /** create tensor with number m OR each value of a tensor m mod with each value of input tensor  */
+    mod(m: number | Tensor, axis?: number): Tensor;
+    /** create tensor with relu done to all values  */
+    pow(exp: number): Tensor;
+    broadcast(func: (any)): Tensor;
+    /** create tensor with sigmoid done to all values  */
+    sigmoid(): Tensor;
+    /** create tensor with softplus done to all values  */
+    softplus(): Tensor;
+    softmax(): Tensor;
+    /** create tensor with relu done to all values  */
+    reLU(): Tensor;
+    /** create tensor with relu done to all values  */
+    gradientReLU(): Tensor;
     /** create tensor of exponentials of all values on e, or given base  */
     exp(base?: number): Tensor;
-    /** returns sum of all tensor values, if 2d matrix axis can be specified: 0 for columns 1 for rows*/
+    /** create tensor of log on all values */
+    log(): Tensor;
+    /** get the mean of all values */
+    mean(): number;
+    /** return the lp norm as number, default p is 2  */
+    lpNorm(p?: number): number;
+    /** return Frobenius Norm as number, represents the size of a matrix */
+    fNorm(): number;
+    /** returns sum of diagonal elements as number */
+    trace(): number;
+    /** returns sum in Tensor of all tensor values, if 2d matrix axis can be specified: 0 for columns 1 for rows*/
     sum(axis?: 0 | 1): Tensor;
     /** returns tensor with elementwise max of old value vs input number */
     applyMax(n: number): Tensor;
     /** returns tensor with elementwise min of old value vs input number */
     applyMin(n: number): Tensor;
     /** returns maximum vlaue in tensor, pass axis for tensor of maximums per an axis (only 2d, 0 for cols 1 for rows) */
-    getMax(axis?: 0 | 1): number | Tensor;
+    getmax(axis?: 0 | 1): any;
     /** returns minimum vlaue in tensor, pass axis for tensor of minimums per an axis (only 2d, 0 for cols 1 for rows)*/
-    getMin(axis?: 0 | 1): number | Tensor;
+    getmin(axis?: 0 | 1): any;
+    argmax(): number;
+    argmin(): number;
 }
-/**
- * Pass a value
- * ```ts
- * scalar(4)
- * ```
- */
-export declare const scalar: (value: number) => Tensor;
-/**
- * Pass a nested array
- * ```ts
- * tensor([[1,2],[3,4]])
- * ```
- * Or pass a flat array and a shape
- * ```ts
- * tensor([1, 2, 3, 4], [2, 2])
- * ```
- */
-export declare const tensor: (values: number | Rank1To6Array, shape?: number[]) => Tensor;
-/**
- * Pass array of row number and column number
- * ```ts
- * eye([2, 2])
- * ```
- * Or a number for both
- * ```ts
- * eye(2); eye([2])
- * ```
- */
-export declare const eye: (dim: number[] | number, offset?: number) => Tensor;
-/**
- * Pass shape of matrix
- * ```ts
- * random([2, 2])
- * ```
- * And optionally min (inclusive), max (exclusive), and integer
- * ```ts
- * random([2, 2], 0, 10, true)
- * ```
- */
-export declare const random: (shape: number[], min?: number, max?: number, integer?: boolean) => Tensor;
-/**
- * Pass shape of matrix
- * ```ts
- * fill([2, 2], 1)
- * ```
- */
-export declare const fill: (shape: number | number[], value: number) => Tensor;
-export declare const zeroes: (shape: number | number[]) => Tensor;
-export declare const ones: (shape: number | number[]) => Tensor;
-export {};

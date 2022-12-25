@@ -1,6 +1,4 @@
 packages:
-  - "demos"
-  - "demos-vite-svelte"
   - "nervous-site"
   - "docs"
   - "packages/*"

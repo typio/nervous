@@ -3,8 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "workspaces": [
-    "demos/*",
-    "demos-vite-svelte/*",
     "nervous-site/*",
     "docs/*",
     "packages/*"
