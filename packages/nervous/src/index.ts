@@ -11,7 +11,7 @@ const webgpuAvailable = (): boolean => {
 }
 
 let config = {
-    backend: webgpuAvailable() ? 'webgpu' : 'js',
+    backend: webgpuAvailable() ? 'webgpu' : 'js', // TODO: fix auto-select, it doesnt select webgpu when available
     // anything else...?
 };
 

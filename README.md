@@ -16,10 +16,10 @@ Minimal and comprehensible functional ML library, with GPU acceleration using We
 import nv from "@typio/nervous"
 
 const main = async () => {
-    await nv.init({ backend: 'webgpu' }) // or { backend: 'js' }, or omit for default selection
-    let tensor1 = await nv.randomNormal([1024, 1024]) // create 1024x1024 tensor of random values from Gaussian distribution
+    await nv.init({ backend: 'webgpu' }) 
+    let tensor1 = await nv.randomNormal([1024, 1024]) 
     let tensor2 = await nv.randomNormal([1024, 1024])
-    let tensorProduct = await nv.matmul(tensor1, tensor2) // calculate the matrix product of the two tensors
+    let tensorProduct = await nv.matmul(tensor1, tensor2) 
     console.log(tensorProduct)
 }
 
