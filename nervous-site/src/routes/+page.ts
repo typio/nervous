@@ -6,7 +6,7 @@ if (browser) {
 
     const main = async () => {
         let start = performance.now();
-        await nv.init({ backend: "webgpu" });
+        await nv.init({ backend: "js" });
 
         // let tensor1 = await nv.randomNormal([2, 2]);
         // let tensor2 = new nv.Tensor([
@@ -18,7 +18,8 @@ if (browser) {
             [5, 6],
         ]);
 
-        let added = await nv.add(tensor2, tensor2);
+        // let added = await nv.add(tensor2, tensor2);
+        let added = await tensor2.add(tensor2)
         console.log('add result:', added);
     };
 
