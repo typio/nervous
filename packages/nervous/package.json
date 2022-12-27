@@ -15,14 +15,15 @@
 		"types"
 	],
 	"scripts": {
-		"build": "tsc --declaration --emitDeclarationOnly --declarationDir types ./src/index.ts",
-		"test": "uvu -r tsm test",
+		"build": "tsc  --lib \"ESNext, dom\" --declaration --emitDeclarationOnly --declarationDir types ./src/index.ts",
+		"test": "vitest run",
 		"bench": "tsx bench/index.ts",
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
 		"format": "prettier --plugin-search-dir . --write ."
 	},
 	"devDependencies": {
 		"@types/benchmark": "^2.1.2",
+		"@webgpu/types": "^0.1.23",
 		"benchmark": "^2.1.4",
 		"d3": "^7.7.0",
 		"node-fetch-polyfill": "^2.0.6",
@@ -30,7 +31,7 @@
 		"tsx": "3.9.0",
 		"typescript": "^4.8.4",
 		"uvu": "^0.5.6",
-		"@webgpu/types": "^0.1.23"
+		"vitest": "^0.25.3"
 	},
 	"types": "types/index.d.ts"
 }

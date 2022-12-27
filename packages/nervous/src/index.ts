@@ -5,9 +5,10 @@ const webgpuAvailable = (): boolean => {
         if ('gpu' in navigator) {
             return true
         }
-    } finally {
+    } catch {
         return false
     }
+    return false
 }
 
 let config = {
@@ -37,6 +38,7 @@ const init = async (userConfig?: { backend: string; }) => {
     config = { ...config, ...userConfig };
 
     backend = await createBackend(config.backend);
+    backend.default = Tensor;
 
     if (config.backend === 'webgpu') {
         try {
@@ -55,9 +57,21 @@ const init = async (userConfig?: { backend: string; }) => {
             console.warn('falling back to js backend');
 
             backend = createBackend('js');
+            backend.default = Tensor;
         }
     }
 }
+
+declare module "./index" {
+    interface Tensor {
+        matmul(): void;
+    }
+}
+
+Tensor.prototype.matmul = () => { }
+
+backend.default = Tensor;
+
 
 // =============================================================================
 // TENSOR's

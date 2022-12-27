@@ -1,7 +1,7 @@
 <script lang="ts">
     import P5 from "P5-svelte";
     // import * as d3 from "d3";
-    import * as nv from "nervous";
+    import nv from "nervous";
 
     import iris_raw_data from "./iris.data?raw";
     import { browser } from "$app/environment";
@@ -37,7 +37,7 @@
         };
 
         const forward = (input: nv.Tensor, W: nv.Tensor, b: nv.Tensor) => {
-            let output = input.matmul(W).add(b, 1);
+            let output = nv.add(nv.matmul(input, W), b, 1); //input.matmul(W).add(b, 1);
             return output;
         };
 
@@ -55,14 +55,14 @@
             b: nv.Tensor
         ) => {
             let output = forward(inputData, W, b);
-            let outputArr = output.getValues();
-            let correctOutputArr = inputLabels.getValues();
+            let outputArr = nv.getValues(output);
+            let correctOutputArr = nv.getValues(inputLabels); // inputLabels.getValues();
 
             let correctN = 0;
             for (let i = 0; i < outputArr.length; i++) {
                 if (
-                    nv.tensor(outputArr[i]).argmax() ===
-                    nv.tensor(correctOutputArr[i]).argmax()
+                    nv.argmax(nv.tensor(outputArr[i])) ===
+                    nv.argmax(nv.tensor(correctOutputArr[i]))
                 )
                     correctN++;
             }
@@ -125,13 +125,13 @@
             document.getElementById("init_test_acc").innerHTML =
                 evaluate(testData, testLabels, W, b)[1] + "%";
 
-            weight_vals = W.getValues();
-            bias_vals = b.getValues();
+            weight_vals = nv.getValues(W);
+            bias_vals = nv.getValues(b);
             const fit = () => {
                 let [output, accuracy] = evaluate(trainData, trainLabels, W, b);
                 accuracies.push(accuracy);
 
-                let probs = output.softmax();
+                let probs = nv.softmax(output) 
 
                 let correct_logprobs = probs
                     .mul(trainLabels)
@@ -149,7 +149,7 @@
                 let dOutput = probs.minus(trainLabels);
                 dOutput = dOutput.div(train_samples_n);
 
-                let dW = trainData.transpose().matmul(dOutput);
+                let dW = nv.matmul(nv.transpose(trainData), dOutput); // trainData.transpose().matmul(dOutput);
                 let db = dOutput.sum(0);
 
                 dW = dW.add(W.mul(LR));

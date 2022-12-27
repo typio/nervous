@@ -2,6 +2,8 @@ import { gpuDevice } from ".."
 import { Tensor } from "../tensor"
 import { tensor } from "./tensor"
 
+/// <reference types="@webgpu/types" />
+
 // tensor op tensor -> tensor
 export const webgpuExecuteTTT = async (a: Tensor, b: Tensor, code, axis?, flags?: {}): Promise<Tensor> => {
     const aValuesGPUBuffer = gpuDevice.createBuffer({

@@ -13,7 +13,7 @@
     "lint": {
       "outputs": []
     },
-    "test": {},
+    "test": {"outputs": []},
     "bench": {},
     "dev": {
       "cache": false
