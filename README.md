@@ -19,7 +19,7 @@ const main = async () => {
     await nv.init({ backend: 'webgpu' }) 
     let tensor1 = await nv.randomNormal([1024, 1024]) 
     let tensor2 = await nv.randomNormal([1024, 1024])
-    let tensorProduct = await nv.matmul(tensor1, tensor2) 
+    let tensorProduct = await tensor1.matmul(tensor2) 
     console.log(tensorProduct)
 }
 
