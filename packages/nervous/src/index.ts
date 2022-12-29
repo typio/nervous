@@ -97,10 +97,10 @@ const diag = (values: number[]): Tensor => backend.default.diag(values)
 const eye = (dim: number[] | number, offset?: number): Tensor => backend.default.eye(dim, offset)
 
 /** Create tensor of provided shape, filled with random values */
-const random = (shape: number[], min?: number, max?: number, integer?: boolean): Tensor => backend.default.random(shape, min, max, integer);
+const random = (shape: number[], seed?: number, min?: number, max?: number, integer?: boolean): Tensor => backend.default.random(shape, seed, min, max, integer);
 
 /** Create tensor of provided shape, filled with random values from a normal distribution */
-const randomNormal = (shape: number[], mean?: number, std?: number): Tensor => backend.default.randomNormal(shape, mean, std);
+const randomNormal = (shape: number[], seed?: number, mean?: number, std?: number): Tensor => backend.default.randomNormal(shape, seed, mean, std);
 
 export default {
     init,

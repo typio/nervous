@@ -1,7 +1,5 @@
 import { Tensor } from "../tensor"
-import { getFlatValues } from "./getFlatValues"
 import { getmax } from "./getmax"
-import { getValues } from "./getValues"
 import { minus } from "./minus"
 import { tensor } from "./tensor"
 

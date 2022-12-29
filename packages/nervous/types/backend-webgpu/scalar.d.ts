@@ -1,1 +1,2 @@
-export declare const scalar: (value: number) => never;
+import { Tensor } from "../tensor";
+export declare const scalar: (value: number) => Tensor;

@@ -1,5 +1,5 @@
 declare const _default: {
-    add: (a: import("../tensor").Tensor, b: import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
+    add: (a: import("../tensor").Tensor, b: import("../tensor").Tensor, axis?: number) => Promise<import("../tensor").Tensor>;
     applyMax: (a: import("../tensor").Tensor, n: number) => never;
     applyMin: (a: import("../tensor").Tensor, n: number) => never;
     argmax: (a: import("../tensor").Tensor) => never;
@@ -10,14 +10,16 @@ declare const _default: {
     eye: (dim: number | number[], offset?: number) => import("../tensor").Tensor;
     fNorm: (a: import("../tensor").Tensor) => never;
     fill: (shape: number | number[], value: number) => import("../tensor").Tensor;
-    getFlatValues: (a: import("../tensor").Tensor, decimals?: number) => any[];
-    getValues: (a: import("../tensor").Tensor, decimals?: number) => never;
+    flatValues: (a: import("../tensor").Tensor, decimals?: number) => any[];
+    values: (a: import("../tensor").Tensor, decimals?: number) => any;
+    rank: (a: import("../tensor").Tensor) => number;
+    shape: (a: import("../tensor").Tensor) => number[];
     getmax: (a: import("../tensor").Tensor, axis?: 0 | 1) => never;
     getmin: (a: import("../tensor").Tensor, axis?: 0 | 1) => never;
     gradientReLU: (a: import("../tensor").Tensor) => never;
     log: (a: import("../tensor").Tensor) => never;
     lpNorm: (a: import("../tensor").Tensor, p?: number) => number;
-    matmul: (a: import("../tensor").Tensor, m: number | import("../tensor").Tensor) => never;
+    matmul: (a: import("../tensor").Tensor, m: import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
     mean: (a: import("../tensor").Tensor) => number;
     minus: (a: import("../tensor").Tensor, s: number | import("../tensor").Tensor, axis?: number) => never;
     mod: (a: import("../tensor").Tensor, m: number | import("../tensor").Tensor, axis?: number) => never;
@@ -25,11 +27,11 @@ declare const _default: {
     oneHot: (dim: number | number[], index: number | number[]) => never;
     ones: (shape: number | number[]) => never;
     pow: (a: import("../tensor").Tensor, exp: number) => never;
-    random: (shape: number[], min?: number, max?: number, integer?: boolean) => never;
+    random: (shape: number[], seed?: number, min?: number, max?: number, integer?: boolean) => Promise<import("../tensor").Tensor>;
     randomNormal: (shape: number[], mean?: number, std?: number) => never;
     reLU: (a: import("../tensor").Tensor) => never;
     reshape: (a: import("../tensor").Tensor, shape: number[]) => never;
-    scalar: (value: number) => never;
+    scalar: (value: number) => import("../tensor").Tensor;
     sigmoid: (a: import("../tensor").Tensor) => never;
     softmax: (a: import("../tensor").Tensor) => never;
     softplus: (a: import("../tensor").Tensor) => never;

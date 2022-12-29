@@ -1,5 +1,4 @@
 import { Tensor } from "../tensor"
-import { getValues } from "./getValues"
 import { tensor } from "./tensor"
 
 /** switch rows and columns of a >=2d Tensor */

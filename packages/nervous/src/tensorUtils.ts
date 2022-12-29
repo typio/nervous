@@ -1,16 +1,18 @@
-/** Convert FloatArray to Array (Array.from() is slow...) */
-export const toArr = (floatArr: Float32Array, decimals?: number) => {
+import { Rank1To4Array } from "./tensor"
+
+/** Convert FloatArray to Array (Array.from() and slice are slow...) */
+export const toArr = (floatArr: Float32Array, decimals?: number, startIndex = 0) => {
     let arr = []
     if (decimals === undefined)
-        for (let i = 0; i < floatArr.length; i++)
-            arr[i] = floatArr[i]
+        for (let i = startIndex; i < floatArr.length; i++)
+            arr[i - startIndex] = floatArr[i]
     else
-        for (let i = 0; i < floatArr.length; i++)
-            arr[i] = Number(floatArr[i].toFixed(decimals))
+        for (let i = startIndex; i < floatArr.length; i++)
+            arr[i - startIndex] = Number(floatArr[i].toFixed(decimals))
     return arr
 }
 
-export const calcShape = (values: Rank1To4Array) => {
+export const calcShape = (values: Rank1To4Array): number[] => {
     let shape: number[] = []
     let subValues: Rank1To4Array | number = values
     while (subValues.constructor === Array) {
@@ -22,6 +24,7 @@ export const calcShape = (values: Rank1To4Array) => {
 }
 
 export const flatLengthFromShape = (shape: number[]) => {
+    if (shape[0] === 0) return 1
     // reduce is fine considering max array length is 6
     return shape.reduce((previousValue, currentValue) => previousValue * currentValue, 1)
 }
@@ -29,6 +32,8 @@ export const flatLengthFromShape = (shape: number[]) => {
 export const toNested = (values: number[], shape: number[]) => {
     if (flatLengthFromShape(shape) !== values.length)
         throw new Error("New shape is not compatible with initial values length.")
+
+    // if (shape = [0])
 
     if (shape.length === 1) {
         return values

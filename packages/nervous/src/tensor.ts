@@ -1,6 +1,5 @@
 import { backend } from "."
-import { tensor } from "./backend-js/tensor"
-import { calcShape, toArr, flatLengthFromShape, toNested } from "./tensorUtils"
+import { calcShape, flatLengthFromShape } from "./tensorUtils"
 
 // TODO: CHANGE new Array()'s to Float32Array's
 
@@ -9,52 +8,74 @@ export type Rank1To4Array = Float32Array | number[] | number[][] | number[][][] 
 export type BinaryOp = "add" | "sub" | "mul" | "div" | "mod"
 
 export class Tensor {
-    readonly values: Float32Array = new Float32Array(0)
-    readonly rank: 0 | 1 | 2 | 3 | 4 = 0
-    readonly shape: number[] = [0]
+    // readonly values: Float32Array = new Float32Array(0)
+    // readonly rank: 0 | 1 | 2 | 3 | 4 = 0
+    // readonly shape: number[] = [0]
 
-    constructor(values: number | Rank1To4Array, shape?: number[]) {
+    /**  first 4 values are shape (right padded 0s), rest are tensor values */
+    readonly data: Float32Array = new Float32Array(0)
+
+    /** Construct tensor, pass value array, nested or un-nested, and optional shape if un-nested, 
+     * or pass raw Float32Array already in internal Tensor data form. */
+    constructor(values: number | Rank1To4Array | Float32Array, shape?: number[]) {
+        let _rank: 0 | 1 | 2 | 3 | 4 = 0
+        let _shape: number[] = []
+        let _values: number[] = []
+
+        if (values.constructor === Float32Array) {
+            this.data = values
+            return
+        }
+
         if (values !== undefined && shape === undefined) {
             if (values.constructor === Number) { // if scalar
                 values = [values] // store scalar number as number[]
-                this.shape = [1]
-                this.rank = 0
+                _shape = []
+                _rank = 0
             } else {
-                this.shape = calcShape(values)
-                this.rank = this.shape.length as typeof this.rank
+                // @ts-ignore: I checked the type
+                _shape = calcShape(values)
+                _rank = _shape.length as typeof _rank
             }
             if (values.constructor === Array) {
                 let flatValues = values.flat() as number[]
-                this.values = new Float32Array(flatValues)
-            } else if (values.constructor === Float32Array) {
-                this.values = values
+                _values = flatValues
             }
 
         } else if (values !== undefined && shape !== undefined) {
             if (values.constructor === Array && values[0].constructor === Array)
                 throw new Error('If shape is given, values must be flat array, e.g. [1, 2, 3].')
 
-            // @ts-ignore: I checked the type
-            let flatValues: number[] | Float32Array = values
+            let flatValues: number[] = Array.prototype.slice.call(values)
 
             if (flatLengthFromShape(shape) !== flatValues.length)
                 throw new Error("Values don't fit into shape.")
 
-            this.shape = shape
-            this.rank = shape.length as typeof this.rank // good ts? 🤔
-            this.values = new Float32Array(flatValues)
+            _shape = shape
+            _rank = _shape.length as typeof _rank // good ts? 🤔
+            _values = flatValues
         }
+        while (_shape.length < 4) {
+            _shape.push(0)
+        }
+        this.data = new Float32Array([..._shape, ..._values])
     }
 
     select = (dim: number, index: number) => {
         throw new Error("Not implemented")
     }
 
-    /** return nested number array of tensor values, returns type number if scalar */
-    getValues = (decimals?: number) => backend.default.getValues(this, decimals)
+    /** returns nested number array of tensor values, returns type number if scalar */
+    values = (decimals?: number): number[] | number => backend.default.values(this, decimals)
 
-    /** return flat tensor values */
-    getFlatValues = (decimals?: number) => backend.default.getFlatValues(this, decimals)
+    /** returns flat tensor values */
+    flatValues = (decimals?: number): number[] => backend.default.flatValues(this, decimals)
+
+    /** returns tensor rank */
+    rank = () => backend.default.rank(this)
+
+    /** returns tensor shape, scalar ➡️ shape [0], vector ➡️ [1, N] */
+    shape = () => backend.default.shape(this)
 
 
     /** Reshape tensor into provided shape */
@@ -65,7 +86,7 @@ export class Tensor {
     transpose = () => backend.default.transpose(this)
 
     /** create tensor of dot product */
-    matmul = (m: Tensor | number) => backend.default.matmul(this, m)
+    matmul = (m: Tensor) => backend.default.matmul(this, m)
 
     inverse = () => {
         throw new Error("Not impl., maybe ever")

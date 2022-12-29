@@ -9,8 +9,10 @@ import { exp } from './exp'
 import { eye } from './eye'
 import { fNorm } from './fNorm'
 import { fill } from './fill'
-import { getFlatValues } from './getFlatValues'
-import { getValues } from './getValues'
+import { flatValues } from './flatValues'
+import { values } from './values'
+import { rank } from './rank'
+import { shape } from './shape'
 import { getmax } from './getmax'
 import { getmin } from './getmin'
 import { gradientReLU } from './gradientReLU'
@@ -51,8 +53,10 @@ export default {
     eye,
     fNorm,
     fill,
-    getFlatValues,
-    getValues,
+    flatValues,
+    values,
+    rank,
+    shape,
     getmax,
     getmin,
     gradientReLU,

@@ -1,5 +1,5 @@
 <head>
-    <meta charset="UTF-8" content="text/html;charset=UTF-8" />
+    <meta content="text/html;charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="stolen-favicon.png" type="image/png" />
     <title>Demos</title>
@@ -18,6 +18,16 @@
         > machine learning framework.
     </p>
     <div class="flex flex-wrap">
+        <div class="rounded shadow  p-6 mt-4 mx-4 w-screen sm:w-auto max-w-sm">
+            <a
+                href="/TESTS"
+                class="font-medium text-red-500 hover:border-b-4 border-red-500"
+                >Tests</a
+            >
+            <p class="text-red-900 text-sm">
+                Just a bunch of tests of the operations and stuff.
+            </p>
+        </div>
         <div class="rounded shadow  p-6 mt-4 mx-4 w-screen sm:w-auto max-w-sm">
             <a
                 href="/IRIS"
