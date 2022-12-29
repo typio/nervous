@@ -17,8 +17,8 @@ import nv from "@typio/nervous"
 
 const main = async () => {
     await nv.init({ backend: 'webgpu' }) 
-    let tensor1 = await nv.randomNormal([1024, 1024]) 
-    let tensor2 = await nv.randomNormal([1024, 1024])
+    let tensor1 = await nv.random([162, 512]) 
+    let tensor2 = await nv.random([512, 999])
     let tensorProduct = await tensor1.matmul(tensor2) 
     console.log(tensorProduct.values())
 }
