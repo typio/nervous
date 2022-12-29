@@ -8,7 +8,7 @@
             {
                 await nv.init({ backend: "webgpu" });
                 const size = 512;
-                let result = await nv.random([size, size], 42);
+                let result = await nv.random([size, size]);
                 let resultValues = result.values();
                 console.log(result.flatValues(3));
 
