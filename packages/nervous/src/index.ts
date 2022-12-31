@@ -12,9 +12,10 @@ const webgpuAvailable = (): boolean => {
 }
 
 let config = {
-    backend: webgpuAvailable() ? 'webgpu' : 'js', // TODO: fix auto-select, it doesnt select webgpu when available
+    backend: 'auto',
     // anything else...?
 };
+
 
 const createBackend = async (backend: string) => {
     if (backend === 'js') {
@@ -35,11 +36,15 @@ export let gpuDevice: null | GPUDevice = null
 
 const init = async (userConfig?: { backend: string; }) => {
     // merge user config with default config
-    config = { ...config, ...userConfig };
+    let local_config = { ...config, ...userConfig };
 
-    backend = await createBackend(config.backend);
+    if (local_config.backend === 'auto') {
+        local_config.backend = 'webgpu'
+    }
 
-    if (config.backend === 'webgpu') {
+    backend = await createBackend(local_config.backend);
+
+    if (local_config.backend === 'webgpu') {
         try {
             if (!('gpu' in navigator)) {
                 console.error("User agent doesn't support WebGPU.");
@@ -50,7 +55,7 @@ const init = async (userConfig?: { backend: string; }) => {
                 return null;
             }
             gpuDevice = await gpuAdapter.requestDevice();
-            console.log('Initialized GPU device:', gpuDevice);
+            // console.log('Initialized GPU device:', gpuDevice);
         } catch (error) {
             console.error(error);
             console.warn('falling back to js backend');
@@ -104,6 +109,7 @@ const randomNormal = (shape: number[], seed?: number, mean?: number, std?: numbe
 
 export default {
     init,
+    webgpuAvailable,
     Tensor,
 
     scalar,
