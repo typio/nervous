@@ -161,7 +161,9 @@
 {#if testResults.length !== 0}
     <button
         class="rounded shadow text-slate-100 bg-red-500 active:bg-red-600 p-2"
-        on:click={()=>{testResults = []}}
+        on:click={() => {
+            testResults = [];
+        }}
     >
         Clear Results
     </button>
@@ -169,7 +171,7 @@
 
 {#each testResults as suite}
     {#if suite}
-        <h3 class='text-xl font-medium'>{suite.name}</h3>
+        <h3 class="text-xl font-medium">{suite.name}</h3>
         {#each suite.results || [] as result}
             <div class="inline-flex">
                 <p>{result.name}</p>

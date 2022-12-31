@@ -60,7 +60,7 @@ const init = async (userConfig?: { backend: string; }) => {
             console.error(error);
             console.warn('falling back to js backend');
 
-            backend = createBackend('js');
+            backend = await createBackend('js');
         }
     }
 }
