@@ -13,7 +13,7 @@ export const random = async (shape: number[], seed?: number, min?: number, max?:
         seedUInt = new Uint32Array([Math.random() * 0xFFFFFFFF])
     else {
         if (seed > 1000000 || seed < -1000000) throw new Error('random() seed must be in range [-1,000,000, 1,000,000]')
-        seedUInt = new Uint32Array([1 / (0.1 + (seed - -1000000) * (0.9 - 0.1) / (1000000 - -1000000)) * 0xFFFFFFFF])
+        seedUInt = new Uint32Array([1 / (0.001 + (seed - -1000000) * (0.998) / (2000000)) * 0xFFFFFFFF]) // non-idomatic range map
     }
 
     let resultSize = flatLengthFromShape(shape)

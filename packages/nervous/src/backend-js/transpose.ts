@@ -3,22 +3,22 @@ import { tensor } from "./tensor"
 
 /** switch rows and columns of a >=2d Tensor */
 export const transpose = (a: Tensor) => {
-    if (a.rank === 0)
+    if (a.rank() === 0)
         return a
-    if (a.rank === 1) {
+    if (a.rank() === 1) {
         let arr = []
-        for (let i = 0; i < a.values.length; i++) {
-            arr[i] = a.values[i]
+        for (let i = 0; i < a.flatValues().length; i++) {
+            arr[i] = a.flatValues()[i]
         }
-        return new Tensor(arr, [a.shape[0], 1])
+        return new Tensor(arr, [a.shape()[0], 1])
     }
-    if (a.rank === 2) {
+    if (a.rank() === 2) {
         // idiomatic 👍
-        const A = getValues(a)
+        const A = a.values()
 
-        let newV = new Array(a.shape[1])
+        let newV = new Array(a.shape()[1])
         for (let i = 0; i < newV.length; i++) {
-            newV[i] = new Array(a.shape[0])
+            newV[i] = new Array(a.shape()[0])
             for (let j = 0; j < newV[i].length; j++)
                 newV[i][j] = 0
         }
@@ -30,5 +30,5 @@ export const transpose = (a: Tensor) => {
         }
         return tensor(newV)
     }
-    throw new Error("Transpose on tensor of rank > 2 is not yet supported.")
+    throw new Error("Transpose on tensor of rank() > 2 is not yet supported.")
 }

@@ -1,7 +1,4 @@
 <head>
-    <meta content="text/html;charset=UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" href="stolen-favicon.png" type="image/png" />
     <title>Demos</title>
 </head>
 
@@ -25,7 +22,7 @@
                 >Tests</a
             >
             <p class="text-red-900 text-sm">
-                Just a bunch of tests of the operations and stuff.
+                Place for some tests and visualizations.
             </p>
         </div>
         <div class="rounded shadow  p-6 mt-4 mx-4 w-screen sm:w-auto max-w-sm">

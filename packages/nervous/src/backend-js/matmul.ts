@@ -52,7 +52,7 @@ export const matmul = (a: Tensor, m: Tensor) => {
                 }
             }
         }
-
+        
         return new Tensor(newV)
     }
 

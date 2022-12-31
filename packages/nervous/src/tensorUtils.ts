@@ -13,6 +13,7 @@ export const toArr = (floatArr: Float32Array, decimals?: number, startIndex = 0)
 }
 
 export const calcShape = (values: Rank1To4Array): number[] => {
+    // TODO: check for and warn if tensor is jagged
     let shape: number[] = []
     let subValues: Rank1To4Array | number = values
     while (subValues.constructor === Array) {
@@ -31,7 +32,7 @@ export const flatLengthFromShape = (shape: number[]) => {
 
 export const toNested = (values: number[], shape: number[]) => {
     if (flatLengthFromShape(shape) !== values.length)
-        throw new Error("New shape is not compatible with initial values length.")
+        throw new Error(`New shape is not compatible with initial values length: shape: ${shape} values.length: ${values.length}.`)
 
     // if (shape = [0])
 

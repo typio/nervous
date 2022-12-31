@@ -17,40 +17,43 @@ export const doOp = (first: number, second: number, op: BinaryOp) => {
 }
 
 export const elementwiseOp = (m: Tensor, n: number | Tensor, op: BinaryOp, axis?) => {
-    let newV = toArr(m.values)
-    if (typeof n === 'number') {
+    let mShape = m.shape()
+    let nShape = n.constructor === Number ? undefined : n.shape()
+
+    let mFlatValues = m.flatValues()
+    let nFlatValues = n.constructor === Number ? [n] : n.flatValues()
+
+    let newV = mFlatValues
+
+    if (n.constructor === Number || n.rank() === 0) {
         for (let i = 0; i < newV.length; i++) {
-            newV[i] = doOp(newV[i], n, op)
-        }
-    } else if (n.rank === 0) {
-        let scalarValue = n.values[0]
-        for (let i = 0; i < newV.length; i++) {
-            newV[i] = doOp(newV[i], scalarValue, op)
+            newV[i] = doOp(newV[i], nFlatValues[0], op)
         }
     } else if (axis === 1) {
-        if ((n.rank === 1 && n.shape[0] !== m.shape[1]) || (n.shape[0] === 1 && n.shape[1] !== m.shape[1]))
-            throw new Error(`Second tensor of shape ${n.shape} should equal first tensor shape on axis=1 but is ${m.shape[1]}`)
+        if (nShape[0] === 1 && nShape[1] !== mShape[1])
+            throw new Error(`Second tensor of shape ${nShape} should equal first tensor shape ${mShape} on axis=1 but is ${mShape[1]}`)
         for (let i = 0; i < newV.length; i++) {
-            newV[i] = doOp(newV[i], n.values[i % n.values.length], op)
+            newV[i] = doOp(newV[i], nFlatValues[i % nFlatValues.length], op)
         }
         // } else if (axis === 0) {
         //     for (let i = 0; i < newV.length; i++) {
-        //         newV[i] = doOp(newV[i], n.values[i], op)
+        //         newV[i] = doOp(newV[i], n.values()[i], op)
         //     }
     } else {
-        if (m.values.length !== n.values.length)
+        if (mFlatValues.length !== nFlatValues.length)
             throw new Error("Tensors can't be of different sizes for elementwise operation")
         for (let i = 0; i < newV.length; i++) {
-            newV[i] = doOp(newV[i], n.values[i], op)
+            newV[i] = doOp(newV[i], nFlatValues[i], op)
         }
     }
-    return new Tensor(newV, m.shape)
+    return new Tensor(newV, m.shape())
 }
 
 export const broadcast = (a: Tensor, func: (any)) => {
     let newV = []
-    for (let i = 0; i < a.values.length; i++) {
-        newV[i] = func(a.values[i])
+    let aFlatValues = a.flatValues()
+    for (let i = 0; i < aFlatValues.length; i++) {
+        newV[i] = func(aFlatValues[i])
     }
-    return new Tensor(newV, a.shape)
+    return new Tensor(newV, a.shape())
 }
