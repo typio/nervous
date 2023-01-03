@@ -11,7 +11,7 @@ struct Matrix {
 @group(0) @binding(1) var<storage, read> seedInput: u32;
 @group(0) @binding(2) var<storage, read_write> outMatrix:  Matrix;
 
-@compute @workgroup_size(4)
+@compute @workgroup_size(64)
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let seed = seedInput * (global_id.x + 1u) * 1099087573u;
     let outIndex: vec2<u32> = vec2(global_id.x, global_id.y);

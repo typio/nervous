@@ -7,58 +7,127 @@ let tests = [
             {
                 name: 'scalar() tensor creation',
                 code: async () =>
-                    // await new Promise(r => setTimeout(r, 100));
-                    nv.scalar(4).values()
-                ,
+                    nv.scalar(4).values(),
                 expects: () => 4
             },
-            // {
-            //     name: "tensor()",
-            //     code: () => {
-            //         nv.tensor(
-            //             [
-            //                 [
-            //                     [
-            //                         [1, 2, 3, 4, 5, 6, 7, 8],
-            //                         [1, 2, 3, 4, 5, 6, 7, 8],
-            //                     ],
-            //                     [
-            //                         [1, 2, 3, 4, 5, 6, 7, 8],
-            //                         [1, 2, 3, 4, 5, 6, 7, 8],
-            //                     ]
-            //                 ],
-            //                 [
-            //                     [
-            //                         [1, 2, 3, 4, 5, 6, 7, 8],
-            //                         [1, 2, 3, 4, 5, 6, 7, 8],
-            //                     ],
-            //                     [
-            //                         [1, 2, 3, 4, 5, 6, 7, 8],
-            //                         [1, 2, 3, 4, 5, 6, 7, 8],
-            //                     ]
-            //                 ],
-            //             ])
-            //         assert.equal(tensor.rank, 4)
-            //         assert.equal(tensor.shape, [2, 2, 2, 8])
+            {
+                name: "tensor()",
+                code: () => {
+                    let results = []
+                    let tensor = nv.tensor(
+                        [
+                            [
+                                [
+                                    [1, 2, 3, 4, 5, 6, 7, 8],
+                                    [1, 2, 3, 4, 5, 6, 7, 8],
+                                ],
+                                [
+                                    [1, 2, 3, 4, 5, 6, 7, 8],
+                                    [1, 2, 3, 4, 5, 6, 7, 8],
+                                ]
+                            ],
+                            [
+                                [
+                                    [1, 2, 3, 4, 5, 6, 7, 8],
+                                    [1, 2, 3, 4, 5, 6, 7, 8],
+                                ],
+                                [
+                                    [1, 2, 3, 4, 5, 6, 7, 8],
+                                    [1, 2, 3, 4, 5, 6, 7, 8],
+                                ]
+                            ],
+                        ])
+                    results.push(tensor.rank())
+                    results.push(tensor.shape())
 
-            //         tensor = nv.tensor(
-            //             [
-            //                 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
-            //                 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
-            //             ],
-            //             [2, 2, 3, 4]
-            //         )
-            //         assert.equal(tensor.rank, 4)
-            //         assert.equal(tensor.shape, [2, 2, 3, 4])
+                    tensor = nv.tensor(
+                        [
+                            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+                            32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
+                        ],
+                        [2, 2, 3, 4]
+                    )
+                    results.push(tensor.rank())
+                    results.push(tensor.shape())
 
-            //         let tensorFromFloatArray = nv.tensor(new Float32Array([1, 2, 3, 4, 5, 6]), [3, 2])
-            //         assert.equal(tensorFromFloatArray.getValues(), [[1, 2], [3, 4], [5, 6]])
+                    let tensorFromFloatArray = nv.tensor(new Float32Array([3, 2, 0, 0, 1, 2, 3, 4, 5, 6]), [3, 2])
+                    results.push(tensorFromFloatArray.values())
 
-            //     },
-            //     expects: [5, 6],
-            // },
+                    return results
+                },
+                expects: () => [
+                    4,
+                    [2, 2, 2, 8],
+                    4,
+                    [2, 2, 3, 4],
+                    [[1, 2], [3, 4], [5, 6]]
+                ],
+            },
+            {
+                name: 'eye()',
+                code: async () => {
+                    let results = []
+                    let t = nv.eye([3, 3])
+                    results.push(t.rank())
+                    results.push(t.shape())
+                    results.push(t.values())
+                    return results
+                },
+                expects: async () => {
+                    return [
+                        2,
+                        [3, 3],
+                        [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+                    ]
+                }
+            },
+            {
+                name: 'zeros()',
+                code: async () => {
+                    let results = []
+                    let t = nv.zeros([2, 3, 4])
+                    results.push(t.rank())
+                    results.push(t.shape())
+                    return results
+                },
+                expects: async () => {
+                    return [
+                        3,
+                        [2, 3, 4],
+                    ]
+                }
+            },
+            {
+                name: 'diag()',
+                code: async () => {
+                    let results = []
+                    let t = nv.diag([4, 3, 2, 5])
+                    results.push(t.values())
+                    return results
+                },
+                expects: async () => {
+                    return [
+                        [[4, 0, 0, 0], [0, 3, 0, 0], [0, 0, 2, 0], [0, 0, 0, 5]]
+                    ]
+                }
+            },
+            {
+                name: 'random(), needs better test method',
+                code: async () => {
+                    let results = []
+                    let t = nv.random([4, 3, 2, 5], 0, 10, true)
+                    results.push(t.rank())
+                    results.push(t.shape())
+                    return results
+                },
+                expects: async () => {
+                    return [
+                        4,
+                        [4, 3, 2, 5],
+                    ]
+                }
+            },
         ]
-
     },
     {
         suite: 'Tensor OPs',
@@ -79,46 +148,6 @@ let tests = [
 ];
 
 export default tests
-
-//import { test } from 'uvu'
-// import * as assert from 'uvu/assert'
-
-// import nv from '../src/index'
-
-// test('eye', async () => {
-//     (async () => {
-//         await nv.init({ backend: "js" })
-
-//         let tensor = nv.eye([3, 3])
-//         assert.equal(tensor.rank, 2)
-//         assert.equal(tensor.shape, [3, 3])
-//         assert.equal(tensor.getValues(), [[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-//     })()
-// })
-
-// test('zeros', async () => {
-//     let tensor = nv.zeros([2, 3, 4])
-//     assert.equal(tensor.rank, 3)
-//     assert.equal(tensor.shape, [2, 3, 4])
-// })
-
-// test('random', async () => {
-//     let tensor = nv.random([4, 3, 2, 5], 0, 10, true)
-//     assert.equal(tensor.rank, 4)
-//     assert.equal(tensor.shape, [4, 3, 2, 5])
-//     assert.equal(tensor.values[0] % 1, 0)
-
-//     tensor = nv.random([1, 2, 3, 4, 7], 0, 10, false)
-//     assert.equal(tensor.rank, 5)
-//     assert.equal(tensor.shape, [1, 2, 3, 4, 7])
-//     assert.not.equal(tensor.values[0] % 1, 0)
-// })
-
-// test('diag', async () => {
-//     let tensor = nv.diag([4, 3, 2, 5])
-//     assert.equal(tensor.getValues(), [[4, 0, 0, 0], [0, 3, 0, 0], [0, 0, 2, 0], [0, 0, 0, 5]])
-// })
-
 
 // test('reshape', async () => {
 //     let tensor = nv.tensor([1, 2, 3, 4, 5, 6], [3, 2])

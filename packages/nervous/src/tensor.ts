@@ -15,9 +15,12 @@ export class Tensor {
     /**  first 4 values are shape (right padded 0s), rest are tensor values */
     readonly data: Float32Array = new Float32Array(0)
 
+    readonly usingGPUBuffer: boolean = false;
+    readonly webGPUBuffer: GPUBuffer;
+
     /** Construct tensor, pass value array, nested or un-nested, and optional shape if un-nested, 
      * or pass raw Float32Array already in internal Tensor data form. */
-    constructor(values: number | Rank1To4Array | Float32Array, shape?: number[]) {
+    constructor(values: number | Rank1To4Array | Float32Array | GPUBuffer, shape?: number[]) {
         let _rank: 0 | 1 | 2 | 3 | 4 = 0
         let _shape: number[] = []
         let _values: number[] = []
@@ -25,6 +28,9 @@ export class Tensor {
         if (values.constructor === Float32Array) {
             this.data = values
             return
+        } else if (values.constructor === GPUBuffer) {
+            this.usingGPUBuffer = true
+            this.webGPUBuffer = values
         }
 
         if (values !== undefined && shape === undefined) {
@@ -60,6 +66,10 @@ export class Tensor {
         }
         this.data = new Float32Array([..._shape, ..._values])
     }
+
+    toJS = (): Tensor => backend.default.toJS(this)
+
+    toGPU = (): Tensor => backend.default.toGPU(this)
 
     select = (dim: number, index: number) => {
         throw new Error("Not implemented")

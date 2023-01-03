@@ -22,7 +22,7 @@
                 >Tests</a
             >
             <p class="text-red-900 text-sm">
-                Place for some tests and visualizations.
+                Library tests with some visualization and benchmarks.
             </p>
         </div>
         <div class="rounded shadow  p-6 mt-4 mx-4 w-screen sm:w-auto max-w-sm">

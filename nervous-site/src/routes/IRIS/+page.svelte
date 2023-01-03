@@ -2,6 +2,7 @@
     import nv from "nervous";
     import P5 from "p5-svelte";
     import type { Sketch } from "p5-svelte";
+    import Katex from "$lib/components/Katex.svelte";
 
     import iris_raw_data from "./iris.data?raw";
     import { browser } from "$app/environment";
@@ -391,22 +392,22 @@
 
         <div class="mt-8 indent-8 space-y-4">
             <p>
-                The Iris flower dataset contains the input variables (features)
-                of Sepal Length, Sepal Width, Petal Length, and Petal Width for
-                150 different Iris flowers. These flowers belong to three
-                different species: Setosa, Versicolor, and Virginica. This
-                webpage trains a neural network, specifically a linear
+                This webpage trains a neural network, specifically a linear
                 classifier, within your web browser to predict the species of an
-                Iris flower based on its input variables.
+                Iris flower based on its input variables. The Iris flower
+                dataset contains the input variables (features) of Sepal Length,
+                Sepal Width, Petal Length, and Petal Width for 150 different
+                Iris flowers. These flowers belong to three different species:
+                Setosa, Versicolor, and Virginica.
             </p>
             <p>
-                In the linear classifier, the input variables (x) are multiplied
-                by a matrix of weights (W), and a vector (b) is added to the
+                In the linear classifier, the input variables <Katex math='(x)'/> are multiplied
+                by a matrix of weights <Katex math='(W)'/>, and a vector <Katex math='(b)'/> is added to the
                 product. This produces a set of weighted input values that
                 represent the relative importance of each input variable in
                 predicting the species of the flower. The index of the largest
                 value in the resultant vector is the predicted species of the
-                flower (y). Initially, W and b are assigned random values, but
+                flower <Katex math='(y)'/>. Initially, <Katex math='W'/> and <Katex math='b'/> are assigned random values, but
                 the neural network learns by adjusting these values in a way
                 that minimizes future error.
             </p>
@@ -417,8 +418,8 @@
                 the cross-entropy function measures the difference between the
                 predicted probabilities and the true probabilities (i.e. the
                 actual species of the flower). By minimizing this difference,
-                the neural network can improve its accuracy in predicting the
-                species of an Iris flower based on its input variables.
+                the neural network improves its accuracy in correctly predicting
+                the species of an Iris flower from its input variables.
             </p>
 
             <p>Here is the full dataset:</p>

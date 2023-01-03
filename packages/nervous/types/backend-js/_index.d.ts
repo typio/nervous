@@ -14,7 +14,7 @@ declare const _default: {
     values: (a: import("../tensor").Tensor, decimals?: number) => any;
     rank: (a: import("../tensor").Tensor) => number;
     shape: (a: import("../tensor").Tensor) => number[];
-    getmax: (a: import("../tensor").Tensor, axis?: 0 | 1) => any;
+    getmax: (a: import("../tensor").Tensor, axis?: 0 | 1) => number | import("../tensor").Tensor;
     getmin: (a: import("../tensor").Tensor, axis?: 0 | 1) => any;
     gradientReLU: (a: import("../tensor").Tensor) => import("../tensor").Tensor;
     log: (a: import("../tensor").Tensor) => import("../tensor").Tensor;

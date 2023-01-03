@@ -34,7 +34,7 @@ export const random = async (shape: number[], seed?: number, min?: number, max?:
     new Float32Array(seedGPUBuffer.getMappedRange()).set(seedUInt)
     seedGPUBuffer.unmap()
 
-    const resultBufferSize = Float32Array.BYTES_PER_ELEMENT * (4 + resultSize)
+    const resultBufferSize = Math.max(32, Float32Array.BYTES_PER_ELEMENT * (4 + resultSize))
     const resultGPUBuffer = gpuDevice.createBuffer({
         size: resultBufferSize,
         usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC
@@ -77,14 +77,14 @@ export const random = async (shape: number[], seed?: number, min?: number, max?:
     const passEncoder = commandEncoder.beginComputePass()
     passEncoder.setPipeline(computePipeline)
     passEncoder.setBindGroup(0, bindGroup)
-    passEncoder.dispatchWorkgroups(resultSize / 16)
+    passEncoder.dispatchWorkgroups(Math.ceil(resultSize / (64 * 4)))
     passEncoder.end()
 
     commandEncoder.copyBufferToBuffer(resultGPUBuffer, 0, readGPUBuffer, 0, resultBufferSize)
     gpuDevice.queue.submit([commandEncoder.finish()])
     await readGPUBuffer.mapAsync(GPUMapMode.READ)
 
-    let result = new Float32Array(readGPUBuffer.getMappedRange())
+    let result = new Float32Array(readGPUBuffer.getMappedRange().slice(0, Float32Array.BYTES_PER_ELEMENT * (4 + resultSize)))
 
     return new Tensor(result)
 }
