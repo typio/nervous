@@ -95,9 +95,10 @@ importers:
       typescript: ^4.8.4
       uvu: ^0.5.6
       vitest: ^0.25.3
+    dependencies:
+      '@webgpu/types': 0.1.23
     devDependencies:
       '@types/benchmark': 2.1.2
-      '@webgpu/types': 0.1.23
       benchmark: 2.1.4
       d3: 7.7.0
       node-fetch-polyfill: 2.0.6
@@ -1392,7 +1393,6 @@ packages:
 
   /@webgpu/types/0.1.23:
     resolution: {integrity: sha512-SxHrhOTH1C7EcbnVZ3DzzliQs10QJO19GoUtzVJLIqDD0VeAdtxLEoNnP5zkCDKyMFvx3ptU7jESdaOIUqAuJg==}
-    dev: true
 
   /acorn-jsx/5.3.2_acorn@8.8.0:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}

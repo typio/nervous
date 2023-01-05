@@ -19,7 +19,7 @@ declare const _default: {
     gradientReLU: (a: import("../tensor").Tensor) => never;
     log: (a: import("../tensor").Tensor) => never;
     lpNorm: (a: import("../tensor").Tensor, p?: number) => number;
-    matmul: (a: import("../tensor").Tensor, m: import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
+    matmul: (_a: import("../tensor").Tensor, _m: import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
     mean: (a: import("../tensor").Tensor) => number;
     minus: (a: import("../tensor").Tensor, s: number | import("../tensor").Tensor, axis?: number) => never;
     mod: (a: import("../tensor").Tensor, m: number | import("../tensor").Tensor, axis?: number) => never;
@@ -39,6 +39,8 @@ declare const _default: {
     tensor: (values: number | import("../tensor").Rank1To4Array, shape?: number[]) => import("../tensor").Tensor;
     trace: (a: Tensor) => never;
     transpose: (a: import("../tensor").Tensor) => never;
+    toGPU: (a: import("../tensor").Tensor) => import("../tensor").Tensor;
+    toJS: (a: import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
     zeros: (shape: number | number[]) => never;
 };
 export default _default;

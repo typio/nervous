@@ -71,6 +71,34 @@
     if (browser) {
         // runTests();
         const main = async () => {
+
+            {
+                await nv.init()
+                const size = 512;
+                let result = await nv.random([size, size]);
+                let resultValues = result.values();
+
+                const app = new PIXI.Application({
+                    width: 512,
+                    height: 512,
+                    antialias: true,
+                });
+
+                document.body.appendChild(app.view);
+                const graphics = new PIXI.Graphics();
+                for (let i = 0; i < result.shape()[0]; i++) {
+                    for (let j = 0; j < result.shape()[1]; j++) {
+                        if (i % 64 === 0 || j % 64 === 0)
+                            graphics.beginFill(0x000000);
+                        else graphics.beginFill(0xff0000 * resultValues[i][j]);
+
+                        graphics.drawRect(i, j, 1, 1);
+                        graphics.endFill();
+                    }
+                }
+                app.stage.addChild(graphics);
+            }
+            
             // Benchmarking methods of chaining WebGPU OPs together such as would be done in a neural network
             console.log(
                 `%cBenchmarking methods of chaining WebGPU OPs together such as would be done in a neural network`,
@@ -87,10 +115,29 @@
             let t3 = await nv.random([mSize, mSize]);
 
             await nv.init({ backend: "webgpu" });
-            console.log(t3.webGPUBuffer);
+            let tensor = await (
+                await nv.tensor([
+                    [0.6183, 0.1661, 0.2896, 0.8502, 0.5295],
+                    [0.2598, 0.3651, 0.0412, 0.3813, 0.3422],
+                    [0.6018, 0.4518, 0.7268, 0.8983, 0.8653],
+                    [0.5311, 0.2222, 0.5785, 0.5307, 0.865],
+                    [0.6808, 0.1407, 0.8364, 0.1303, 0.4623],
+                ])
+            ).toGPU();
 
-            let t3GPU = await t3.toGPU();
-            console.log(t3GPU.webGPUBuffer);
+            
+            let tensor2 = await (
+                await nv.tensor([
+                    [0.8974, 0.6172],
+                    [0.4255, 0.068],
+                    [0.662, 0.2339],
+                    [0.1782, 0.8271],
+                    [0.7705, 0.9918],
+                ])
+            ).toGPU();
+
+
+            console.log(JSON.stringify(await (await (await tensor.matmul(tensor2)).toJS()).values()));
 
             {
                 // Test speed of OP reading value to CPU and passing value in JS to next OP
@@ -590,71 +637,47 @@
             //         "background: #aaff44;"
             //     );
             // }
+            
 
-            //     const size = 512;
-            //     let result = await nv.random([size, size]);
-            //     let resultValues = result.values();
+            {
+                await nv.init({ backend: "webgpu" });
+                const size = 512;
+                console.log(
+                    `%cspeed test of random([${size}, ${size}])`,
+                    "background: #00ff00;"
+                );
+                let start = performance.now();
 
-            //     const app = new PIXI.Application({
-            //         width: 512,
-            //         height: 512,
-            //         antialias: true,
-            //     });
+                let tensor1 = await nv.random([size, size], 42);
+                let tensor2 = await nv.random([size, size], 69);
+                let mid = performance.now();
 
-            //     document.body.appendChild(app.view);
-            //     const graphics = new PIXI.Graphics();
-            //     for (let i = 0; i < result.shape()[0]; i++) {
-            //         for (let j = 0; j < result.shape()[1]; j++) {
-            //             if (i % 64 === 0 || j % 64 === 0)
-            //                 graphics.beginFill(0x000000);
-            //             else graphics.beginFill(0xff0000 * resultValues[i][j]);
+                {
+                    let result = await tensor1.matmul(tensor2);
+                    console.log(result);
+                }
+                console.log(
+                    `%cwebgpu time: ${mid - start}ms`,
+                    "background: #ffff00;"
+                );
 
-            //             graphics.drawRect(i, j, 1, 1);
-            //             graphics.endFill();
-            //         }
-            //     }
-            //     app.stage.addChild(graphics);
-            // }
+                await nv.init({ backend: "js" });
+                mid = performance.now();
 
-            // {
-            //     await nv.init({ backend: "webgpu" });
-            //     const size = 512;
-            //     console.log(
-            //         `%cspeed test of random([${size}, ${size}])`,
-            //         "background: #00ff00;"
-            //     );
-            //     let start = performance.now();
+                tensor1 = await nv.random([size, size]);
+                tensor2 = await nv.random([size, size]);
+                let end = performance.now();
 
-            //     let tensor1 = await nv.random([size, size], 42);
-            //     let tensor2 = await nv.random([size, size], 69);
-            //     let mid = performance.now();
+                {
+                    let result = await tensor1.matmul(tensor2);
+                    console.log(result);
+                }
 
-            //     {
-            //         let result = await tensor1.matmul(tensor2);
-            //         console.log(result);
-            //     }
-            //     console.log(
-            //         `%cwebgpu time: ${mid - start}ms`,
-            //         "background: #ffff00;"
-            //     );
-
-            //     await nv.init({ backend: "js" });
-            //     mid = performance.now();
-
-            //     tensor1 = await nv.random([size, size]);
-            //     tensor2 = await nv.random([size, size]);
-            //     let end = performance.now();
-
-            //     {
-            //         let result = await tensor1.matmul(tensor2);
-            //         console.log(result);
-            //     }
-
-            //     console.log(
-            //         `%cjs time: ${end - mid}ms`,
-            //         "background: #ffff00;"
-            //     );
-            // }
+                console.log(
+                    `%cjs time: ${end - mid}ms`,
+                    "background: #ffff00;"
+                );
+            }
         };
         main();
     }

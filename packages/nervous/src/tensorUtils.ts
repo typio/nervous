@@ -27,7 +27,7 @@ export const calcShape = (values: Rank1To4Array): number[] => {
 export const flatLengthFromShape = (shape: number[]) => {
     if (shape[0] === 0) return 1
     // reduce is fine considering max array length is 6
-    return shape.reduce((previousValue, currentValue) => previousValue * currentValue, 1)
+    return shape.reduce((previousValue, currentValue) => Math.max(1, previousValue) * Math.max(1, currentValue), 1)
 }
 
 export const toNested = (values: number[], shape: number[]) => {

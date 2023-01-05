@@ -20,7 +20,7 @@ export const random = async (shape: number[], seed?: number, min?: number, max?:
 
     const shapeGPUBuffer = gpuDevice.createBuffer({
         mappedAtCreation: true,
-        size: shapeArray.byteLength,
+        size: Math.max(32, shapeArray.byteLength),
         usage: GPUBufferUsage.STORAGE
     })
     new Float32Array(shapeGPUBuffer.getMappedRange()).set(shape)

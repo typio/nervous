@@ -4,7 +4,7 @@ import { Tensor } from "../tensor";
 export const toGPU = (a: Tensor) => {
     const aBuffer = gpuDevice.createBuffer({
         mappedAtCreation: true,
-        size: a.data.byteLength,
+        size: Math.max(32, a.data.byteLength),
         usage:
             GPUBufferUsage.STORAGE |
             GPUBufferUsage.COPY_DST |
@@ -15,5 +15,5 @@ export const toGPU = (a: Tensor) => {
     );
     aBuffer.unmap();
 
-    return new Tensor(aBuffer)
+    return new Tensor(aBuffer, a.shape())
 }

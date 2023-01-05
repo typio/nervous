@@ -1,4 +1,4 @@
-import { backend } from "."
+import { backend, gpuDevice } from "."
 import { calcShape, flatLengthFromShape } from "./tensorUtils"
 
 // TODO: CHANGE new Array()'s to Float32Array's
@@ -13,35 +13,38 @@ export class Tensor {
     // readonly shape: number[] = [0]
 
     /**  first 4 values are shape (right padded 0s), rest are tensor values */
-    readonly data: Float32Array = new Float32Array(0)
+    readonly data: Float32Array // = new Float32Array(0)
 
     readonly usingGPUBuffer: boolean = false;
-    readonly webGPUBuffer: GPUBuffer;
+    readonly webGPUBuffer: any;
+    readonly webGPUBufferShape: number[]
 
     /** Construct tensor, pass value array, nested or un-nested, and optional shape if un-nested, 
      * or pass raw Float32Array already in internal Tensor data form. */
     constructor(values: number | Rank1To4Array | Float32Array | GPUBuffer, shape?: number[]) {
-        let _rank: 0 | 1 | 2 | 3 | 4 = 0
         let _shape: number[] = []
         let _values: number[] = []
 
         if (values.constructor === Float32Array) {
+            // console.log('hi',values)
             this.data = values
             return
-        } else if (values.constructor === GPUBuffer) {
+        } else if (values.constructor !== Number && values.constructor !== Array) { // is GPUBuffer, can't use "GPUBuffer" bc @webgpu/types DOESN'T WORK!
             this.usingGPUBuffer = true
             this.webGPUBuffer = values
+            this.webGPUBufferShape = shape
+            return
         }
 
         if (values !== undefined && shape === undefined) {
             if (values.constructor === Number) { // if scalar
                 values = [values] // store scalar number as number[]
                 _shape = []
-                _rank = 0
+                // _rank = 0
             } else {
                 // @ts-ignore: I checked the type
                 _shape = calcShape(values)
-                _rank = _shape.length as typeof _rank
+                // _rank = _shape.length as typeof _rank
             }
             if (values.constructor === Array) {
                 let flatValues = values.flat() as number[]
@@ -58,7 +61,7 @@ export class Tensor {
                 throw new Error("Values don't fit into shape.")
 
             _shape = shape
-            _rank = _shape.length as typeof _rank // good ts? 🤔
+            // _rank = _shape.length as typeof _rank // good ts? 🤔
             _values = flatValues
         }
         while (_shape.length < 4) {
@@ -67,9 +70,9 @@ export class Tensor {
         this.data = new Float32Array([..._shape, ..._values])
     }
 
-    toJS = (): Tensor => backend.default.toJS(this)
+    toJS = async (): Promise<Tensor> => backend.default.toJS(this)
 
-    toGPU = (): Tensor => backend.default.toGPU(this)
+    toGPU = async (): Promise<Tensor> => backend.default.toGPU(this)
 
     select = (dim: number, index: number) => {
         throw new Error("Not implemented")

@@ -38,6 +38,8 @@ import { sum } from './sum'
 import { tensor } from './tensor'
 import { trace } from './trace'
 import { transpose } from './transpose'
+import { toGPU } from './toGPU'
+import { toJS } from './toJS'
 import { zeros } from './zeros'
 
 
@@ -82,6 +84,8 @@ export default {
     tensor,
     trace,
     transpose,
+    toGPU,
+    toJS,
     zeros,
 };
 

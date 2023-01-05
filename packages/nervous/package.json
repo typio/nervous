@@ -23,7 +23,6 @@
 	},
 	"devDependencies": {
 		"@types/benchmark": "^2.1.2",
-		"@webgpu/types": "^0.1.23",
 		"benchmark": "^2.1.4",
 		"d3": "^7.7.0",
 		"node-fetch-polyfill": "^2.0.6",
@@ -33,5 +32,8 @@
 		"uvu": "^0.5.6",
 		"vitest": "^0.25.3"
 	},
-	"types": "types/index.d.ts"
+	"types": "types/index.d.ts",
+	"dependencies": {
+		"@webgpu/types": "^0.1.23"
+	}
 }

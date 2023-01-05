@@ -11,6 +11,9 @@ struct Matrix {
 
 @compute @workgroup_size(8, 8)
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    if global_id.x >= u32(aMatrix.shape.x) || global_id.y >= u32(mMatrix.shape.y) {
+        return;
+    }
 
     outMatrix.shape = vec4(aMatrix.shape.x, mMatrix.shape.y, 0., 0.);
 

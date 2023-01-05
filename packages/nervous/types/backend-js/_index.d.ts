@@ -39,6 +39,8 @@ declare const _default: {
     tensor: (values: number | import("../tensor").Rank1To4Array, shape?: number[]) => import("../tensor").Tensor;
     trace: (a: import("../tensor").Tensor) => any;
     transpose: (a: import("../tensor").Tensor) => import("../tensor").Tensor;
+    toGPU: (a: import("../tensor").Tensor) => import("../tensor").Tensor;
+    toJS: (a: import("../tensor").Tensor) => import("../tensor").Tensor;
     zeros: (shape: number | number[]) => import("../tensor").Tensor;
 };
 export default _default;

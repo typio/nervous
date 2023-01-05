@@ -1,11 +1,16 @@
+import "@webgpu/types";
 export declare type Rank1To4Array = Float32Array | number[] | number[][] | number[][][] | number[][][][];
 export declare type BinaryOp = "add" | "sub" | "mul" | "div" | "mod";
 export declare class Tensor {
     /**  first 4 values are shape (right padded 0s), rest are tensor values */
     readonly data: Float32Array;
+    readonly usingGPUBuffer: boolean;
+    readonly webGPUBuffer: GPUBuffer;
     /** Construct tensor, pass value array, nested or un-nested, and optional shape if un-nested,
      * or pass raw Float32Array already in internal Tensor data form. */
-    constructor(values: number | Rank1To4Array | Float32Array, shape?: number[]);
+    constructor(values: number | Rank1To4Array | Float32Array | GPUBuffer, shape?: number[]);
+    toJS: () => Tensor;
+    toGPU: () => Tensor;
     select: (dim: number, index: number) => never;
     /** returns nested number array of tensor values, returns type number if scalar */
     values: (decimals?: number) => number[] | number;

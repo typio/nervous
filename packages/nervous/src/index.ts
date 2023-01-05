@@ -57,7 +57,7 @@ const init = async (userConfig?: { backend: string; }) => {
             gpuDevice = await gpuAdapter.requestDevice();
             // console.log('Initialized GPU device:', gpuDevice);
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             console.warn('falling back to js backend');
 
             backend = await createBackend('js');
