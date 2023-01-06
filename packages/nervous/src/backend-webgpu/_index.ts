@@ -6,7 +6,6 @@ import { argmin } from './argmin'
 import { diag } from './diag'
 import { div } from './div'
 import { exp } from './exp'
-import { elementwiseOP } from './elementwiseOp'
 import { eye } from './eye'
 import { fNorm } from './fNorm'
 import { fill } from './fill'
@@ -54,7 +53,6 @@ export default {
     div,
     exp,
     eye,
-    elementwiseOP,
     fNorm,
     fill,
     flatValues,
