@@ -5,7 +5,7 @@ declare const _default: {
     argmax: (a: import("../tensor").Tensor) => never;
     argmin: (a: import("../tensor").Tensor) => never;
     diag: (values: number[]) => never;
-    div: (a: import("../tensor").Tensor, d: number | import("../tensor").Tensor, axis?: number) => never;
+    div: (_a: import("../tensor").Tensor, _b: number | import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
     exp: (a: import("../tensor").Tensor, base?: number) => never;
     eye: (dim: number | number[], offset?: number) => import("../tensor").Tensor;
     fNorm: (a: import("../tensor").Tensor) => never;
@@ -21,9 +21,9 @@ declare const _default: {
     lpNorm: (a: import("../tensor").Tensor, p?: number) => number;
     matmul: (_a: import("../tensor").Tensor, _m: import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
     mean: (a: import("../tensor").Tensor) => number;
-    minus: (a: import("../tensor").Tensor, s: number | import("../tensor").Tensor, axis?: number) => never;
-    mod: (a: import("../tensor").Tensor, m: number | import("../tensor").Tensor, axis?: number) => never;
-    mul: (a: import("../tensor").Tensor, m: number | import("../tensor").Tensor, axis?: number) => never;
+    minus: (_a: import("../tensor").Tensor, _b: number | import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
+    mod: (_a: import("../tensor").Tensor, _b: number | import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
+    mul: (_a: import("../tensor").Tensor, _b: number | import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
     oneHot: (dim: number | number[], index: number | number[]) => never;
     ones: (shape: number | number[]) => never;
     pow: (a: import("../tensor").Tensor, exp: number) => never;
