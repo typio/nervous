@@ -1,6 +1,6 @@
-import { Tensor } from "../tensor"
+import { BinaryOp, Tensor } from "../tensor"
+import { elementwiseOP } from './elementwiseOp'
 
-/** create tensor with number m OR each value of a tensor m mod with each value of input tensor  */
-export const mod = (a: Tensor, m: number | Tensor, axis?: number) => {
-    throw new Error('Method is not yet implemented in webgpu backend 😞')
+export const mod = async (_a: Tensor, _b: Tensor | number) => {
+    return elementwiseOP(_a, _b, BinaryOp.mod)
 }

@@ -12,7 +12,7 @@ let tests = [
             },
             {
                 name: "tensor()",
-                code: () => {
+                code: async () => {
                     let results = []
                     let tensor = nv.tensor(
                         [
@@ -51,7 +51,7 @@ let tests = [
                     results.push(tensor.shape())
 
                     let tensorFromFloatArray = nv.tensor(new Float32Array([3, 2, 0, 0, 1, 2, 3, 4, 5, 6]), [3, 2])
-                    results.push(tensorFromFloatArray.values())
+                    results.push(await tensorFromFloatArray.values())
 
                     return results
                 },
@@ -70,7 +70,7 @@ let tests = [
                     let t = nv.eye([3, 3])
                     results.push(t.rank())
                     results.push(t.shape())
-                    results.push(t.values())
+                    results.push(await t.values())
                     return results
                 },
                 expects: async () => {
@@ -102,7 +102,7 @@ let tests = [
                 code: async () => {
                     let results = []
                     let t = nv.diag([4, 3, 2, 5])
-                    results.push(t.values())
+                    results.push(await t.values())
                     return results
                 },
                 expects: async () => {
@@ -115,7 +115,7 @@ let tests = [
                 name: 'random(), needs better test method',
                 code: async () => {
                     let results = []
-                    let t = nv.random([4, 3, 2, 5], 0, 10, true)
+                    let t = await nv.random([4, 3, 2, 5])
                     results.push(t.rank())
                     results.push(t.shape())
                     return results
@@ -134,13 +134,16 @@ let tests = [
         tests: [
             {
                 name: "add() on two 1d tensors",
-                code: async () =>
-                    (await nv
-                        .tensor([1, 2])
-                        .add(nv.tensor([4, 4]))).values()
+                code: async () =>{
+                    let a = nv.tensor([1,2])                    
+                    let b = nv.tensor([4,4])
+                    let res = await a.add(b)
+                    
+                    return await res.values()
+                }
                 ,
                 expects: async () =>
-                    nv.tensor([5, 6]).values()
+                    await nv.tensor([5, 6]).values()
                 ,
             },
         ]

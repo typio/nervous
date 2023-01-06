@@ -1,15 +1,12 @@
 import { Tensor } from "../tensor"
+import { toArr } from "../tensorUtils";
 
 export const shape = (a: Tensor): number[] => {
-    if (a.data.length === 5) // is scalar
-        return [a.data[4]]
 
-    let shape = []
-    for (let i = 0; i < 4; i++)
-        if (a.data[i] !== 0)
-            shape.push(a.data[i])
-
-    if (shape.length === 1)
-        shape = [1, ...shape]
-    return shape
+    // remove trailing 1's in shape segement of data
+    let i = 3;
+    while (i > 0 && (a.data[i] === 0)) {
+        i--;
+    }
+    return toArr(a.data.slice(0, i + 1));
 }

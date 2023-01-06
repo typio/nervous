@@ -1,19 +1,21 @@
-import { backend, gpuDevice } from "."
+import { backend } from "."
 import { calcShape, flatLengthFromShape } from "./tensorUtils"
 
 // TODO: CHANGE new Array()'s to Float32Array's
 
 export type Rank1To4Array = Float32Array | number[] | number[][] | number[][][] | number[][][][]
 
-export type BinaryOp = "add" | "sub" | "mul" | "div" | "mod"
+export enum BinaryOp {
+    add = 0,
+    minus,
+    mul,
+    div,
+    mod
+}
 
 export class Tensor {
-    // readonly values: Float32Array = new Float32Array(0)
-    // readonly rank: 0 | 1 | 2 | 3 | 4 = 0
-    // readonly shape: number[] = [0]
-
     /**  first 4 values are shape (right padded 0s), rest are tensor values */
-    readonly data: Float32Array // = new Float32Array(0)
+    readonly data: Float32Array
 
     readonly usingGPUBuffer: boolean = false;
     readonly webGPUBuffer: any;
@@ -26,7 +28,6 @@ export class Tensor {
         let _values: number[] = []
 
         if (values.constructor === Float32Array) {
-            // console.log('hi',values)
             this.data = values
             return
         } else if (values.constructor !== Number && values.constructor !== Array) { // is GPUBuffer, can't use "GPUBuffer" bc @webgpu/types DOESN'T WORK!
@@ -39,12 +40,10 @@ export class Tensor {
         if (values !== undefined && shape === undefined) {
             if (values.constructor === Number) { // if scalar
                 values = [values] // store scalar number as number[]
-                _shape = []
-                // _rank = 0
+                _shape = [1, 1] // questionable
             } else {
                 // @ts-ignore: I checked the type
                 _shape = calcShape(values)
-                // _rank = _shape.length as typeof _rank
             }
             if (values.constructor === Array) {
                 let flatValues = values.flat() as number[]
@@ -61,12 +60,13 @@ export class Tensor {
                 throw new Error("Values don't fit into shape.")
 
             _shape = shape
-            // _rank = _shape.length as typeof _rank // good ts? 🤔
             _values = flatValues
         }
+
         while (_shape.length < 4) {
             _shape.push(0)
         }
+
         this.data = new Float32Array([..._shape, ..._values])
     }
 
@@ -106,19 +106,19 @@ export class Tensor {
     }
 
     /** create tensor of elementwise matrix multiplication, if using a "scalar" tensor put scalar in mul argument */
-    mul = (m: Tensor | number, axis?: number) => backend.default.mul(this, m, axis);
+    mul = (m: Tensor | number) => backend.default.mul(this, m);
 
     /** create tensor of elementwise matrix division, if using a "scalar" tensor put scalar in div argument */
-    div = (d: Tensor | number, axis?: number) => backend.default.div(this, d, axis);
+    div = (d: Tensor | number) => backend.default.div(this, d);
 
     /** create tensor with number a OR each value of a tensor a added to each value of input tensor  */
-    add = (b: number | Tensor, axis?: number): Tensor => backend.default.add(this, b, axis);
+    add = (b: Tensor | number): Tensor => backend.default.add(this, b);
 
     /** create tensor with number m OR each value of a tensor m subtracted from each value of input tensor  */
-    minus = (s: number | Tensor, axis?: number) => backend.default.minus(this, s, axis);
+    minus = (s: Tensor | number) => backend.default.minus(this, s);
 
     /** create tensor with number m OR each value of a tensor m mod with each value of input tensor  */
-    mod = (m: number | Tensor, axis?: number) => backend.default.mod(this, m, axis);
+    mod = (m: Tensor | number) => backend.default.mod(this, m);
 
 
     /** create tensor with relu done to all values  */

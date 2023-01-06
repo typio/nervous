@@ -1,8 +1,9 @@
 import { Tensor } from "../tensor"
 import { toNested, toArr } from "../tensorUtils"
 
-// TODO: can this be accelerated using GPU?
-export const values = (a: Tensor, decimals?: number) => {
+export const values = async (_a: Tensor, decimals?: number) => {
+    let a: Tensor = _a.usingGPUBuffer ? await _a.toJS() : _a
+
     if (a.data.length === 5) return a.data[4]
     return toNested(toArr(a.data, decimals, 4), a.shape())
 }

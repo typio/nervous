@@ -1,2 +1,2 @@
 import { Tensor } from "../tensor";
-export declare const add: (a: Tensor, b: Tensor, axis?: number) => Promise<Tensor>;
+export declare const add: (_a: Tensor, _b: Tensor | number) => Promise<Tensor>;

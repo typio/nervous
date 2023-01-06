@@ -2,7 +2,7 @@ import { gpuDevice } from "..";
 import { Tensor } from "../tensor";
 import { flatLengthFromShape, toArr } from "../tensorUtils";
 
-export const toJS = async (a: Tensor) => {
+export const toJS = async (a: Tensor): Promise<Tensor> => {
     let bufferSize = Math.max(32, a.webGPUBuffer.size)
 
     const readGPUBuffer = gpuDevice.createBuffer({
@@ -19,7 +19,7 @@ export const toJS = async (a: Tensor) => {
         readGPUBuffer.getMappedRange()
     );
 
-    // buffer may have been right padded to make minimum size
+    // buffer may have been right padded to make minimum size, undo that
     let tensorSize = 4 + flatLengthFromShape(toArr(result.slice(0, 4)))
     if (bufferSize > (tensorSize) * Float32Array.BYTES_PER_ELEMENT)
         result = result.slice(0, tensorSize)

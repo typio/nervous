@@ -1,5 +1,5 @@
 declare const _default: {
-    add: (a: import("../tensor").Tensor, b: import("../tensor").Tensor, axis?: number) => Promise<import("../tensor").Tensor>;
+    add: (_a: import("../tensor").Tensor, _b: number | import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
     applyMax: (a: import("../tensor").Tensor, n: number) => never;
     applyMin: (a: import("../tensor").Tensor, n: number) => never;
     argmax: (a: import("../tensor").Tensor) => never;
@@ -11,7 +11,7 @@ declare const _default: {
     fNorm: (a: import("../tensor").Tensor) => never;
     fill: (shape: number | number[], value: number) => import("../tensor").Tensor;
     flatValues: (a: import("../tensor").Tensor, decimals?: number) => any[];
-    values: (a: import("../tensor").Tensor, decimals?: number) => any;
+    values: (_a: import("../tensor").Tensor, decimals?: number) => Promise<number | any[]>;
     rank: (a: import("../tensor").Tensor) => number;
     shape: (a: import("../tensor").Tensor) => number[];
     getmax: (a: import("../tensor").Tensor, axis?: 0 | 1) => never;

@@ -1,7 +1,6 @@
-import { Tensor } from "../tensor"
+import { BinaryOp, Tensor } from "../tensor"
+import { elementwiseOP } from './elementwiseOp'
 
-/** create tensor of elementwise matrix division, if using a "scalar" tensor put scalar in div argument */
-export const div = (a: Tensor, d: Tensor | number, axis?: number) => {
-    throw new Error('Method is not yet implemented in webgpu backend 😞')
-
+export const div = async (_a: Tensor, _b: Tensor | number) => {
+    return elementwiseOP(_a, _b, BinaryOp.div)
 }

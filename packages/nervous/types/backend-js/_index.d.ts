@@ -11,7 +11,7 @@ declare const _default: {
     fNorm: (a: import("../tensor").Tensor) => number;
     fill: (shape: number | number[], value: number) => import("../tensor").Tensor;
     flatValues: (a: import("../tensor").Tensor, decimals?: number) => any[];
-    values: (a: import("../tensor").Tensor, decimals?: number) => any;
+    values: (a: import("../tensor").Tensor, decimals?: number) => number | any[];
     rank: (a: import("../tensor").Tensor) => number;
     shape: (a: import("../tensor").Tensor) => number[];
     getmax: (a: import("../tensor").Tensor, axis?: 0 | 1) => number | import("../tensor").Tensor;

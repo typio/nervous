@@ -28,7 +28,6 @@ const createBackend = async (backend: string) => {
     }
 }
 
-
 export let backend: any;
 
 export let gpuDevice: null | GPUDevice = null
@@ -55,10 +54,8 @@ const init = async (userConfig?: { backend: string; }) => {
                 return null;
             }
             gpuDevice = await gpuAdapter.requestDevice();
-            // console.log('Initialized GPU device:', gpuDevice);
         } catch (error) {
-            // console.error(error);
-            console.warn('falling back to js backend');
+            console.warn(`${error}, falling back to js backend`);
 
             backend = await createBackend('js');
         }

@@ -21,12 +21,17 @@ export const calcShape = (values: Rank1To4Array): number[] => {
 
         subValues = subValues[0]
     }
+
+    if (shape.length === 1) { // if vector, set first el of shape to 1 for 1 row count
+        shape = [1, values.length];
+    }
+
     return shape
 }
 
 export const flatLengthFromShape = (shape: number[]) => {
     if (shape[0] === 0) return 1
-    // reduce is fine considering max array length is 6
+    // reduce is fine considering max array length is 4
     return shape.reduce((previousValue, currentValue) => Math.max(1, previousValue) * Math.max(1, currentValue), 1)
 }
 
@@ -34,36 +39,29 @@ export const toNested = (values: number[], shape: number[]) => {
     if (flatLengthFromShape(shape) !== values.length)
         throw new Error(`New shape is not compatible with initial values length: shape: ${shape} values.length: ${values.length}.`)
 
-    // if (shape = [0])
-
     if (shape.length === 1) {
-        return values
-    } else if (shape.length === 2) {
-        let newV = new Array(shape[0])
-        for (let i = 0; i < shape[0]; i++) {
-            newV[i] = new Array(shape[1])
-            for (let j = 0; j < shape[1]; j++) {
-                newV[i][j] = values[i * shape[1] + j]
-            }
-        }
-        return newV
-    } else {
-        // TODO: try to optimize
-        // https://stackoverflow.com/a/69584753/6806458
-        let elementI = 0
-        const nest = (shapeI: number) => {
-            let result: any = []
-            if (shapeI === shape.length - 1) {
-                // ARMAGEDDON: wtf is this
-                result = result.concat(values.slice(elementI, elementI + shape[shapeI]))
-                elementI += shape[shapeI]
-            } else {
-                for (let i = 0; i < shape[shapeI]; i++) {
-                    result.push(nest(shapeI + 1)) // NUCLEAR FALLOUT: wat
-                }
-            }
-            return result
-        }
-        return nest(0) // NUCLEAR WINTER: AHHHH
+        return values;
+      }
+      let nestedArr = [];
+      let subArrSize = 1;
+      for (let i = 1; i < shape.length; i++) {
+        subArrSize *= shape[i];
+      }
+      let subArrStartIndex = 0;
+      while (subArrStartIndex < values.length) {
+        let subArrEndIndex = subArrStartIndex + subArrSize;
+        nestedArr.push(toNested(values.slice(subArrStartIndex, subArrEndIndex), shape.slice(1)));
+        subArrStartIndex = subArrEndIndex;
+      }
+      return nestedArr;
+}
+
+export const arrMax = (arr: number[]): number => {
+    let max = -Infinity
+    let c = -Infinity
+    for (let i = 0; i < arr.length; i++) {
+        c = arr[i]
+        if (c > max) max = c
     }
+    return max
 }

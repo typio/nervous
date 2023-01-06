@@ -26,26 +26,6 @@ export const matmul = async (_a: Tensor, _m: Tensor) => {
     if (aShape.at(-1) !== mShape.at(0))
         throw new Error("Tensors are not compatible shapes for multiplication.")
 
-
-    // if (aRank > 2)
-    //     throw new Error("Tensor matmul on rank > 2 tensors not yet supported.")
-
-    // const aValuesGPUBuffer = gpuDevice.createBuffer({
-    //     mappedAtCreation: true,
-    //     size: Math.max(32, a.data.byteLength),
-    //     usage: GPUBufferUsage.STORAGE
-    // })
-    // new Float32Array(aValuesGPUBuffer.getMappedRange()).set(a.data)
-    // aValuesGPUBuffer.unmap()
-
-    // const mValuesGPUBuffer = gpuDevice.createBuffer({
-    //     mappedAtCreation: true,
-    //     size: Math.max(32, m.data.byteLength),
-    //     usage: GPUBufferUsage.STORAGE
-    // })
-    // new Float32Array(mValuesGPUBuffer.getMappedRange()).set(m.data)
-    // mValuesGPUBuffer.unmap()
-
     const resultBufferSize = Math.max(32, resSize)
     const resultGPUBuffer = gpuDevice.createBuffer({
         size: resultBufferSize,
@@ -89,19 +69,10 @@ export const matmul = async (_a: Tensor, _m: Tensor) => {
     const passEncoder = commandEncoder.beginComputePass()
     passEncoder.setPipeline(computePipeline)
     passEncoder.setBindGroup(0, bindGroup)
-    passEncoder.dispatchWorkgroups(Math.ceil(aShape.at(0) / 8), Math.ceil(mShape.at(1) / 8))
+    passEncoder.dispatchWorkgroups(Math.ceil(resShape[0] / 8), Math.ceil(resShape[1] / 8))
 
     passEncoder.end()
     gpuDevice.queue.submit([commandEncoder.finish()])
 
     return new Tensor(resultGPUBuffer, resShape)
-
-    // commandEncoder.copyBufferToBuffer(resultGPUBuffer, 0, readGPUBuffer, 0, Float32Array.BYTES_PER_ELEMENT * (4 + aShape.at(0) * mShape.at(-1)))
-    // gpuDevice.queue.submit([commandEncoder.finish()])
-    // await readGPUBuffer.mapAsync(GPUMapMode.READ)
-
-    // let result = new Float32Array(readGPUBuffer.getMappedRange())
-    // console.log(result);
-
-    // return new Tensor(result)
 }   
