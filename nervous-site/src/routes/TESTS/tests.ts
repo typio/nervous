@@ -5,10 +5,10 @@ let tests = [
         suite: 'Tensor Constructors',
         tests: [
             {
-                name: 'scalar() tensor creation',
+                name: 'scalar()',
                 code: async () =>
-                    nv.scalar(4).values(),
-                expects: () => 4
+                    [await nv.scalar(4).values()],
+                expects: () => [4]
             },
             {
                 name: "tensor()",
@@ -56,7 +56,7 @@ let tests = [
                     return results
                 },
                 expects: () => [
-                    4,
+                    3,
                     [2, 2, 2, 8],
                     4,
                     [2, 2, 3, 4],
@@ -134,17 +134,36 @@ let tests = [
         tests: [
             {
                 name: "add() on two 1d tensors",
-                code: async () =>{
-                    let a = nv.tensor([1,2])                    
-                    let b = nv.tensor([4,4])
-                    let res = await a.add(b)
-                    
-                    return await res.values()
-                }
-                ,
+                code: async () => {
+                    let results = []
+                    let a, b
+                    a = nv.tensor([1, 2])
+                    b = nv.tensor([4, 4])
+                    results.push(await (await a.add(b)).values())
+
+                    a = nv.tensor([[0, 0], [0, 0]])
+                    b = nv.tensor([2, 4])
+                    results.push(await (await a.add(b)).values())
+
+                    a = nv.tensor([[0, 0], [0, 0]])
+                    b = nv.tensor([[2], [4]])
+                    results.push(await (await a.add(b)).values())
+
+                    a = nv.tensor([[1, 2], [3, 4]])
+                    b = nv.tensor([[5, 2], [10, 4]])
+                    results.push(await (await a.add(b)).values())
+
+                    await new Promise(r => setTimeout(r, 20000));
+
+                    return results
+                },
                 expects: async () =>
-                    await nv.tensor([5, 6]).values()
-                ,
+                    [
+                        await (await nv.tensor([5, 6])).values(),
+                        await (await nv.tensor([[2, 4], [2, 4]])).values(),
+                        await (await nv.tensor([[2, 2], [4, 4]])).values(),
+                        await (await nv.tensor([[6, 4], [13, 8]])).values(),
+                    ],
             },
         ]
     }
