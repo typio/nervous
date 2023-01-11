@@ -1,175 +1,283 @@
-import nv from 'nervous'
+import nv from "nervous";
 
 let tests = [
-    {
-        suite: 'Tensor Constructors',
-        tests: [
-            {
-                name: 'scalar()',
-                code: async () =>
-                    [await nv.scalar(4).values()],
-                expects: () => [4]
-            },
-            {
-                name: "tensor()",
-                code: async () => {
-                    let results = []
-                    let tensor = nv.tensor(
-                        [
-                            [
-                                [
-                                    [1, 2, 3, 4, 5, 6, 7, 8],
-                                    [1, 2, 3, 4, 5, 6, 7, 8],
-                                ],
-                                [
-                                    [1, 2, 3, 4, 5, 6, 7, 8],
-                                    [1, 2, 3, 4, 5, 6, 7, 8],
-                                ]
-                            ],
-                            [
-                                [
-                                    [1, 2, 3, 4, 5, 6, 7, 8],
-                                    [1, 2, 3, 4, 5, 6, 7, 8],
-                                ],
-                                [
-                                    [1, 2, 3, 4, 5, 6, 7, 8],
-                                    [1, 2, 3, 4, 5, 6, 7, 8],
-                                ]
-                            ],
-                        ])
-                    results.push(tensor.rank())
-                    results.push(tensor.shape())
+  {
+    suite: "Tensor Constructors",
+    tests: [
+      {
+        name: "scalar()",
+        code: async () => [await nv.scalar(4).values()],
+        expects: () => [4],
+      },
+      {
+        name: "tensor()",
+        code: async () => {
+          let results = [];
+          let tensor = nv.tensor([
+            [
+              [
+                [1, 2, 3, 4, 5, 6, 7, 8],
+                [1, 2, 3, 4, 5, 6, 7, 8],
+              ],
+              [
+                [1, 2, 3, 4, 5, 6, 7, 8],
+                [1, 2, 3, 4, 5, 6, 7, 8],
+              ],
+            ],
+            [
+              [
+                [1, 2, 3, 4, 5, 6, 7, 8],
+                [1, 2, 3, 4, 5, 6, 7, 8],
+              ],
+              [
+                [1, 2, 3, 4, 5, 6, 7, 8],
+                [1, 2, 3, 4, 5, 6, 7, 8],
+              ],
+            ],
+          ]);
+          results.push(await tensor.rank());
+          results.push(await tensor.shape());
 
-                    tensor = nv.tensor(
-                        [
-                            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
-                            32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
-                        ],
-                        [2, 2, 3, 4]
-                    )
-                    results.push(tensor.rank())
-                    results.push(tensor.shape())
+          tensor = nv.tensor(
+            [
+              1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+              20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
+              36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
+            ],
+            [2, 2, 3, 4]
+          );
+          results.push(await tensor.rank());
+          results.push(await tensor.shape());
 
-                    let tensorFromFloatArray = nv.tensor(new Float32Array([3, 2, 0, 0, 1, 2, 3, 4, 5, 6]), [3, 2])
-                    results.push(await tensorFromFloatArray.values())
+          let tensorFromFloatArray = nv.tensor(
+            new Float32Array([3, 2, 0, 0, 1, 2, 3, 4, 5, 6]),
+            [3, 2]
+          );
+          results.push(await tensorFromFloatArray.values());
 
-                    return results
-                },
-                expects: () => [
-                    3,
-                    [2, 2, 2, 8],
-                    4,
-                    [2, 2, 3, 4],
-                    [[1, 2], [3, 4], [5, 6]]
-                ],
-            },
-            {
-                name: 'eye()',
-                code: async () => {
-                    let results = []
-                    let t = nv.eye([3, 3])
-                    results.push(t.rank())
-                    results.push(t.shape())
-                    results.push(await t.values())
-                    return results
-                },
-                expects: async () => {
-                    return [
-                        2,
-                        [3, 3],
-                        [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-                    ]
-                }
-            },
-            {
-                name: 'zeros()',
-                code: async () => {
-                    let results = []
-                    let t = nv.zeros([2, 3, 4])
-                    results.push(t.rank())
-                    results.push(t.shape())
-                    return results
-                },
-                expects: async () => {
-                    return [
-                        3,
-                        [2, 3, 4],
-                    ]
-                }
-            },
-            {
-                name: 'diag()',
-                code: async () => {
-                    let results = []
-                    let t = nv.diag([4, 3, 2, 5])
-                    results.push(await t.values())
-                    return results
-                },
-                expects: async () => {
-                    return [
-                        [[4, 0, 0, 0], [0, 3, 0, 0], [0, 0, 2, 0], [0, 0, 0, 5]]
-                    ]
-                }
-            },
-            {
-                name: 'random(), needs better test method',
-                code: async () => {
-                    let results = []
-                    let t = await nv.random([4, 3, 2, 5])
-                    results.push(t.rank())
-                    results.push(t.shape())
-                    return results
-                },
-                expects: async () => {
-                    return [
-                        4,
-                        [4, 3, 2, 5],
-                    ]
-                }
-            },
-        ]
-    },
-    {
-        suite: 'Tensor OPs',
-        tests: [
-            {
-                name: "add() on two 1d tensors",
-                code: async () => {
-                    let results = []
-                    let a, b
-                    a = nv.tensor([1, 2])
-                    b = nv.tensor([4, 4])
-                    results.push(await (await a.add(b)).values())
+          return results;
+        },
+        expects: () => [
+          4,
+          [2, 2, 2, 8],
+          4,
+          [2, 2, 3, 4],
+          [
+            [1, 2],
+            [3, 4],
+            [5, 6],
+          ],
+        ],
+      },
+      {
+        name: "eye()",
+        code: async () => {
+          let results = [];
+          let t = nv.eye([3, 3]);
+          results.push(await t.rank());
+          results.push(await t.shape());
+          results.push(await t.values());
+          return results;
+        },
+        expects: async () => {
+          return [
+            2,
+            [3, 3],
+            [
+              [1, 0, 0],
+              [0, 1, 0],
+              [0, 0, 1],
+            ],
+          ];
+        },
+      },
+      {
+        name: "fill()",
+        code: async () => {
+          let results = [];
+          let t = await nv.fill([2, 3, 4], 3);
+          results.push(await t.rank());
+          results.push(await t.shape());
+          results.push(await t.values());
+          return results;
+        },
+        expects: async () => {
+          return [
+            3,
+            [2, 3, 4],
+            [
+              [
+                [3, 3, 3, 3],
+                [3, 3, 3, 3],
+                [3, 3, 3, 3],
+              ],
+              [
+                [3, 3, 3, 3],
+                [3, 3, 3, 3],
+                [3, 3, 3, 3],
+              ],
+            ],
+          ];
+        },
+      },
+      {
+        name: "ones()",
+        code: async () => {
+          let results = [];
+          let t = await nv.ones([2, 3, 4]);
+          results.push(await t.rank());
+          results.push(await t.shape());
+          results.push(await t.values());
+          return results;
+        },
+        expects: async () => {
+          return [
+            3,
+            [2, 3, 4],
+            [
+              [
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+              ],
+              [
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+              ],
+            ],
+          ];
+        },
+      },
+      {
+        name: "zeros()",
+        code: async () => {
+          let results = [];
+          let t = await nv.zeros([2, 3, 4]);
+          results.push(await t.rank());
+          results.push(await t.shape());
+          return results;
+        },
+        expects: async () => {
+          return [
+            3,
+            [2, 3, 4],
+            [
+              [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+              ],
+              [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+              ],
+            ],
+          ];
+        },
+      },
+      {
+        name: "diag()",
+        code: async () => {
+          let results = [];
+          let t = nv.diag([4, 3, 2, 5]);
+          results.push(await t.values());
+          return results;
+        },
+        expects: async () => {
+          return [
+            [
+              [4, 0, 0, 0],
+              [0, 3, 0, 0],
+              [0, 0, 2, 0],
+              [0, 0, 0, 5],
+            ],
+          ];
+        },
+      },
+      {
+        name: "random(), needs better test method",
+        code: async () => {
+          let results = [];
+          let t = await nv.random([4, 3, 2, 5]);
+          results.push(await t.rank());
+          results.push(await t.shape());
+          return results;
+        },
+        expects: async () => {
+          return [4, [4, 3, 2, 5]];
+        },
+      },
+    ],
+  },
+  {
+    suite: "Tensor OPs",
+    tests: [
+      {
+        name: "add() on two 1d tensors",
+        code: async () => {
+          let results = [];
+          let a, b;
+          a = nv.tensor([1, 2]);
+          b = nv.tensor([4, 4]);
+          results.push(await (await a.add(b)).values());
 
-                    a = nv.tensor([[0, 0], [0, 0]])
-                    b = nv.tensor([2, 4])
-                    results.push(await (await a.add(b)).values())
+          a = nv.tensor([
+            [0, 0],
+            [0, 0],
+          ]);
+          b = nv.tensor([2, 4]);
+          results.push(await (await a.add(b)).values());
 
-                    a = nv.tensor([[0, 0], [0, 0]])
-                    b = nv.tensor([[2], [4]])
-                    results.push(await (await a.add(b)).values())
+          a = nv.tensor([
+            [0, 0],
+            [0, 0],
+          ]);
+          b = nv.tensor([[2], [4]]);
+          results.push(await (await a.add(b)).values());
 
-                    a = nv.tensor([[1, 2], [3, 4]])
-                    b = nv.tensor([[5, 2], [10, 4]])
-                    results.push(await (await a.add(b)).values())
+          a = nv.tensor([
+            [1, 2],
+            [3, 4],
+          ]);
+          b = nv.tensor([
+            [5, 2],
+            [10, 4],
+          ]);
+          results.push(await (await a.add(b)).values());
 
-                    await new Promise(r => setTimeout(r, 20000));
+          // await new Promise(r => setTimeout(r, 20000));
+          return results;
+        },
 
-                    return results
-                },
-                expects: async () =>
-                    [
-                        await (await nv.tensor([5, 6])).values(),
-                        await (await nv.tensor([[2, 4], [2, 4]])).values(),
-                        await (await nv.tensor([[2, 2], [4, 4]])).values(),
-                        await (await nv.tensor([[6, 4], [13, 8]])).values(),
-                    ],
-            },
-        ]
-    }
+        expects: async () => [
+          await (await nv.tensor([5, 6])).values(),
+          await (
+            await nv.tensor([
+              [2, 4],
+              [2, 4],
+            ])
+          ).values(),
+          await (
+            await nv.tensor([
+              [2, 2],
+              [4, 4],
+            ])
+          ).values(),
+          await (
+            await nv.tensor([
+              [6, 4],
+              [13, 8],
+            ])
+          ).values(),
+        ],
+      },
+    ],
+  },
 ];
 
-export default tests
+export default tests;
 
 // test('reshape', async () => {
 //     let tensor = nv.tensor([1, 2, 3, 4, 5, 6], [3, 2])
@@ -375,7 +483,6 @@ export default tests
 //     // TODO:
 // })
 
-
 // test('sigmoid', async () => {
 //     let tensor = nv.tensor([[1, 2], [3, 4]])
 //     assert.equal(tensor.sigmoid().getFlatValues().map(n => Math.round(n * 10E3) / 10E3),
@@ -413,5 +520,3 @@ export default tests
 // });
 
 //test.run()
-
-

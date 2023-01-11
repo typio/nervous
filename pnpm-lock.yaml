@@ -53,6 +53,8 @@ importers:
       p5-svelte: ^3.1.2
       pixi.js: ^7.0.5
       postcss: ^8.4.20
+      prettier: ^2.6.2
+      prettier-plugin-svelte: ^2.9.0
       svelte: ^3.54.0
       svelte-check: ^2.9.2
       tailwindcss: ^3.2.1
@@ -75,6 +77,8 @@ importers:
       autoprefixer: 10.4.13_postcss@8.4.20
       p5: 1.4.2
       postcss: 8.4.20
+      prettier: 2.8.1
+      prettier-plugin-svelte: 2.9.0_ajxj753sv7dbwexjherrch25ta
       svelte: 3.55.0
       svelte-check: 2.10.3_qs7rgzvahok4cbkjoy5bgypde4
       tailwindcss: 3.2.1_postcss@8.4.20
@@ -4317,6 +4321,16 @@ packages:
       sass-formatter: 0.7.5
       synckit: 0.7.3
     dev: false
+
+  /prettier-plugin-svelte/2.9.0_ajxj753sv7dbwexjherrch25ta:
+    resolution: {integrity: sha512-3doBi5NO4IVgaNPtwewvrgPpqAcvNv0NwJNflr76PIGgi9nf1oguQV1Hpdm9TI2ALIQVn/9iIwLpBO5UcD2Jiw==}
+    peerDependencies:
+      prettier: ^1.16.4 || ^2.0.0
+      svelte: ^3.2.0
+    dependencies:
+      prettier: 2.8.1
+      svelte: 3.55.0
+    dev: true
 
   /prettier/2.7.1:
     resolution: {integrity: sha512-ujppO+MkdPqoVINuDFDRLClm7D78qbDt0/NR+wp5FqEZOoTNAjPHWj17QRhu7geIHJfcNhRk1XVQmF8Bp3ye+g==}

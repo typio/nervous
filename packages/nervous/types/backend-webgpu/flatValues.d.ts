@@ -1,3 +1,3 @@
 import { Tensor } from "../tensor";
 /** return flat tensor values */
-export declare const flatValues: (a: Tensor, decimals?: number) => any[];
+export declare const flatValues: (_a: Tensor, decimals?: number) => Promise<any[]>;

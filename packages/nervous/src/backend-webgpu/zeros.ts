@@ -1,5 +1,5 @@
-import { fill } from "./fill"
+import { fill } from '../backend-webgpu/fill'
 
-export const zeros = (shape: number | number[]) => {
-    throw new Error('Method is not yet implemented in webgpu backend 😞')
+export const zeros = async (shape: number | number[]) => {
+	return await fill(shape, 0)
 }

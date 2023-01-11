@@ -10,7 +10,7 @@ declare const _default: {
     eye: (dim: number | number[], offset?: number) => import("../tensor").Tensor;
     fNorm: (a: import("../tensor").Tensor) => never;
     fill: (shape: number | number[], value: number) => import("../tensor").Tensor;
-    flatValues: (a: import("../tensor").Tensor, decimals?: number) => any[];
+    flatValues: (_a: import("../tensor").Tensor, decimals?: number) => Promise<any[]>;
     values: (_a: import("../tensor").Tensor, decimals?: number) => Promise<number | any[]>;
     rank: (a: import("../tensor").Tensor) => number;
     shape: (a: import("../tensor").Tensor) => number[];
@@ -39,7 +39,7 @@ declare const _default: {
     tensor: (values: number | import("../tensor").Rank1To4Array, shape?: number[]) => import("../tensor").Tensor;
     trace: (a: Tensor) => never;
     transpose: (a: import("../tensor").Tensor) => never;
-    toGPU: (a: import("../tensor").Tensor) => import("../tensor").Tensor;
+    toGPU: (a: import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
     toJS: (a: import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
     zeros: (shape: number | number[]) => never;
 };

@@ -1,14 +1,11 @@
 import nv from "nervous";
 
-import { browser } from '$app/environment';
+import { browser } from "$app/environment";
 
 import tests from "./tests";
 
 if (browser) {
-  
-    const main = async () => {
-        
-    };
+  const main = async () => {};
 
-    main();
+  main();
 }

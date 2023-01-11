@@ -6,6 +6,8 @@ import addWGSL from "./add.wgsl?raw";
 
 
 const main = async () => {
+    if (gpuDevice === null) throw new Error("gpuDevice is null");
+  
     // Benchmarking methods of chaining WebGPU OPs together such as would be done in a neural network
     console.log(
         `%cBenchmarking methods of chaining WebGPU OPs together such as would be done in a neural network`,
@@ -59,7 +61,7 @@ const main = async () => {
 
                     let resultSize =
                         Float32Array.BYTES_PER_ELEMENT *
-                        (4 + forwardT.shape()[0] * t2.shape()[1]);
+                        (4 + await forwardT.shape()[0] * await t2.shape()[1]);
 
                     const resultGPUBuffer = gpuDevice.createBuffer({
                         size: resultSize,
@@ -117,7 +119,7 @@ const main = async () => {
                     passEncoder.setPipeline(computePipeline);
                     passEncoder.setBindGroup(0, bindGroup);
                     passEncoder.dispatchWorkgroups(
-                        Math.ceil(forwardT.shape().at(-1) / 8),
+                        Math.ceil(await forwardT.shape().at(-1) / 8),
                         Math.ceil(t2.shape().at(0) / 8)
                     );
                     passEncoder.end();
@@ -162,7 +164,7 @@ const main = async () => {
 
                     let resultSize =
                         Float32Array.BYTES_PER_ELEMENT *
-                        (4 + forwardT.shape()[0] * forwardT.shape()[1]);
+                        (4 + await forwardT.shape()[0] * await forwardT.shape()[1]);
 
                     const resultGPUBuffer = gpuDevice.createBuffer({
                         size: resultSize,
@@ -295,8 +297,8 @@ const main = async () => {
 
                     let resultSize =
                         Float32Array.BYTES_PER_ELEMENT *
-                        t1.shape()[0] *
-                        t2.shape()[1];
+                        await t1.shape()[0] *
+                        await t2.shape()[1];
 
                     const resultGPUBuffer = gpuDevice.createBuffer({
                         size: resultSize,
@@ -354,8 +356,8 @@ const main = async () => {
                     passEncoder.setPipeline(computePipeline);
                     passEncoder.setBindGroup(0, bindGroup);
                     passEncoder.dispatchWorkgroups(
-                        Math.ceil(t1.shape().at(-1) / 8),
-                        Math.ceil(t2.shape().at(0) / 8)
+                        Math.ceil(await t1.shape().at(-1) / 8),
+                        Math.ceil(await t2.shape().at(0) / 8)
                     );
                     passEncoder.end();
 
@@ -389,8 +391,8 @@ const main = async () => {
 
                     let resultSize =
                         Float32Array.BYTES_PER_ELEMENT *
-                        t1.shape()[0] *
-                        t1.shape()[1];
+                        await t1.shape()[0] *
+                        await t1.shape()[1];
 
                     const resultGPUBuffer = gpuDevice.createBuffer({
                         size: resultSize,
@@ -471,8 +473,8 @@ const main = async () => {
             const readGPUBuffer = gpuDevice.createBuffer({
                 size:
                     Float32Array.BYTES_PER_ELEMENT *
-                    t1.shape()[0] *
-                    t1.shape()[1],
+                    await t1.shape()[0] *
+                    await t1.shape()[1],
                 usage:
                     GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
             });
@@ -483,8 +485,8 @@ const main = async () => {
                 readGPUBuffer,
                 0,
                 Float32Array.BYTES_PER_ELEMENT *
-                t1.shape()[0] *
-                t1.shape()[1]
+                await t1.shape()[0] *
+                await t1.shape()[1]
             );
             gpuDevice.queue.submit([commandEncoder.finish()]);
 
