@@ -7,7 +7,7 @@ struct Matrix {
     values: array<f32>
 };
 
-@group(0) @binding(0) var<storage, read> shape: vec2<f32>;
+@group(0) @binding(0) var<storage, read> shape: vec4<f32>;
 @group(0) @binding(1) var<storage, read> seedInput: u32;
 @group(0) @binding(2) var<storage, read_write> outMatrix:  Matrix;
 
@@ -15,7 +15,7 @@ struct Matrix {
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let seed = seedInput * (global_id.x + 1u) * 1099087573u;
     let outIndex: vec2<u32> = vec2(global_id.x, global_id.y);
-    outMatrix.shape = vec4(shape.x, shape.y, 0., 0.);
+    outMatrix.shape = shape;
 
     var z1: u32;
     var z2: u32;
@@ -50,11 +50,6 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     outMatrix.values[outIndex.y + outIndex.x * 4u + 1u ] = r1 * 2.3283064365387e-10;
     outMatrix.values[outIndex.y + outIndex.x * 4u + 2u ] = r2 * 2.3283064365387e-10;
     outMatrix.values[outIndex.y + outIndex.x * 4u + 3u ] = r3 * 2.3283064365387e-10;
-
-    // outMatrix.values[outIndex.y + outIndex.x * 4u ] = f32(global_id.x);
-    // outMatrix.values[outIndex.y + outIndex.x * 4u + 1u ] = f32(global_id.x);
-    // outMatrix.values[outIndex.y + outIndex.x * 4u + 2u ] = f32(global_id.x);
-    // outMatrix.values[outIndex.y + outIndex.x * 4u + 3u ] = f32(global_id.x);
 }
 
 fn tau_step(z: u32, s1: u32, s2: u32, s3: u32, M: u32) -> u32 {

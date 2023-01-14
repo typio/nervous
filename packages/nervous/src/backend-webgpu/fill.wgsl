@@ -9,6 +9,7 @@ struct Matrix {
 
 @compute @workgroup_size(64)
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
+  let thing = 2;
   outMatrix.shape = shape;
   outMatrix.values[global_id.x] = value;
 }

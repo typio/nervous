@@ -1,36 +1,30 @@
-import { Tensor } from '../tensor'
-
-import diagWGSL from './diag.wgsl?raw'
-
 import { gpuDevice } from '..'
-import { shape } from './shape'
-import { toArr } from '../tensorUtils'
+import { Tensor } from '../tensor'
+import { flatLengthFromShape, padShape } from '../tensorUtils'
 
-export const diag = async (values: number[]) => {
-	let valuesArray = new Float32Array(values)
+import repeatWGSL from './repeat.wgsl?raw'
 
-	let resultSize = Math.pow(values.length, 2)
+export const repeat = async (_a: Tensor, _scales: number[]): Promise<Tensor> => {
+	let a = _a
+	if (!a.usingGPUBuffer) a = await a.toGPU()
 
-	const valuesGPUBuffer = gpuDevice.createBuffer({
+	let scales = padShape(_scales)
+	let scalesFloatArray = new Float32Array(scales)
+	const scalesGPUBuffer = gpuDevice.createBuffer({
 		mappedAtCreation: true,
-		size: Math.max(32, valuesArray.byteLength),
+		size: scalesFloatArray.byteLength,
 		usage: GPUBufferUsage.STORAGE,
 	})
-	new Float32Array(valuesGPUBuffer.getMappedRange()).set(valuesArray)
-	valuesGPUBuffer.unmap()
+	new Float32Array(scalesGPUBuffer.getMappedRange()).set(scalesFloatArray)
+	scalesGPUBuffer.unmap()
 
-	let shapeArray = new Float32Array([0, 0, values.length, values.length])
-	const shapeGPUBuffer = gpuDevice.createBuffer({
-		mappedAtCreation: true,
-		size: Math.max(32, valuesArray.byteLength),
-		usage: GPUBufferUsage.STORAGE,
-	})
-	new Float32Array(shapeGPUBuffer.getMappedRange()).set(shapeArray)
-	shapeGPUBuffer.unmap()
+	let resShape = a.webGPUBufferShape.map((e, i) => e * scales[i])
+	console.log(resShape)
 
-	const resultBufferSize = Math.max(32, Float32Array.BYTES_PER_ELEMENT * (4 + resultSize))
+	let resSize = (4 + flatLengthFromShape(resShape)) * Float32Array.BYTES_PER_ELEMENT
+
 	const resultGPUBuffer = gpuDevice.createBuffer({
-		size: resultBufferSize,
+		size: Math.max(32, resSize),
 		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
 	})
 
@@ -61,12 +55,13 @@ export const diag = async (values: number[]) => {
 	})
 
 	const computePipeline = gpuDevice.createComputePipeline({
+		// layout: 'auto',
 		layout: gpuDevice.createPipelineLayout({
 			bindGroupLayouts: [bindGroupLayout],
 		}),
 		compute: {
 			module: gpuDevice.createShaderModule({
-				code: diagWGSL,
+				code: repeatWGSL,
 			}),
 			entryPoint: 'main',
 		},
@@ -77,15 +72,21 @@ export const diag = async (values: number[]) => {
 		entries: [
 			{
 				binding: 0,
-				resource: { buffer: valuesGPUBuffer },
+				resource: {
+					buffer: a.webGPUBuffer,
+				},
 			},
 			{
 				binding: 1,
-				resource: { buffer: shapeGPUBuffer },
+				resource: {
+					buffer: scalesGPUBuffer,
+				},
 			},
 			{
 				binding: 2,
-				resource: { buffer: resultGPUBuffer },
+				resource: {
+					buffer: resultGPUBuffer,
+				},
 			},
 		],
 	})
@@ -94,10 +95,9 @@ export const diag = async (values: number[]) => {
 	const passEncoder = commandEncoder.beginComputePass()
 	passEncoder.setPipeline(computePipeline)
 	passEncoder.setBindGroup(0, bindGroup)
-	passEncoder.dispatchWorkgroups(Math.ceil(values.length / 64))
+	passEncoder.dispatchWorkgroups(Math.ceil(flatLengthFromShape(resShape) / 64))
 	passEncoder.end()
 
 	gpuDevice.queue.submit([commandEncoder.finish()])
-
-	return new Tensor(resultGPUBuffer, toArr(shapeArray))
+	return new Tensor(resultGPUBuffer, resShape)
 }

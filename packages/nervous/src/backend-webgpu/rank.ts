@@ -1,12 +1,23 @@
 import { Tensor } from '../tensor'
+import { toArr } from '../tensorUtils'
 
-export const rank = async (_a: Tensor) => {
-	let a: Tensor = _a.usingGPUBuffer ? await _a.toJS() : _a
-	if (a.data.length === 2) return 0 // scalar
-	let rank = 0
-	for (let i = 0; i < 4; i++) {
-		if (a.data[i] !== 0) rank++
-		else return rank
+export const rank = (a: Tensor) => {
+	let shape: number[]
+
+	if (a.usingGPUBuffer) {
+		shape = a.webGPUBufferShape
+	} else {
+		shape = toArr(a.data.slice(0, 4))
 	}
-	return rank
+
+	if (shape[3] === 1 && shape[2] === 0) return 0 // scalar
+
+	let i = 3
+	while (i > 0) {
+		if (shape[i - 1] === 0) {
+			break
+		}
+		i--
+	}
+	return 4 - i
 }

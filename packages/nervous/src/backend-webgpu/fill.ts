@@ -8,7 +8,7 @@ import { gpuDevice } from '..'
 export const fill = async (_shape: number | number[], value: number) => {
 	// @ts-ignore
 	let shape: number[] = padShape(_shape)
-	let shapeArray = new Float32Array(padShape(_shape))
+	let shapeArray = new Float32Array(shape)
 
 	let valueFloat32 = new Float32Array([value])
 

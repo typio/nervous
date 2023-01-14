@@ -4,15 +4,16 @@ declare const _default: {
     applyMin: (a: import("../tensor").Tensor, n: number) => never;
     argmax: (a: import("../tensor").Tensor) => never;
     argmin: (a: import("../tensor").Tensor) => never;
-    diag: (values: number[]) => never;
+    diag: (values: number[]) => Promise<import("../tensor").Tensor>;
     div: (_a: import("../tensor").Tensor, _b: number | import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
     exp: (a: import("../tensor").Tensor, base?: number) => never;
     eye: (dim: number | number[], offset?: number) => import("../tensor").Tensor;
     fNorm: (a: import("../tensor").Tensor) => never;
-    fill: (shape: number | number[], value: number) => import("../tensor").Tensor;
-    flatValues: (_a: import("../tensor").Tensor, decimals?: number) => Promise<any[]>;
+    fill: (_shape: number | number[], value: number) => Promise<import("../tensor").Tensor>;
+    flatValues: (_a: import("../tensor").Tensor, decimals?: number) => Promise<number[]>;
     values: (_a: import("../tensor").Tensor, decimals?: number) => Promise<number | any[]>;
     rank: (a: import("../tensor").Tensor) => number;
+    repeat: (_a: import("../tensor").Tensor, scales: number[]) => Promise<import("../tensor").Tensor>;
     shape: (a: import("../tensor").Tensor) => number[];
     getmax: (a: import("../tensor").Tensor, axis?: 0 | 1) => never;
     getmin: (a: import("../tensor").Tensor, axis?: 0 | 1) => never;
@@ -25,7 +26,7 @@ declare const _default: {
     mod: (_a: import("../tensor").Tensor, _b: number | import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
     mul: (_a: import("../tensor").Tensor, _b: number | import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
     oneHot: (dim: number | number[], index: number | number[]) => never;
-    ones: (shape: number | number[]) => never;
+    ones: (shape: number | number[]) => Promise<import("../tensor").Tensor>;
     pow: (a: import("../tensor").Tensor, exp: number) => never;
     random: (shape: number[], seed?: number, min?: number, max?: number, integer?: boolean) => Promise<import("../tensor").Tensor>;
     randomNormal: (shape: number[], mean?: number, std?: number) => never;
@@ -41,6 +42,6 @@ declare const _default: {
     transpose: (a: import("../tensor").Tensor) => never;
     toGPU: (a: import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
     toJS: (a: import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
-    zeros: (shape: number | number[]) => never;
+    zeros: (shape: number | number[]) => Promise<import("../tensor").Tensor>;
 };
 export default _default;

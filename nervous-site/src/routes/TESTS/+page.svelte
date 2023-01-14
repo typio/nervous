@@ -75,12 +75,14 @@
   };
 
   if (browser) {
-    // runTests();
+    runTests();
     const main = async () => {
       await nv.init({ backend: "webgpu" });
+      let m, n;
+      m = nv.tensor([10, 20, 30]);
+      n = nv.tensor([[1], [2], [3]]);
 
-      let m = await nv.zeros([3, 3, 2, 4]);
-      console.log(await m.values());
+      console.log(JSON.stringify(await (await m.matmul(n)).values()));
     };
     main();
   }

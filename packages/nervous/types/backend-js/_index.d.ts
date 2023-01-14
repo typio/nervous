@@ -10,7 +10,7 @@ declare const _default: {
     eye: (dim: number | number[], offset?: number) => import("../tensor").Tensor;
     fNorm: (a: import("../tensor").Tensor) => number;
     fill: (shape: number | number[], value: number) => import("../tensor").Tensor;
-    flatValues: (a: import("../tensor").Tensor, decimals?: number) => any[];
+    flatValues: (a: import("../tensor").Tensor, decimals?: number) => number[];
     values: (a: import("../tensor").Tensor, decimals?: number) => number | any[];
     rank: (a: import("../tensor").Tensor) => number;
     shape: (a: import("../tensor").Tensor) => number[];

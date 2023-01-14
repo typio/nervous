@@ -6,13 +6,22 @@ let tests = [
     tests: [
       {
         name: "scalar()",
-        code: async () => [await nv.scalar(4).values()],
-        expects: () => [4],
+        code: async () => {
+          let s = await nv.scalar(4);
+          return [await s.values(), await s.rank(), await s.shape()];
+        },
+        expects: () => [4, 0, [1]],
       },
       {
         name: "tensor()",
         code: async () => {
           let results = [];
+
+          let vector = nv.tensor([1, 2, 3]);
+          results.push(await vector.values());
+          results.push(await vector.rank());
+          results.push(await vector.shape());
+
           let tensor = nv.tensor([
             [
               [
@@ -50,14 +59,16 @@ let tests = [
           results.push(await tensor.shape());
 
           let tensorFromFloatArray = nv.tensor(
-            new Float32Array([3, 2, 0, 0, 1, 2, 3, 4, 5, 6]),
-            [3, 2]
+            new Float32Array([0, 0, 3, 2, 1, 2, 3, 4, 5, 6])
           );
           results.push(await tensorFromFloatArray.values());
 
           return results;
         },
         expects: () => [
+          [1, 2, 3],
+          1,
+          [3],
           4,
           [2, 2, 2, 8],
           4,
@@ -73,7 +84,7 @@ let tests = [
         name: "eye()",
         code: async () => {
           let results = [];
-          let t = nv.eye([3, 3]);
+          let t = await nv.eye([3, 3]);
           results.push(await t.rank());
           results.push(await t.shape());
           results.push(await t.values());
@@ -181,7 +192,7 @@ let tests = [
         name: "diag()",
         code: async () => {
           let results = [];
-          let t = nv.diag([4, 3, 2, 5]);
+          let t = await nv.diag([4, 3, 2, 5]);
           results.push(await t.values());
           return results;
         },
@@ -197,8 +208,9 @@ let tests = [
         },
       },
       {
-        name: "random(), needs better test method",
+        name: "random()",
         code: async () => {
+          // TODO: think of better tasks
           let results = [];
           let t = await nv.random([4, 3, 2, 5]);
           results.push(await t.rank());
@@ -219,6 +231,14 @@ let tests = [
         code: async () => {
           let results = [];
           let a, b;
+
+          a = nv.scalar(3);
+          b = nv.tensor([
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9],
+          ]);
+          results.push(await (await a.add(b)).values());
           a = nv.tensor([1, 2]);
           b = nv.tensor([4, 4]);
           results.push(await (await a.add(b)).values());
@@ -247,31 +267,169 @@ let tests = [
           ]);
           results.push(await (await a.add(b)).values());
 
+          a = nv.tensor([
+            [
+              [
+                [0, 1, 2],
+                [3, 4, 5],
+              ],
+
+              [
+                [6, 7, 8],
+                [9, 10, 11],
+              ],
+            ],
+            [
+              [
+                [12, 13, 14],
+                [15, 16, 17],
+              ],
+
+              [
+                [18, 19, 20],
+                [21, 22, 23],
+              ],
+            ],
+          ]);
+          b = nv.tensor([
+            [
+              [
+                [69, 70, 71],
+                [72, 73, 74],
+              ],
+
+              [
+                [75, 76, 77],
+                [78, 79, 80],
+              ],
+            ],
+
+            [
+              [
+                [81, 82, 83],
+                [84, 85, 86],
+              ],
+
+              [
+                [87, 88, 89],
+                [90, 91, 92],
+              ],
+            ],
+          ]);
+          results.push(await (await a.add(b)).values());
+
           // await new Promise(r => setTimeout(r, 20000));
           return results;
         },
 
         expects: async () => [
-          await (await nv.tensor([5, 6])).values(),
-          await (
-            await nv.tensor([
+          await nv
+            .tensor([
+              [4, 5, 6],
+              [7, 8, 9],
+              [10, 11, 12],
+            ])
+            .values(),
+          await nv.tensor([5, 6]).values(),
+          await nv
+            .tensor([
               [2, 4],
               [2, 4],
             ])
-          ).values(),
-          await (
-            await nv.tensor([
+            .values(),
+          await nv
+            .tensor([
               [2, 2],
               [4, 4],
             ])
-          ).values(),
-          await (
-            await nv.tensor([
+            .values(),
+          await nv
+            .tensor([
               [6, 4],
               [13, 8],
             ])
-          ).values(),
+            .values(),
+          await nv
+            .tensor([
+              [
+                [
+                  [69, 71, 73],
+                  [75, 77, 79],
+                ],
+
+                [
+                  [81, 83, 85],
+                  [87, 89, 91],
+                ],
+              ],
+
+              [
+                [
+                  [93, 95, 97],
+                  [99, 101, 103],
+                ],
+
+                [
+                  [105, 107, 109],
+                  [111, 113, 115],
+                ],
+              ],
+            ])
+            .values(),
         ],
+      },
+    ],
+  },
+  {
+    suite: "Matrix Multiplication",
+    tests: [
+      {
+        name: "matmul()",
+        code: async () => {
+          let results = [];
+
+          let m, n;
+          m = nv.tensor([
+            [4, 1],
+            [2, 2],
+          ]);
+          n = nv.tensor([
+            [5, 3],
+            [27, 9],
+          ]);
+
+          results.push(await (await m.matmul(n)).values());
+
+          results.push(
+            await (
+              await nv.tensor([10, 20, 30]).matmul(nv.tensor([[1], [2], [3]]))
+            ).values()
+          );
+
+          results.push(
+            await (
+              await nv.tensor([10, 20, 30]).matmul(
+                nv.tensor([
+                  [1, 2, 3],
+                  [4, 5, 6],
+                  [4, 5, 6],
+                ])
+              )
+            ).values()
+          );
+
+          return results;
+        },
+        expects: async () => {
+          return [
+            [
+              [47, 21],
+              [64, 24],
+            ],
+            140,
+            [210, 270, 330],
+          ];
+        },
       },
     ],
   },
@@ -302,29 +460,6 @@ export default tests;
 //     // scalar transpose is itself
 //     let tensor2 = nv.scalar(4)
 //     assert.equal(tensor2.transpose(), tensor2)
-// })
-
-// test('matmul', async () => {
-//     // 1d tensor on 1d tensor
-//     assert.equal(nv.tensor([10, 20, 30]).matmul(nv.tensor([1, 2, 3])).getValues(), 140)
-
-//     // 1d tensor on 2d tensor
-//     assert.equal(nv.tensor([10, 20, 30]).matmul(nv.tensor([[1, 2, 3], [4, 5, 6], [4, 5, 6]])).getValues(), [210, 270, 330])
-
-//     let t1 = nv.tensor([79, 65, 94, 28, 34])
-//     let t2 = nv.tensor([[66, 45, 21],
-//     [41, 99, 52],
-//     [22, 25, 3],
-//     [50, 73, 1],
-//     [35, 7, 16]])
-//     assert.equal(t1.matmul(t2).getValues(), [12537, 14622, 5893])
-
-//     // 2d tensor on 2d tensor
-//     assert.equal(
-//         nv.tensor([[1, 2, 3], [4, 5, 6]]).matmul(nv.tensor([[1, 2], [3, 4], [5, 6]])).getValues(),
-//         [[22, 28],
-//         [49, 64]]
-//     )
 // })
 
 // test('mul', async () => {

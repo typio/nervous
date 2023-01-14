@@ -1,5 +1,6 @@
 import { backend } from '.'
-import { calcShape, flatLengthFromShape } from './tensorUtils'
+import { flatValues } from './backend-js/flatValues'
+import { calcShape, flatLengthFromShape, padShape } from './tensorUtils'
 
 // TODO: CHANGE new Array()'s to Float32Array's
 
@@ -14,7 +15,7 @@ export enum BinaryOp {
 }
 
 export class Tensor {
-  /**  first 4 values are shape (right padded 0s), rest are tensor values */
+  /**  first 4 values are shape, most to least significant dimensions, left-padded with 0's, rest are tensor values */
   readonly data: Float32Array
 
   readonly usingGPUBuffer: boolean = false
@@ -28,13 +29,14 @@ export class Tensor {
     let _values: number[] = []
 
     if (values.constructor === Float32Array) {
+      if (shape !== undefined) console.warn('Shape was not used in tensor() call with a Float32Array')
       this.data = values
       return
     } else if (values.constructor !== Number && values.constructor !== Array) {
       // is GPUBuffer, can't use "GPUBuffer" bc @webgpu/types DOESN'T WORK!
       this.usingGPUBuffer = true
       this.webGPUBuffer = values
-      this.webGPUBufferShape = shape
+      this.webGPUBufferShape = padShape(shape)
       return
     }
 
@@ -42,14 +44,14 @@ export class Tensor {
       if (values.constructor === Number) {
         // if scalar
         values = [values] // store scalar number as number[]
-        _shape = [1, 1] // questionable
+        _shape = [1] // questionable
       } else {
         // @ts-ignore: I checked the type
         _shape = calcShape(values)
       }
       if (values.constructor === Array) {
-        let flatValues = values.flat() as number[]
-        _values = flatValues
+        // This used to only require one flat()
+        _values = values.flat().flat().flat() as number[]
       }
     } else if (values !== undefined && shape !== undefined) {
       if (values.constructor === Array && values[0].constructor === Array)
@@ -63,9 +65,7 @@ export class Tensor {
       _values = flatValues
     }
 
-    while (_shape.length < 4) {
-      _shape.push(0)
-    }
+    _shape = padShape(_shape)
 
     this.data = new Float32Array([..._shape, ..._values])
   }
@@ -92,6 +92,9 @@ export class Tensor {
 
   /** Reshape tensor into provided shape */
   reshape = async (shape: number[]) => backend.default.reshape(this, shape)
+
+  /** Repeat tensor along dimensions */
+  repeat = async (scales: number[]) => backend.default.repeat(this, scales)
 
   /** switch rows and columns of a >=2d Tensor */
   transpose = async () => backend.default.transpose(this)

@@ -1,2 +1,2 @@
-import { Tensor } from "../tensor";
-export declare const fill: (shape: number | number[], value: number) => Tensor;
+import { Tensor } from '../tensor';
+export declare const fill: (_shape: number | number[], value: number) => Promise<Tensor>;

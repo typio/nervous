@@ -2,17 +2,19 @@ import elementwiseOPWGSL from './elementwiseOP.wgsl?raw'
 
 import { BinaryOp, Tensor } from '../tensor'
 import { gpuDevice } from '..'
-import { flatLengthFromShape } from '../tensorUtils'
+import { flatLengthFromShape, padShape } from '../tensorUtils'
 
 export const elementwiseOP = async (_a: Tensor, _b: Tensor | number, flag: BinaryOp) => {
   let a = _a
   let b = _b.constructor === Tensor ? _b : new Tensor(_b as number)
-  if (!a.usingGPUBuffer) a = await a.toGPU()
 
+  if (!a.usingGPUBuffer) a = await a.toGPU()
   if (!b.usingGPUBuffer) b = await b.toGPU()
 
-  let aShape = a.webGPUBufferShape
-  let bShape = b.webGPUBufferShape
+  let aShape = padShape(a.webGPUBufferShape)
+  let bShape = padShape(b.webGPUBufferShape)
+
+  // 'Elementwise OPs only support (nd tensor and matching nd tensor, nd tensor and scalar, 2d matrix and row or column vector, and row or column vector on row or column vector).'
 
   const flagGPUBuffer = gpuDevice.createBuffer({
     mappedAtCreation: true,
@@ -25,8 +27,8 @@ export const elementwiseOP = async (_a: Tensor, _b: Tensor | number, flag: Binar
   let resShape = [
     Math.max(aShape[0], bShape[0]),
     Math.max(aShape[1], bShape[1]),
-    // Math.max(aShape[2], bShape[2]),
-    // Math.max(aShape[3], bShape[3])
+    Math.max(aShape[2], bShape[2]),
+    Math.max(aShape[3], bShape[3]),
   ]
 
   let resSize = (4 + flatLengthFromShape(resShape)) * Float32Array.BYTES_PER_ELEMENT

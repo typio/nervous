@@ -1,7 +1,7 @@
 import { Rank1To4Array } from './tensor'
 
 /** Convert FloatArray to Array (Array.from() and slice are slow...) */
-export const toArr = (floatArr: Float32Array, decimals?: number, startIndex = 0) => {
+export const toArr = (floatArr: Float32Array, decimals?: number, startIndex = 0): number[] => {
   let arr = []
   if (decimals === undefined) for (let i = startIndex; i < floatArr.length; i++) arr[i - startIndex] = floatArr[i]
   else for (let i = startIndex; i < floatArr.length; i++) arr[i - startIndex] = Number(floatArr[i].toFixed(decimals))
@@ -20,24 +20,23 @@ export const calcShape = (values: Rank1To4Array): number[] => {
 
   if (shape.length === 1) {
     // if vector, set first el of shape to 1 for 1 row count
-    shape = [1, values.length]
+    shape = [values.length]
   }
 
   return shape
 }
 
 export const flatLengthFromShape = (shape: number[]) => {
-  if (shape[0] === 0) return 1
   // reduce is fine considering max array length is 4
   return shape.reduce((previousValue, currentValue) => Math.max(1, previousValue) * Math.max(1, currentValue), 1)
 }
 
 export const toNested = (values: number[], shape: number[]) => {
-  if (flatLengthFromShape(shape) !== values.length)
-    throw new Error(
-      `New shape is not compatible with initial values length: shape: ${shape} values.length: ${values.length}.`
-    )
-
+  // if (flatLengthFromShape(shape) !== values.length)
+  // 	throw new Error(
+  // 		`New shape is not compatible with initial values length: shape: ${shape} values.length: ${values.length}.`
+  // 	)
+  //
   if (shape.length === 1) {
     return values
   }
@@ -65,13 +64,14 @@ export const arrMax = (arr: number[]): number => {
   return max
 }
 
-/** formats a shape in the 4 element right padded 0 array form*/
-export const padShape = (_shape: number | number[]) => {
-  if (_shape.constructor === Number) return [_shape, 0, 0, 0]
+/** formats a shape in the 4 element left padded 0 array form*/
+export const padShape = (_shape: number | number[], _pV?: number) => {
+  let pV = _pV === undefined ? 0 : _pV
+  if (_shape.constructor === Number) return [pV, pV, pV, _shape]
   _shape = _shape as number[]
   if (_shape.length > 4) throw new Error('shape length should be less than or equal to 4')
-  let shape = [0, 0, 0, 0]
-  for (let i = 0; i < Math.min(shape.length, _shape.length); i++) shape[i] = _shape[i]
+  let shape = [pV, pV, pV, pV]
+  for (let i = 4 - _shape.length; i < 4; i++) shape[i] = _shape[i - 4 + _shape.length]
 
   return shape
 }

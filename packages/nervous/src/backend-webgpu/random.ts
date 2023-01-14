@@ -1,12 +1,10 @@
 import { gpuDevice } from '..'
 import { Tensor } from '../tensor'
-import { flatLengthFromShape } from '../tensorUtils'
+import { flatLengthFromShape, padShape } from '../tensorUtils'
 
 import randomWGSL from './random.wgsl?raw'
 
 export const random = async (shape: number[], seed?: number, min?: number, max?: number, integer?: boolean) => {
-	let shapeArray = new Float32Array(shape)
-
 	let seedUInt: Uint32Array
 	if (seed === undefined) seedUInt = new Uint32Array([Math.random() * 0xffffffff])
 	else {
@@ -16,12 +14,13 @@ export const random = async (shape: number[], seed?: number, min?: number, max?:
 
 	let resultSize = flatLengthFromShape(shape)
 
+	let shapeArray = new Float32Array(padShape(shape))
 	const shapeGPUBuffer = gpuDevice.createBuffer({
 		mappedAtCreation: true,
 		size: Math.max(32, shapeArray.byteLength),
 		usage: GPUBufferUsage.STORAGE,
 	})
-	new Float32Array(shapeGPUBuffer.getMappedRange()).set(shape)
+	new Float32Array(shapeGPUBuffer.getMappedRange()).set(shapeArray)
 	shapeGPUBuffer.unmap()
 
 	const seedGPUBuffer = gpuDevice.createBuffer({
@@ -36,11 +35,6 @@ export const random = async (shape: number[], seed?: number, min?: number, max?:
 	const resultGPUBuffer = gpuDevice.createBuffer({
 		size: resultBufferSize,
 		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
-	})
-
-	const readGPUBuffer = gpuDevice.createBuffer({
-		size: resultBufferSize,
-		usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
 	})
 
 	const computePipeline = gpuDevice.createComputePipeline({
@@ -78,13 +72,6 @@ export const random = async (shape: number[], seed?: number, min?: number, max?:
 	passEncoder.dispatchWorkgroups(Math.ceil(resultSize / (64 * 4)))
 	passEncoder.end()
 
-	commandEncoder.copyBufferToBuffer(resultGPUBuffer, 0, readGPUBuffer, 0, resultBufferSize)
 	gpuDevice.queue.submit([commandEncoder.finish()])
-	await readGPUBuffer.mapAsync(GPUMapMode.READ)
-
-	let result = new Float32Array(
-		readGPUBuffer.getMappedRange().slice(0, Float32Array.BYTES_PER_ELEMENT * (4 + resultSize))
-	)
-
-	return new Tensor(result)
+	return new Tensor(resultGPUBuffer, padShape(shape))
 }
