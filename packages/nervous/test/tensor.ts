@@ -7,7 +7,7 @@ test('scalar', async () => {
     await nv.init({ backend: "js" })
     let tensor = nv.scalar(4)
     console.log(tensor);
-    
+
     assert.equal(tensor.rank, 0)
     assert.equal(tensor.shape, [1])
 })

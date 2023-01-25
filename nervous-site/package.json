@@ -1,41 +1,42 @@
 {
-	"name": "nervous-site",
-	"version": "0.0.1",
-	"private": true,
-	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
-		"preview": "vite preview",
-		"test": "playwright test",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"test:unit": "vitest"
-	},
-	"dependencies": {
-		"katex": "^0.16.4",
-		"nervous": "workspace:0.0.0",
-		"p5-svelte": "^3.1.2",
-		"pixi.js": "^7.0.5"
-	},
-	"devDependencies": {
-		"@playwright/test": "^1.28.1",
-		"@sveltejs/adapter-auto": "^1.0.0",
-		"@sveltejs/kit": "^1.0.0",
-		"@types/katex": "^0.16.0",
-		"@types/p5": "^1.4.2",
-		"@webgpu/types": "^0.1.23",
-		"autoprefixer": "^10.4.13",
-		"p5": "^1.4.2",
-		"postcss": "^8.4.20",
-		"prettier": "^2.6.2",
-		"prettier-plugin-svelte": "^2.9.0",
-		"svelte": "^3.54.0",
-		"svelte-check": "^2.9.2",
-		"tailwindcss": "^3.2.1",
-		"tslib": "^2.4.1",
-		"typescript": "^4.9.3",
-		"vite": "^4.0.0",
-		"vitest": "^0.25.3"
-	},
-	"type": "module"
+    "name": "nervous-site",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "dev": "vite dev",
+        "build": "vite build",
+        "preview": "vite preview",
+        "test": "playwright test",
+        "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+        "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+        "test:unit": "vitest"
+    },
+    "dependencies": {
+        "katex": "^0.16.4",
+        "nervous": "workspace:0.0.0",
+        "p5-svelte": "^3.1.2",
+        "pixi.js": "^7.0.5"
+    },
+    "devDependencies": {
+        "@playwright/test": "^1.28.1",
+        "@sveltejs/adapter-auto": "^1.0.0",
+        "@sveltejs/kit": "^1.0.0",
+        "@types/katex": "^0.16.0",
+        "@types/p5": "^1.4.2",
+        "@webgpu/types": "^0.1.23",
+        "autoprefixer": "^10.4.13",
+        "p5": "^1.4.2",
+        "postcss": "^8.4.20",
+        "prettier": "^2.6.2",
+        "prettier-plugin-svelte": "^2.9.0",
+        "svelte": "^3.54.0",
+        "svelte-check": "^2.9.2",
+        "tailwindcss": "^3.2.1",
+        "tslib": "^2.4.1",
+        "typescript": "^4.9.3",
+        "typescript-svelte-plugin": "^0.3.14",
+        "vite": "^4.0.0",
+        "vitest": "^0.25.3"
+    },
+    "type": "module"
 }

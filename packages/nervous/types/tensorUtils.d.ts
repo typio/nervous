@@ -6,4 +6,4 @@ export declare const flatLengthFromShape: (shape: number[]) => number;
 export declare const toNested: (values: number[], shape: number[]) => any[];
 export declare const arrMax: (arr: number[]) => number;
 /** formats a shape in the 4 element left padded 0 array form*/
-export declare const padShape: (_shape: number | number[]) => number[];
+export declare const padShape: (_shape: number | number[], _pV?: number) => number[];

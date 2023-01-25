@@ -1,24 +1,39 @@
-import softmaxWGSL from './softmax.wgsl?raw'
+import reduceWGSL from './reduceOP.wgsl?raw'
 import { flatLengthFromShape } from '../tensorUtils'
 
 import { gpuDevice } from '..'
-import { Tensor } from '../tensor'
+import { ReduceOP, Tensor } from '../tensor'
 
-export const softmax = async (_a: Tensor, _dim?: number) => {
+/** returns scalar sum in Tensor of all tensor values, in case of 2d matrix, axis can be specified for vector of sums: 0 for columns 1 for rows */
+export const reduceOP = async (_a: Tensor, flag: ReduceOP, _axis?: 0 | 1): Promise<Tensor> => {
     let a = _a
-    let dim = _dim === undefined ? 1 : _dim
 
     if (!a.usingGPUBuffer) a = await a.toGPU()
 
-    const dimGPUBuffer = gpuDevice.createBuffer({
+    // has value -1 if no axis is given
+    let axis = _axis === undefined ? -1 : _axis
+
+    const axisGPUBuffer = gpuDevice.createBuffer({
         mappedAtCreation: true,
         size: 32,
         usage: GPUBufferUsage.STORAGE,
     })
-    new Uint32Array(dimGPUBuffer.getMappedRange()).set(new Uint32Array([dim]))
-    dimGPUBuffer.unmap()
+    new Int32Array(axisGPUBuffer.getMappedRange()).set(new Int32Array([axis]))
+    axisGPUBuffer.unmap()
 
-    let resSize = (4 + flatLengthFromShape(a.webGPUBufferShape)) * Float32Array.BYTES_PER_ELEMENT
+    let resSize: number
+
+    if (axis === 0) resSize = (4 + a.webGPUBufferShape[2]) * Float32Array.BYTES_PER_ELEMENT
+    else if (axis === 1) resSize = (4 + a.webGPUBufferShape[3]) * Float32Array.BYTES_PER_ELEMENT
+    else resSize = (4 + 1) * Float32Array.BYTES_PER_ELEMENT
+
+    const flagGPUBuffer = gpuDevice.createBuffer({
+        mappedAtCreation: true,
+        size: 32,
+        usage: GPUBufferUsage.STORAGE,
+    })
+    new Uint32Array(flagGPUBuffer.getMappedRange()).set(new Uint32Array([flag]))
+    flagGPUBuffer.unmap()
 
     const resultGPUBuffer = gpuDevice.createBuffer({
         size: Math.max(32, resSize),
@@ -45,6 +60,13 @@ export const softmax = async (_a: Tensor, _dim?: number) => {
                 binding: 2,
                 visibility: GPUShaderStage.COMPUTE,
                 buffer: {
+                    type: 'read-only-storage',
+                },
+            },
+            {
+                binding: 3,
+                visibility: GPUShaderStage.COMPUTE,
+                buffer: {
                     type: 'storage',
                 },
             },
@@ -57,7 +79,7 @@ export const softmax = async (_a: Tensor, _dim?: number) => {
         }),
         compute: {
             module: gpuDevice.createShaderModule({
-                code: softmaxWGSL,
+                code: reduceWGSL,
             }),
             entryPoint: 'main',
         },
@@ -75,11 +97,17 @@ export const softmax = async (_a: Tensor, _dim?: number) => {
             {
                 binding: 1,
                 resource: {
-                    buffer: dimGPUBuffer,
+                    buffer: axisGPUBuffer,
                 },
             },
             {
                 binding: 2,
+                resource: {
+                    buffer: flagGPUBuffer,
+                },
+            },
+            {
+                binding: 3,
                 resource: {
                     buffer: resultGPUBuffer,
                 },

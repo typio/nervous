@@ -1,6 +1,6 @@
-import { Tensor } from "../tensor"
+import { reduceOP } from './reduceOP'
+import { Tensor, ReduceOP } from '../tensor'
 
-export const argmax = (a: Tensor) => {
-    throw new Error('Method is not yet implemented in webgpu backend 😞')
-
+export const argmax = async (a: Tensor, axis?: 0 | 1) => {
+    return reduceOP(a, ReduceOP.argmax, axis)
 }

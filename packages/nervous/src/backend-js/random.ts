@@ -4,7 +4,7 @@ import { flatLengthFromShape } from "../tensorUtils"
 export const random = (shape: number[], seed: number, min?: number, max?: number, integer?: boolean) => {
     if (seed !== undefined)
         console.warn('random() in js backend is not currently seedable, webgpu backend is.');
-        
+
 
     if ((min !== undefined && max === undefined) || (max !== undefined && min === undefined))
         throw new Error('Must have either both min and max params or neither.')

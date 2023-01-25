@@ -1,5 +1,5 @@
 import { fill } from '../backend-webgpu/fill'
 
 export const ones = async (shape: number | number[]) => {
-	return await fill(shape, 1)
+    return await fill(shape, 1)
 }

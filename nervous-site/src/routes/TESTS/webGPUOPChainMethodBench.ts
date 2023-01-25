@@ -7,7 +7,7 @@ import addWGSL from "./add.wgsl?raw";
 
 const main = async () => {
     if (gpuDevice === null) throw new Error("gpuDevice is null");
-  
+
     // Benchmarking methods of chaining WebGPU OPs together such as would be done in a neural network
     console.log(
         `%cBenchmarking methods of chaining WebGPU OPs together such as would be done in a neural network`,

@@ -1,2 +1,2 @@
 import { Tensor } from '../tensor';
-export declare const repeat: (_a: Tensor, scales: number[]) => Promise<Tensor>;
+export declare const repeat: (_a: Tensor, _scales: number[]) => Promise<Tensor>;

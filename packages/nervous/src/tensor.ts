@@ -7,184 +7,196 @@ import { calcShape, flatLengthFromShape, padShape } from './tensorUtils'
 export type Rank1To4Array = Float32Array | number[] | number[][] | number[][][] | number[][][][]
 
 export enum BinaryOp {
-  add = 0,
-  minus,
-  mul,
-  div,
-  mod,
+    add = 0,
+    minus,
+    mul,
+    div,
+    mod,
+}
+
+export enum ScalarElementwiseOP {
+    log = 0,
+}
+
+export enum ReduceOP {
+    sum = 0,
+    argmax,
+    argmin,
 }
 
 export class Tensor {
-  /**  first 4 values are shape, most to least significant dimensions, left-padded with 0's, rest are tensor values */
-  readonly data: Float32Array
+    /**  first 4 values are shape, most to least significant dimensions, left-padded with 0's, rest are tensor values */
+    readonly data: Float32Array
 
-  readonly usingGPUBuffer: boolean = false
-  readonly webGPUBuffer: any
-  readonly webGPUBufferShape: number[]
+    readonly usingGPUBuffer: boolean = false
+    readonly webGPUBuffer: any
+    readonly webGPUBufferShape: number[]
 
-  /** Construct tensor, pass value array, nested or un-nested, and optional shape if un-nested,
-   * or pass raw Float32Array already in internal Tensor data form. */
-  constructor(values: number | Rank1To4Array | Float32Array | GPUBuffer, shape?: number[]) {
-    let _shape: number[] = []
-    let _values: number[] = []
+    /** Construct tensor, pass value array, nested or un-nested, and optional shape if un-nested,
+     * or pass raw Float32Array already in internal Tensor data form. */
+    constructor(values: number | Rank1To4Array | Float32Array | GPUBuffer, shape?: number[]) {
+        let _shape: number[] = []
+        let _values: number[] = []
 
-    if (values.constructor === Float32Array) {
-      if (shape !== undefined) console.warn('Shape was not used in tensor() call with a Float32Array')
-      this.data = values
-      return
-    } else if (values.constructor !== Number && values.constructor !== Array) {
-      // is GPUBuffer, can't use "GPUBuffer" bc @webgpu/types DOESN'T WORK!
-      this.usingGPUBuffer = true
-      this.webGPUBuffer = values
-      this.webGPUBufferShape = padShape(shape)
-      return
+        if (values.constructor === Float32Array) {
+            if (shape !== undefined) console.warn('Shape was not used in tensor() call with a Float32Array')
+            this.data = values
+            return
+        } else if (values.constructor !== Number && values.constructor !== Array) {
+            // is GPUBuffer, can't use "GPUBuffer" bc @webgpu/types DOESN'T WORK!
+            this.usingGPUBuffer = true
+            this.webGPUBuffer = values
+            this.webGPUBufferShape = padShape(shape)
+            return
+        }
+
+        if (values !== undefined && shape === undefined) {
+            if (values.constructor === Number) {
+                // if scalar
+                values = [values] // store scalar number as number[]
+                _shape = [1] // questionable
+            } else {
+                // @ts-ignore: I checked the type
+                _shape = calcShape(values)
+            }
+            if (values.constructor === Array) {
+                // This used to only require one flat()
+                _values = values.flat().flat().flat() as number[]
+            }
+        } else if (values !== undefined && shape !== undefined) {
+            if (values.constructor === Array && values[0].constructor === Array)
+                throw new Error('If shape is given, values must be flat array, e.g. [1, 2, 3].')
+
+            let flatValues: number[] = Array.prototype.slice.call(values)
+
+            if (flatLengthFromShape(shape) !== flatValues.length) throw new Error("Values don't fit into shape.")
+
+            _shape = shape
+            _values = flatValues
+        }
+
+        _shape = padShape(_shape)
+
+        this.data = new Float32Array([..._shape, ..._values])
     }
 
-    if (values !== undefined && shape === undefined) {
-      if (values.constructor === Number) {
-        // if scalar
-        values = [values] // store scalar number as number[]
-        _shape = [1] // questionable
-      } else {
-        // @ts-ignore: I checked the type
-        _shape = calcShape(values)
-      }
-      if (values.constructor === Array) {
-        // This used to only require one flat()
-        _values = values.flat().flat().flat() as number[]
-      }
-    } else if (values !== undefined && shape !== undefined) {
-      if (values.constructor === Array && values[0].constructor === Array)
-        throw new Error('If shape is given, values must be flat array, e.g. [1, 2, 3].')
+    toJS = async (): Promise<Tensor> => backend.default.toJS(this)
 
-      let flatValues: number[] = Array.prototype.slice.call(values)
+    toGPU = async (): Promise<Tensor> => backend.default.toGPU(this)
 
-      if (flatLengthFromShape(shape) !== flatValues.length) throw new Error("Values don't fit into shape.")
-
-      _shape = shape
-      _values = flatValues
+    select = async (dim: number, index: number) => {
+        throw new Error('Not implemented')
     }
 
-    _shape = padShape(_shape)
+    /** returns nested number array of tensor values, returns type number if scalar */
+    values = async (decimals?: number): Promise<number[] | number> => backend.default.values(this, decimals)
 
-    this.data = new Float32Array([..._shape, ..._values])
-  }
+    /** returns flat tensor values */
+    flatValues = async (decimals?: number): Promise<number[]> => backend.default.flatValues(this, decimals)
 
-  toJS = async (): Promise<Tensor> => backend.default.toJS(this)
+    print = async (decimals?: number) => backend.default.print(this, decimals)
 
-  toGPU = async (): Promise<Tensor> => backend.default.toGPU(this)
+    /** returns tensor rank */
+    rank = async () => backend.default.rank(this)
 
-  select = async (dim: number, index: number) => {
-    throw new Error('Not implemented')
-  }
+    /** returns tensor shape, scalar ➡️ shape [0], vector ➡️ [1, N] */
+    shape = async () => backend.default.shape(this)
 
-  /** returns nested number array of tensor values, returns type number if scalar */
-  values = async (decimals?: number): Promise<number[] | number> => backend.default.values(this, decimals)
+    /** Reshape tensor into provided shape */
+    reshape = async (shape: number[]) => backend.default.reshape(this, shape)
 
-  /** returns flat tensor values */
-  flatValues = async (decimals?: number): Promise<number[]> => backend.default.flatValues(this, decimals)
+    /** Repeat tensor along dimensions */
+    repeat = async (scales: number[]) => backend.default.repeat(this, scales)
 
-  /** returns tensor rank */
-  rank = async () => backend.default.rank(this)
+    /** switch rows and columns of a >=2d Tensor */
+    transpose = async () => backend.default.transpose(this)
 
-  /** returns tensor shape, scalar ➡️ shape [0], vector ➡️ [1, N] */
-  shape = async () => backend.default.shape(this)
+    /** create tensor of dot product */
+    matmul = async (m: Tensor) => backend.default.matmul(this, m)
 
-  /** Reshape tensor into provided shape */
-  reshape = async (shape: number[]) => backend.default.reshape(this, shape)
+    inverse = async () => {
+        throw new Error('Not impl., maybe ever')
+    }
 
-  /** Repeat tensor along dimensions */
-  repeat = async (scales: number[]) => backend.default.repeat(this, scales)
+    /** create tensor of elementwise matrix multiplication, if using a "scalar" tensor put scalar in mul argument */
+    mul = async (m: Tensor | number) => backend.default.mul(this, m)
 
-  /** switch rows and columns of a >=2d Tensor */
-  transpose = async () => backend.default.transpose(this)
+    /** create tensor of elementwise matrix division, if using a "scalar" tensor put scalar in div argument */
+    div = async (d: Tensor | number) => backend.default.div(this, d)
 
-  /** create tensor of dot product */
-  matmul = async (m: Tensor) => backend.default.matmul(this, m)
+    /** create tensor with number a OR each value of a tensor a added to each value of input tensor  */
+    add = async (b: Tensor | number): Promise<Tensor> => backend.default.add(this, b)
 
-  inverse = async () => {
-    throw new Error('Not impl., maybe ever')
-  }
+    /** create tensor with number m OR each value of a tensor m subtracted from each value of input tensor  */
+    minus = async (s: Tensor | number) => backend.default.minus(this, s)
 
-  /** create tensor of elementwise matrix multiplication, if using a "scalar" tensor put scalar in mul argument */
-  mul = async (m: Tensor | number) => backend.default.mul(this, m)
+    /** create tensor with number m OR each value of a tensor m mod with each value of input tensor  */
+    mod = async (m: Tensor | number) => backend.default.mod(this, m)
 
-  /** create tensor of elementwise matrix division, if using a "scalar" tensor put scalar in div argument */
-  div = async (d: Tensor | number) => backend.default.div(this, d)
+    /** create tensor with relu done to all values  */
+    pow = async (exp: number) => backend.default.pow(this, exp)
 
-  /** create tensor with number a OR each value of a tensor a added to each value of input tensor  */
-  add = async (b: Tensor | number): Promise<Tensor> => backend.default.add(this, b)
+    // broadcast(func: (any)) {
+    //     let newV = []
+    //     for (let i = 0; i < this.values.length; i++) {
+    //         newV[i] = func(this.values[i])
+    //     }
+    //     return new Tensor(newV, this.shape)
+    // }
 
-  /** create tensor with number m OR each value of a tensor m subtracted from each value of input tensor  */
-  minus = async (s: Tensor | number) => backend.default.minus(this, s)
+    /** create tensor with sigmoid done to all values  */
+    sigmoid = async () => backend.default.sigmoid(this)
 
-  /** create tensor with number m OR each value of a tensor m mod with each value of input tensor  */
-  mod = async (m: Tensor | number) => backend.default.mod(this, m)
+    /** create tensor with softplus done to all values  */
+    softplus = async () => backend.default.softplus(this)
 
-  /** create tensor with relu done to all values  */
-  pow = async (exp: number) => backend.default.pow(this, exp)
+    // round(decimals: number) {
+    //     return this.broadcast((n: number) => Math.floor(n * (10 ** decimals)) / 10 ** decimals)
+    // }
 
-  // broadcast(func: (any)) {
-  //     let newV = []
-  //     for (let i = 0; i < this.values.length; i++) {
-  //         newV[i] = func(this.values[i])
-  //     }
-  //     return new Tensor(newV, this.shape)
-  // }
+    // return softmax
+    softmax = async (dim) => backend.default.softmax(this, dim)
 
-  /** create tensor with sigmoid done to all values  */
-  sigmoid = async () => backend.default.sigmoid(this)
+    /** create tensor with relu done to all values  */
+    reLU = async () => backend.default.reLU(this)
 
-  /** create tensor with softplus done to all values  */
-  softplus = async () => backend.default.softplus(this)
+    /** create tensor with relu done to all values  */
+    gradientReLU = async () => backend.default.gradientReLU(this)
 
-  // round(decimals: number) {
-  //     return this.broadcast((n: number) => Math.floor(n * (10 ** decimals)) / 10 ** decimals)
-  // }
+    /** create tensor of exponentials of all values on e, or given base  */
+    exp = async (base?: number) => backend.default.exp(this, base)
 
-  // return softmax
-  softmax = async () => backend.default.softmax(this)
+    /** create tensor of log on all values */
+    log = async () => backend.default.log(this)
 
-  /** create tensor with relu done to all values  */
-  reLU = async () => backend.default.reLU(this)
+    /** get the mean of all values */
+    mean = async () => backend.default.mean(this)
 
-  /** create tensor with relu done to all values  */
-  gradientReLU = async () => backend.default.gradientReLU(this)
+    /** return the lp norm as number, default p is 2  */
+    lpNorm = async (p?: number): Promise<number> => backend.default.lpNorm(this, p)
 
-  /** create tensor of exponentials of all values on e, or given base  */
-  exp = async (base?: number) => backend.default.exp(this, base)
+    /** return Frobenius Norm as number, represents the size of a matrix */
+    fNorm = async () => backend.default.fNorm(this)
 
-  /** create tensor of log on all values */
-  log = async () => backend.default.log(this)
+    /** returns sum of diagonal elements as number */
+    trace = async () => backend.default.trace(this)
 
-  /** get the mean of all values */
-  mean = async () => backend.default.mean(this)
+    /** returns sum in Tensor of all tensor values, if 2d matrix axis can be specified: 0 for columns 1 for rows*/
+    sum = async (axis?: 0 | 1): Promise<Tensor> => backend.default.sum(this, axis)
 
-  /** return the lp norm as number, default p is 2  */
-  lpNorm = async (p?: number): Promise<number> => backend.default.lpNorm(this, p)
+    /** returns tensor with elementwise max of old value vs input number */
+    applymax = async (n: number) => backend.default.applymax(this, n)
 
-  /** return Frobenius Norm as number, represents the size of a matrix */
-  fNorm = async () => backend.default.fNorm(this)
+    /** returns tensor with elementwise min of old value vs input number */
+    applymin = async (n: number) => backend.default.applymin(this, n)
 
-  /** returns sum of diagonal elements as number */
-  trace = async () => backend.default.trace(this)
+    /** returns maximum vlaue in tensor, pass axis for tensor of maximums per an axis (only 2d, 0 for cols 1 for rows) */
+    getmax = async (axis?: 0 | 1) => backend.default.getmax(this, axis)
 
-  /** returns sum in Tensor of all tensor values, if 2d matrix axis can be specified: 0 for columns 1 for rows*/
-  sum = async (axis?: 0 | 1): Promise<Tensor> => backend.default.sum(this, axis)
+    /** returns minimum vlaue in tensor, pass axis for tensor of minimums per an axis (only 2d, 0 for cols 1 for rows)*/
+    getmin = async (axis?: 0 | 1) => backend.default.getmin(this, axis)
 
-  /** returns tensor with elementwise max of old value vs input number */
-  applymax = async (n: number) => backend.default.applymax(this, n)
+    argmax = async (axis?: 0 | 1) => backend.default.argmax(this, axis)
 
-  /** returns tensor with elementwise min of old value vs input number */
-  applymin = async (n: number) => backend.default.applymin(this, n)
-
-  /** returns maximum vlaue in tensor, pass axis for tensor of maximums per an axis (only 2d, 0 for cols 1 for rows) */
-  getmax = async (axis?: 0 | 1) => backend.default.getmax(this, axis)
-
-  /** returns minimum vlaue in tensor, pass axis for tensor of minimums per an axis (only 2d, 0 for cols 1 for rows)*/
-  getmin = async (axis?: 0 | 1) => backend.default.getmin(this, axis)
-
-  argmax = async () => backend.default.argmax(this)
-
-  argmin = async () => backend.default.argmin(this)
+    argmin = async (axis?: 0 | 1) => backend.default.argmin(this, axis)
 }

@@ -1,8 +1,10 @@
 {
-	"useTabs": true,
-	"singleQuote": true,
-	"trailingComma": "es5",
-	"printWidth": 120,
-	"semi": false,
-	"pluginSearchDirs": ["."]
+    "useTabs": true,
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "printWidth": 120,
+    "semi": false,
+    "pluginSearchDirs": [
+        "."
+    ]
 }

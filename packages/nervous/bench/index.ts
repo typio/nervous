@@ -32,8 +32,8 @@ light:bench: Fastest is constructor
 
 // TODO: Test new Array() and Array.fill() vs for 
 let mixedTypes: (number[] | number)[] = new Array(10000).fill(0)
-mixedTypes = mixedTypes.map(_ => Math.random() > 0.5 ? [1, 2, 3] : 123) 
-console.log(mixedTypes) 
+mixedTypes = mixedTypes.map(_ => Math.random() > 0.5 ? [1, 2, 3] : 123)
+console.log(mixedTypes)
 
 suite
     .add('isArray', () => {

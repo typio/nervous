@@ -5,8 +5,12 @@
         "declarationDir": "./types",
         "skipLibCheck": true,
         "lib": [
-            "ESNext", "DOM"
+            "ESNext",
+            "DOM"
         ],
-        "typeRoots": [ "./node_modules/@webgpu/types", "./node_modules/@types"]
+        "typeRoots": [
+            "./node_modules/@webgpu/types",
+            "./node_modules/@types"
+        ]
     }
 }
