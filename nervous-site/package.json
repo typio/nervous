@@ -15,6 +15,7 @@
         "katex": "^0.16.4",
         "nervous": "workspace:0.0.0",
         "p5-svelte": "^3.1.2",
+        "pako": "^2.1.0",
         "pixi.js": "^7.0.5"
     },
     "devDependencies": {

@@ -100,7 +100,7 @@ let n = nv.tensor([[43.,  5., 32., 79., 97., 89., 21., 33., 70., 81.],
         [43., 85., 57., 14., 14., 61., 83., 45., 60.,  6.],
         [27., 38.,  1., 56., 97., 91., 12., 11., 42., 52.]])
 
-            console.log(await (await n.mod(40)).flatValues(3))
+            console.log(await (await (await n.mul(2)).minus(1)).flatValues(3))
         };
         main();
     }

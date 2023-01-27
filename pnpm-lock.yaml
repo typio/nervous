@@ -51,6 +51,7 @@ importers:
       nervous: workspace:0.0.0
       p5: ^1.4.2
       p5-svelte: ^3.1.2
+      pako: ^2.1.0
       pixi.js: ^7.0.5
       postcss: ^8.4.20
       prettier: ^2.6.2
@@ -67,6 +68,7 @@ importers:
       katex: 0.16.4
       nervous: link:../packages/nervous
       p5-svelte: 3.1.2_@types+p5@1.4.3+p5@1.4.2
+      pako: 2.1.0
       pixi.js: 7.0.5
     devDependencies:
       '@playwright/test': 1.29.1
@@ -4065,6 +4067,10 @@ packages:
 
   /p5/1.4.2:
     resolution: {integrity: sha512-J5zqZ/l1NIbJSuNr/FH9nDYgBRg7/NubStNPnx1fQCMSAgxI6peKDHs9i5iaG9EuwbJzjuG6/5bX/D0lqqrP9A==}
+
+  /pako/2.1.0:
+    resolution: {integrity: sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug==}
+    dev: false
 
   /parent-module/1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
