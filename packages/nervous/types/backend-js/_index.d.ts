@@ -1,5 +1,5 @@
 declare const _default: {
-    add: (a: import("../tensor").Tensor, b: number | import("../tensor").Tensor, axis?: number) => import("../tensor").Tensor;
+    add: (a: import("../tensor").Tensor, b: number | import("../tensor").Tensor) => import("../tensor").Tensor;
     applyMax: (a: import("../tensor").Tensor, n: number) => import("../tensor").Tensor;
     applyMin: (a: import("../tensor").Tensor, n: number) => import("../tensor").Tensor;
     argmax: (a: import("../tensor").Tensor) => number;

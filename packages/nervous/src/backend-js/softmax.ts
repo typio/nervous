@@ -1,5 +1,5 @@
-import { Tensor } from "../tensor"
-import { tensor } from "./tensor"
+import { Tensor } from '../tensor'
+import { tensor } from './tensor'
 
 // return softmax
 export const softmax = (a: Tensor) => {
@@ -15,18 +15,17 @@ export const softmax = (a: Tensor) => {
         minusMaxTensor = tensor(newV)
     } else throw new Error(`Softmax only supports [0-2]d tensors, yours is ${a.rank()}d`)
 
-
-    let outputs = (new Array(minusMaxTensor.shape()[0] * minusMaxTensor.shape()[1]))
+    let outputs = new Array(minusMaxTensor.shape()[0] * minusMaxTensor.shape()[1])
 
     for (let j = 0; j < minusMaxTensor.shape()[0]; j++) {
-        let eValues = [];
+        let eValues = []
         for (let i = 0; i < minusMaxTensor.shape()[1]; i++) {
-            eValues.push(Math.E ** minusMaxTensor.flatValues()[j * minusMaxTensor.shape()[1] + i]);
+            eValues.push(Math.E ** minusMaxTensor.flatValues()[j * minusMaxTensor.shape()[1] + i])
         }
 
-        let eValuesSum = 0;
+        let eValuesSum = 0
         for (let i = 0; i < eValues.length; i++) {
-            eValuesSum += eValues[i];
+            eValuesSum += eValues[i]
         }
 
         for (let i = 0; i < eValues.length; i++) {
@@ -34,5 +33,5 @@ export const softmax = (a: Tensor) => {
         }
     }
 
-    return new Tensor(outputs, minusMaxTensor.shape());
+    return new Tensor(outputs, minusMaxTensor.shape())
 }

@@ -5,6 +5,7 @@ import { argmax } from './argmax'
 import { argmin } from './argmin'
 import { diag } from './diag'
 import { div } from './div'
+import { equals } from './equals'
 import { exp } from './exp'
 import { eye } from './eye'
 import { fNorm } from './fNorm'
@@ -52,6 +53,7 @@ export default {
     argmin,
     diag,
     div,
+    equals,
     exp,
     eye,
     fNorm,

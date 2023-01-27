@@ -30,7 +30,7 @@
 
     if (browser) {
         (async () => {
-            await nv.init({ backend: "webgpu" });
+            await nv.init({ backend: "js" });
 
             let data = iris_raw_data.split("\n");
             data = data.filter((row) => (row === "" ? false : true)); // remove empty lines
@@ -65,7 +65,8 @@
                 W: Tensor,
                 b: Tensor
             ): Promise<Tensor> => {
-                let output = await (await input.matmul(W)).add(b, 1);
+                
+                let output = await (await input.matmul(W)).add(b,1);
                 return output;
             };
 
@@ -84,21 +85,19 @@
             ): Promise<[Tensor, number]> => {
                 let output = await forward(inputData, W, b);
 
-                let outputArr = await output.values() as number[];
-                let correctOutputArr = await inputLabels.values() as number[];
+                let outputArgmaxValues = await(await output.argmax(1)).flatValues()
+                let correctArgmaxValues = await(await inputLabels.argmax(1)).flatValues()
+                
 
                 let correctN = 0;
-                for (let i = 0; i < outputArr.length; i++) {
-                    if (
-                        await nv.tensor(outputArr[i]).argmax() ===
-                        await nv.tensor(correctOutputArr[i]).argmax()
-                    )
+                for (let i = 0; i < outputArgmaxValues.length; i++) {
+                    if (outputArgmaxValues[i] === correctArgmaxValues[i])
                         correctN++;
                 }
 
                 return [
                     output,
-                    Number(((correctN / outputArr.length) * 100).toFixed(2)),
+                    Number(((correctN / outputArgmaxValues.length) * 100).toFixed(2)),
                 ];
             };
 
@@ -133,7 +132,7 @@
                 let trainLabelsTensor = nv.tensor(trainLabels as number[][]);
                 let testDataTensor = nv.tensor(testData as number[][]);
                 let testLabelsTensor = nv.tensor(testLabels as number[][]);
-                let train_samples_n = trainDataTensor.shape()[0];
+                let train_samples_n = (await trainDataTensor.shape())[0];
 
                 init_train_acc =
                     (
@@ -150,6 +149,7 @@
                 weight_vals = W.values() as unknown as number[][];
                 bias_vals = b.flatValues();
                 const fit = async () => {
+                    let t1 = performance.now()
                     let [output, accuracy] = await evaluate(
                         trainDataTensor,
                         trainLabelsTensor,
@@ -157,10 +157,10 @@
                         b
                     );
 
+                    let t2 = performance.now()
                     accuracies.push(accuracy);
 
                     let probs = await output.softmax();
-                    console.log(probs);
 
                     let correct_logprobs = await (await (await (await probs
                         .mul(trainLabelsTensor))
@@ -168,31 +168,37 @@
                         .log())
                         .mul(-1);
 
-                    let data_loss =
-                        (await correct_logprobs.sum()).values() / train_samples_n;
-                    let reg_loss = 0.5 * LR * (await(await W.mul(W)).sum()).values();
+                    let t3 = performance.now()
+                    let data_loss = await (await correct_logprobs.sum()).values() / train_samples_n;
+                    let reg_loss = 0.5 * LR * await (await (await W.mul(W)).sum()).values();
                     let loss = data_loss + reg_loss;
+                    console.log('loss:',loss)
 
+                    let t4 = performance.now()
                     step_count++;
 
                     let dOutput = await probs.minus(trainLabelsTensor);
 
                     dOutput = await dOutput.div(train_samples_n);
 
-                    let dW = await (await trainDataTensor.transpose()).matmul(dOutput);
+                    let trainDataTranspose = await trainDataTensor.transpose();
+                    let dW = await (trainDataTranspose).matmul(dOutput);
 
                     let db = await dOutput.sum(0);
 
                     dW = await dW.add(await W.mul(LR));
 
+                    let t5 = performance.now()
                     // perform a parameter update
-                    W = await W.add(await dW.mul(-1 * STEP_SIZE));
-                    b = await b.add(await db.mul(-1 * STEP_SIZE));
+                    W = await W.minus(await dW.mul(STEP_SIZE));
+                    b = await b.minus(await db.mul(STEP_SIZE));
 
                     weight_vals = await W.values(3) as unknown as number[][];
                     bias_vals = await b.flatValues(3);
                     output_vals = await output.flatValues(3);
 
+                    let t6 = performance.now()
+                    /* console.log(`${t2-t1}, ${t3-t2}, ${t4-t3}, ${t5-t4}, ${t6-t5}`) */
                     if (step_count < training_steps && !stop_signal) {
                         requestAnimationFrame(fit);
                     } else {

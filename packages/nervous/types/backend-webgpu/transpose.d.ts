@@ -1,3 +1,3 @@
-import { Tensor } from "../tensor";
+import { Tensor } from '../tensor';
 /** switch rows and columns of a >=2d Tensor */
-export declare const transpose: (a: Tensor) => never;
+export declare const transpose: (_a: Tensor) => Promise<Tensor>;

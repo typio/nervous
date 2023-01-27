@@ -1,3 +1,3 @@
-import { Tensor } from "../tensor";
+import { Tensor } from '../tensor';
 /** create tensor of dot product */
 export declare const matmul: (a: Tensor, m: Tensor) => Tensor;

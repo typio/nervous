@@ -89,18 +89,18 @@ export class Tensor {
     }
 
     /** returns nested number array of tensor values, returns type number if scalar */
-    values = async (decimals?: number): Promise<number[] | number> => backend.default.values(this, decimals)
+    values = (decimals?: number): Promise<number[] | number> => backend.default.values(this, decimals)
 
     /** returns flat tensor values */
-    flatValues = async (decimals?: number): Promise<number[]> => backend.default.flatValues(this, decimals)
+    flatValues = (decimals?: number): Promise<number[]> => backend.default.flatValues(this, decimals)
 
-    print = async (decimals?: number) => backend.default.print(this, decimals)
+    print = (decimals?: number) => backend.default.print(this, decimals)
 
     /** returns tensor rank */
-    rank = async () => backend.default.rank(this)
+    rank = () => backend.default.rank(this)
 
     /** returns tensor shape, scalar ➡️ shape [0], vector ➡️ [1, N] */
-    shape = async () => backend.default.shape(this)
+    shape = () => backend.default.shape(this)
 
     /** Reshape tensor into provided shape */
     reshape = async (shape: number[]) => backend.default.reshape(this, shape)
@@ -109,26 +109,26 @@ export class Tensor {
     repeat = async (scales: number[]) => backend.default.repeat(this, scales)
 
     /** switch rows and columns of a >=2d Tensor */
-    transpose = async () => backend.default.transpose(this)
+    transpose = () => backend.default.transpose(this)
 
     /** create tensor of dot product */
-    matmul = async (m: Tensor) => backend.default.matmul(this, m)
+    matmul = (m: Tensor) => backend.default.matmul(this, m)
 
     inverse = async () => {
         throw new Error('Not impl., maybe ever')
     }
 
     /** create tensor of elementwise matrix multiplication, if using a "scalar" tensor put scalar in mul argument */
-    mul = async (m: Tensor | number) => backend.default.mul(this, m)
+    mul = (m: Tensor | number) => backend.default.mul(this, m)
 
     /** create tensor of elementwise matrix division, if using a "scalar" tensor put scalar in div argument */
-    div = async (d: Tensor | number) => backend.default.div(this, d)
+    div = (d: Tensor | number) => backend.default.div(this, d)
 
     /** create tensor with number a OR each value of a tensor a added to each value of input tensor  */
-    add = async (b: Tensor | number): Promise<Tensor> => backend.default.add(this, b)
+    add = (b: Tensor | number): Promise<Tensor> => backend.default.add(this, b)
 
     /** create tensor with number m OR each value of a tensor m subtracted from each value of input tensor  */
-    minus = async (s: Tensor | number) => backend.default.minus(this, s)
+    minus = (s: Tensor | number) => backend.default.minus(this, s)
 
     /** create tensor with number m OR each value of a tensor m mod with each value of input tensor  */
     mod = async (m: Tensor | number) => backend.default.mod(this, m)
@@ -191,7 +191,7 @@ export class Tensor {
     applymin = async (n: number) => backend.default.applymin(this, n)
 
     /** returns maximum vlaue in tensor, pass axis for tensor of maximums per an axis (only 2d, 0 for cols 1 for rows) */
-    getmax = async (axis?: 0 | 1) => backend.default.getmax(this, axis)
+    getmax = (axis?: 0 | 1) => backend.default.getmax(this, axis)
 
     /** returns minimum vlaue in tensor, pass axis for tensor of minimums per an axis (only 2d, 0 for cols 1 for rows)*/
     getmin = async (axis?: 0 | 1) => backend.default.getmin(this, axis)

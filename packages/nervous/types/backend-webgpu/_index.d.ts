@@ -6,6 +6,7 @@ declare const _default: {
     argmin: (a: import("../tensor").Tensor) => never;
     diag: (values: number[]) => Promise<import("../tensor").Tensor>;
     div: (_a: import("../tensor").Tensor, _b: number | import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
+    equals: (_a: import("../tensor").Tensor, _m: import("../tensor").Tensor) => Promise<Boolean>;
     exp: (a: import("../tensor").Tensor, base?: number) => never;
     eye: (dim: number | number[], offset?: number) => import("../tensor").Tensor;
     fNorm: (a: import("../tensor").Tensor) => never;
@@ -40,7 +41,7 @@ declare const _default: {
     sum: (a: import("../tensor").Tensor, axis?: 0 | 1) => Promise<import("../tensor").Tensor>;
     tensor: (values: number | import("../tensor").Rank1To4Array, shape?: number[]) => import("../tensor").Tensor;
     trace: (a: Tensor) => never;
-    transpose: (a: import("../tensor").Tensor) => never;
+    transpose: (_a: import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
     toGPU: (a: import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
     toJS: (a: import("../tensor").Tensor) => Promise<import("../tensor").Tensor>;
     zeros: (shape: number | number[]) => Promise<import("../tensor").Tensor>;

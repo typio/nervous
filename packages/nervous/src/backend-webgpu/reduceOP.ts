@@ -23,8 +23,8 @@ export const reduceOP = async (_a: Tensor, flag: ReduceOP, _axis?: 0 | 1): Promi
 
     let resSize: number
 
-    if (axis === 0) resSize = (4 + a.webGPUBufferShape[2]) * Float32Array.BYTES_PER_ELEMENT
-    else if (axis === 1) resSize = (4 + a.webGPUBufferShape[3]) * Float32Array.BYTES_PER_ELEMENT
+    if (axis === 0) resSize = (4 + a.webGPUBufferShape[3]) * Float32Array.BYTES_PER_ELEMENT
+    else if (axis === 1) resSize = (4 + a.webGPUBufferShape[2]) * Float32Array.BYTES_PER_ELEMENT
     else resSize = (4 + 1) * Float32Array.BYTES_PER_ELEMENT
 
     const flagGPUBuffer = gpuDevice.createBuffer({

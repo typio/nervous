@@ -1,11 +1,19 @@
-import { Tensor } from "../tensor"
+import { Tensor } from '../tensor'
+import { toArr } from '../tensorUtils'
 
 export const rank = (a: Tensor) => {
-    if (a.data.length === 2) return 0 // scalar
-    let rank = 0
-    for (let i = 0; i < 4; i++) {
-        if (a.data[i] !== 0) rank++
-        else return rank
+    let shape: number[]
+
+    shape = toArr(a.data.slice(0, 4))
+
+    if (shape[3] === 1 && shape[2] === 0) return 0 // scalar
+
+    let i = 3
+    while (i > 0) {
+        if (shape[i - 1] === 0) {
+            break
+        }
+        i--
     }
-    return rank
+    return 4 - i
 }

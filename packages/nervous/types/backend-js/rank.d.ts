@@ -1,2 +1,2 @@
-import { Tensor } from "../tensor";
+import { Tensor } from '../tensor';
 export declare const rank: (a: Tensor) => number;
