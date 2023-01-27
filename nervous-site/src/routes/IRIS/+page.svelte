@@ -17,6 +17,8 @@
     let init_test_acc = "";
     let final_test_acc = "";
     let fit_btn_text = "▶";
+    let backend = 'auto'
+    $: nv.init({backend})
 
     let weight_vals: number[][] = [[0]];
     let bias_vals: number[] = [];
@@ -30,7 +32,7 @@
 
     if (browser) {
         (async () => {
-            await nv.init({ backend: "js" });
+            await nv.init({ backend });
 
             let data = iris_raw_data.split("\n");
             data = data.filter((row) => (row === "" ? false : true)); // remove empty lines
@@ -334,6 +336,17 @@
     <div class="max-w-3xl mx-auto mb-12">
         <h1 class="text-2xl ">Iris Dataset Classification</h1>
 
+    <label for="backend-select ">Backend: </label>
+    <select
+        name="backend"
+        id="backend-select"
+        bind:value={backend}
+        class="bg-stone-100 rounded p-2 shadow"
+    >
+        <option value="auto">Auto</option>
+        <option value="js">JS</option>
+        <option value="webgpu" disabled={!nv.webgpuAvailable()}>WebGPU</option>
+    </select>
         <h1 class="text-lg ">Linear Classifier</h1>
         <label for="training_steps"># Training Steps:</label>
 
