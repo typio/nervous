@@ -19,8 +19,10 @@ let config = {
 const createBackend = async (backend: string) => {
     if (backend === 'js') {
         // browser seems to still loads both backends. Can that be fixed with better build process?
+        console.log('using js backend')
         return await import('./backend-js/_index')
     } else if (backend === 'webgpu') {
+        console.log('using webgpu backend')
         return await import('./backend-webgpu/_index')
     } else {
         throw new Error(`Invalid backend, received ${backend}`)

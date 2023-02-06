@@ -227,7 +227,7 @@ let tests = [
         suite: "Tensor OPs",
         tests: [
             {
-                name: "add() on two 1d tensors",
+                name: "add()",
                 code: async () => {
                     let results = [];
                     let a, b;
@@ -374,6 +374,117 @@ let tests = [
                                     [111, 113, 115],
                                 ],
                             ],
+                        ])
+                        .values(),
+                ],
+            },
+            {
+                name: "sum()",
+                code: async () => {
+                    let results = [];
+                    results.push(
+                        await (
+                            await nv
+                                .tensor([
+                                    [1, 2],
+                                    [4, 5],
+                                    [7, 8],
+                                ])
+                                .sum()
+                        ).values()
+                    );
+                    results.push(
+                        await (
+                            await nv
+                                .tensor([
+                                    [1, 2],
+                                    [4, 5],
+                                    [7, 8],
+                                ])
+                                .sum(0)
+                        ).values()
+                    );
+                    results.push(
+                        await (
+                            await nv
+                                .tensor([
+                                    [1, 2, 3],
+                                    [4, 5, 6],
+                                ])
+                                .sum(1)
+                        ).values()
+                    );
+
+                    return results;
+                },
+
+                expects: async () => [
+                    await nv.scalar(27).values(),
+                    await nv.tensor([12, 15], [1, 2]).values(),
+                    await nv.tensor([[6], [15]]).values(),
+                ],
+            },
+            {
+                name: "tranpose()",
+                code: async () => {
+                    let results = [];
+                    results.push(await (await nv.scalar(3).transpose()).values());
+                    results.push(
+                        await (
+                            await nv
+                                .tensor([
+                                    [1, 2, 3],
+                                    [4, 5, 6],
+                                    [7, 8, 9],
+                                ])
+                                .transpose()
+                        ).values()
+                    );
+                    results.push(
+                        await (
+                            await nv
+                                .tensor([
+                                    [1, 2],
+                                    [4, 5],
+                                    [7, 8],
+                                ])
+                                .transpose()
+                        ).values()
+                    );
+                    results.push(
+                        await (
+                            await nv
+                                .tensor([
+                                    [1, 2, 3],
+                                    [4, 5, 6],
+                                ])
+                                .transpose()
+                        ).values()
+                    );
+
+                    return results;
+                },
+
+                expects: async () => [
+                    await nv.scalar(3).values(),
+                    await nv
+                        .tensor([
+                            [1, 4, 7],
+                            [2, 5, 8],
+                            [3, 6, 9],
+                        ])
+                        .values(),
+                    await nv
+                        .tensor([
+                            [1, 4, 7],
+                            [2, 5, 8],
+                        ])
+                        .values(),
+                    await nv
+                        .tensor([
+                            [1, 4],
+                            [2, 5],
+                            [3, 6],
                         ])
                         .values(),
                 ],

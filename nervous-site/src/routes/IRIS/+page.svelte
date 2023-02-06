@@ -67,7 +67,6 @@
                 W: Tensor,
                 b: Tensor
             ): Promise<Tensor> => {
-                
                 let output = await (await input.matmul(W)).add(b,1);
                 return output;
             };
@@ -89,7 +88,6 @@
 
                 let outputArgmaxValues = await(await output.argmax(1)).flatValues()
                 let correctArgmaxValues = await(await inputLabels.argmax(1)).flatValues()
-                
 
                 let correctN = 0;
                 for (let i = 0; i < outputArgmaxValues.length; i++) {
@@ -114,7 +112,7 @@
 
                 step_count = 0;
                 let W = await nv.random([4, 3]);
-                let b = await nv.zeros(3);
+                let b = await nv.zeros([1,3]);
 
                 let [trainData, trainLabels, testData, testLabels] =
                     await prepareData();
@@ -148,8 +146,8 @@
                     )[1] + "%";
                 final_test_acc = "";
 
-                weight_vals = W.values() as unknown as number[][];
-                bias_vals = b.flatValues();
+                weight_vals = await W.values() as unknown as number[][];
+                bias_vals = await b.flatValues();
                 const fit = async () => {
                     let t1 = performance.now()
                     let [output, accuracy] = await evaluate(
@@ -174,7 +172,6 @@
                     let data_loss = await (await correct_logprobs.sum()).values() / train_samples_n;
                     let reg_loss = 0.5 * LR * await (await (await W.mul(W)).sum()).values();
                     let loss = data_loss + reg_loss;
-                    console.log('loss:',loss)
 
                     let t4 = performance.now()
                     step_count++;

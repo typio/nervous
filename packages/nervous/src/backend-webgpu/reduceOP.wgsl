@@ -86,5 +86,4 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
 
         }
     }
-    o.v[0] = f32(axis);
 }

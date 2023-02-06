@@ -11,6 +11,11 @@ export const transpose = async (_a: Tensor) => {
         a = await a.toGPU()
     }
 
+    // its a scalar so we are done
+    if (flatLengthFromShape(a.webGPUBufferShape) === 1) {
+        return _a
+    }
+
     let resShape = [0, 0, a.webGPUBufferShape[3], a.webGPUBufferShape[2]]
     let resSize = (4 + flatLengthFromShape(a.webGPUBufferShape)) * Float32Array.BYTES_PER_ELEMENT
 

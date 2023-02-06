@@ -14,5 +14,5 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
 
     // TODO: try to speed up with shared memory
     o.s = vec4(0, 0, a.s[3], a.s[2]);
-    o.v[global_id.x + u32(a.s[2]) * global_id.y] = a.v[global_id.x * u32(a.s[2]) + global_id.y];
+    o.v[global_id.x + u32(a.s[2]) * global_id.y] = a.v[global_id.x * u32(a.s[3]) + global_id.y];
 }

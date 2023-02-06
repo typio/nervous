@@ -2,7 +2,7 @@ declare const _default: {
     add: (a: import("../tensor").Tensor, b: number | import("../tensor").Tensor) => import("../tensor").Tensor;
     applyMax: (a: import("../tensor").Tensor, n: number) => import("../tensor").Tensor;
     applyMin: (a: import("../tensor").Tensor, n: number) => import("../tensor").Tensor;
-    argmax: (a: import("../tensor").Tensor) => number;
+    argmax: (a: import("../tensor").Tensor, axis: number) => import("../tensor").Tensor;
     argmin: (a: import("../tensor").Tensor) => number;
     diag: (values: number[]) => import("../tensor").Tensor;
     div: (a: import("../tensor").Tensor, d: number | import("../tensor").Tensor, axis?: number) => import("../tensor").Tensor;
@@ -21,7 +21,7 @@ declare const _default: {
     lpNorm: (a: import("../tensor").Tensor, p?: number) => number;
     matmul: (a: import("../tensor").Tensor, m: import("../tensor").Tensor) => import("../tensor").Tensor;
     mean: (a: import("../tensor").Tensor) => number;
-    minus: (a: import("../tensor").Tensor, s: number | import("../tensor").Tensor, axis?: number) => import("../tensor").Tensor;
+    minus: (a: import("../tensor").Tensor, s: number | import("../tensor").Tensor) => import("../tensor").Tensor;
     mod: (a: import("../tensor").Tensor, m: number | import("../tensor").Tensor, axis?: number) => import("../tensor").Tensor;
     mul: (a: import("../tensor").Tensor, m: number | import("../tensor").Tensor, axis?: number) => import("../tensor").Tensor;
     oneHot: (dim: number | number[], index: number | number[]) => never;

@@ -5,7 +5,7 @@ import fillWGSL from './fill.wgsl?raw'
 
 import { gpuDevice } from '..'
 
-export const fill = async (_shape: number | number[], value: number) => {
+export const fill = (_shape: number | number[], value: number) => {
     // @ts-ignore
     let shape: number[] = padShape(_shape)
     let shapeArray = new Float32Array(shape)
@@ -105,13 +105,6 @@ export const fill = async (_shape: number | number[], value: number) => {
     passEncoder.dispatchWorkgroups(Math.ceil(resultSize / 64))
     passEncoder.end()
 
-    commandEncoder.copyBufferToBuffer(resultGPUBuffer, 0, readGPUBuffer, 0, resultBufferSize)
     gpuDevice.queue.submit([commandEncoder.finish()])
-    await readGPUBuffer.mapAsync(GPUMapMode.READ)
-
-    let result = new Float32Array(
-        readGPUBuffer.getMappedRange().slice(0, Float32Array.BYTES_PER_ELEMENT * (4 + resultSize))
-    )
-
-    return new Tensor(result)
+    return new Tensor(resultGPUBuffer, shape)
 }
