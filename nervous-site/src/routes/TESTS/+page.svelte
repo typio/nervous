@@ -79,21 +79,27 @@
     if (browser) {
         runTests();
         const main = async () => {
+
             await nv.init({ backend: "webgpu" });
 
 
+            let n = nv.tensor([[0.2092, 0.7759, 0.2435],
+                [0.8961, 0.2709, 0.1214],
+                [0.6656, 0.8564, 0.1361],
+                [0.2711, 0.0584, 0.9985]])
 
-                        console.log(
-                        await (
-                            await nv
-                                .tensor([
-                                    [1, 2],
-                                    [4, 5],
-                                    [7, 8],
-                                ])
-                                .sum(0)
-                        ).values())
+            let m = nv.tensor([[0.6967, 0.7826, 0.7711, 0.5963],
+                [0.9383, 0.6905, 0.6512, 0.7466],
+                [0.3205, 0.0348, 0.5097, 0.5673]])
 
+            let l = await nv.random([120, 3])
+            let k = await (await nv.random([120, 3])).transpose()
+
+            for (let i = 0; i < 1000; i++) {
+                l = await l.transpose()
+                console.log(i)
+            }
+            await l.print()
         };
         main();
     }
@@ -122,7 +128,7 @@
 
     <button
         class="rounded shadow text-white bg-green-500 active:bg-green-600 p-2"
-        on:click={runTests}
+        on:click={()=>{runTests}}
     >
         Run Tests
     </button>

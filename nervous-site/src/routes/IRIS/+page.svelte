@@ -17,7 +17,7 @@
     let init_test_acc = "";
     let final_test_acc = "";
     let fit_btn_text = "▶";
-    let backend = 'auto'
+    let backend = 'js'
     $: nv.init({backend})
 
     let weight_vals: number[][] = [[0]];
@@ -67,7 +67,7 @@
                 W: Tensor,
                 b: Tensor
             ): Promise<Tensor> => {
-                let output = await (await input.matmul(W)).add(b,1);
+                let output = await (await input.dot(W)).add(b,1);
                 return output;
             };
 
@@ -108,7 +108,7 @@
             main = async () => {
                 accuracies = [];
 
-                const STEP_SIZE = 1;
+                const STEP_SIZE = 1
 
                 step_count = 0;
                 let W = await nv.random([4, 3]);
@@ -160,7 +160,7 @@
                     let t2 = performance.now()
                     accuracies.push(accuracy);
 
-                    let probs = await output.softmax();
+                    let probs = await output.softmax(1);
 
                     let correct_logprobs = await (await (await (await probs
                         .mul(trainLabelsTensor))
@@ -181,7 +181,7 @@
                     dOutput = await dOutput.div(train_samples_n);
 
                     let trainDataTranspose = await trainDataTensor.transpose();
-                    let dW = await (trainDataTranspose).matmul(dOutput);
+                    let dW = await (trainDataTranspose).dot(dOutput);
 
                     let db = await dOutput.sum(0);
 

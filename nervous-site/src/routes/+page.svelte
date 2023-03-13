@@ -38,6 +38,17 @@
         </div>
         <div class="rounded shadow  p-6 mt-4 mx-4 w-screen sm:w-auto max-w-sm">
             <a
+                href="/IRIS2"
+                class="font-medium text-red-500 hover:border-b-4 border-red-500"
+                >Iris Classifier v2</a
+            >
+            <p class="text-red-900 text-sm">
+                Linear classifier for the famous Iris dataset, redone with a
+                implementation focusing on WebGPU.
+            </p>
+        </div>
+        <div class="rounded shadow  p-6 mt-4 mx-4 w-screen sm:w-auto max-w-sm">
+            <a
                 href="/MNIST"
                 class="font-medium text-red-500 hover:border-b-4 border-red-500"
                 >MNIST digit recognition</a

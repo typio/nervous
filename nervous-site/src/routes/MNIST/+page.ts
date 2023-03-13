@@ -1,7 +1,11 @@
 import { browser } from "$app/environment";
 import pako from "pako";
 import p5 from "p5";
+
 import nv from "nervous";
+
+import type { Tensor } from "nervous/types/tensor";
+
 if (browser) {
     const main = async () => {
         await nv.init({ backend: "auto" });
@@ -17,6 +21,7 @@ if (browser) {
                     (await import("./train-images-idx3-ubyte.gz.data?hex")).default
                 )
             );
+
             let labelFileBuffer = pako.ungzip(
                 fromHexString(
                     (await import("./train-labels-idx1-ubyte.gz.data?hex")).default
@@ -67,57 +72,6 @@ if (browser) {
         await loadFiles();
 
         let layer_dims = [784, 16, 10];
-        class Layer {
-            weights: nv.Tensor;
-            biases: nv.Tensor;
-            output: nv.Tensor;
-
-            constructor(inputsLength, neuronsLength) {
-                this.weights = nv.random([inputsLength, neuronsLength]);
-                console.log("weights", this.weights);
-
-                this.biases = nv.zeroes([1, neuronsLength]);
-            }
-
-            forward(inputs: nv.Tensor): nv.Tensor {
-                return inputs.dot(this.weights).add(this.biases);
-            }
-        }
-
-        class ReLU {
-            inputs: nv.Tensor;
-
-            constructor(inputs: nv.Tensor) {
-                this.inputs = inputs;
-            }
-
-            forward = () => {
-                return this.inputs.applyMax(0);
-            };
-        }
-
-        class Softmax {
-            inputs: nv.Tensor;
-
-            constructor(inputs: nv.Tensor) {
-                this.inputs = inputs;
-            }
-
-            forward = () => {
-                console.log("this.inputs", this.inputs);
-                console.log("this.inputs.getMax(1)", this.inputs.getMax(1));
-                console.log(
-                    "this.inputs.minus(this.inputs.getMax(1))",
-                    this.inputs.minus(this.inputs.getMax(1))
-                );
-
-                let exp_values = this.inputs.minus(this.inputs.getMax(1)).exp();
-                console.log("exp_values", exp_values);
-
-                console.log("exp_values.sum(1)", exp_values.sum(1));
-                return exp_values.div(exp_values.sum(1));
-            };
-        }
 
         const s = (p) => {
             let gp;

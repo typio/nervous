@@ -1,3 +1,3 @@
-import { Tensor } from "../tensor";
+import { Tensor } from '../tensor';
 /** create tensor with relu done to all values  */
-export declare const reLU: (a: Tensor) => never;
+export declare const reLU: (a: Tensor) => Promise<Tensor>;
