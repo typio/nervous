@@ -1,4 +1,4 @@
-import nv from "nervous";
+import * as nv from "nervous";
 
 let tests = [
     {

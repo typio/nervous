@@ -1,15 +1,13 @@
 <script lang="ts">
-    import nv from "nervous";
+    import * as nv from "nervous";
     import { browser } from "$app/environment";
 
     import tests from "./tests";
 
-    let backend = "auto";
-
     let testResults: any[] = [];
 
     const runTests = async () => {
-        await nv.init({ backend });
+        await nv.init();
 
         testResults = [];
         for (let i = 0; i < tests.length; i++) {
@@ -80,7 +78,7 @@
         runTests();
         const main = async () => {
 
-            await nv.init({ backend: "webgpu" });
+            await nv.init();
 
 
             let n = nv.tensor([[0.2092, 0.7759, 0.2435],
@@ -92,14 +90,16 @@
                 [0.9383, 0.6905, 0.6512, 0.7466],
                 [0.3205, 0.0348, 0.5097, 0.5673]])
 
-            let l = await nv.random([120, 3])
-            let k = await (await nv.random([120, 3])).transpose()
+            console.log(await n.add(m))
 
-            for (let i = 0; i < 1000; i++) {
-                l = await l.transpose()
-                console.log(i)
-            }
-            await l.print()
+            // let l = await nv.random([120, 3])
+            // let k = await (await nv.random([120, 3])).transpose()
+
+            // for (let i = 0; i < 1000; i++) {
+            //     l = await l.transpose()
+            //     console.log(i)
+            // }
+            // await l.print()
         };
         main();
     }
@@ -114,18 +114,6 @@
 </nav>
 
 <body class="max-w-3xl mx-auto mb-12 mt-4 text-stone-900">
-    <label for="backend-select ">Backend: </label>
-    <select
-        name="backend"
-        id="backend-select"
-        bind:value={backend}
-        class="bg-stone-100 rounded p-2 shadow"
-    >
-        <option value="auto">Auto</option>
-        <option value="js">JS</option>
-        <option value="webgpu" disabled={!nv.webgpuAvailable()}>WebGPU</option>
-    </select>
-
     <button
         class="rounded shadow text-white bg-green-500 active:bg-green-600 p-2"
         on:click={()=>{runTests}}

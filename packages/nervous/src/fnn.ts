@@ -3,7 +3,7 @@ import { Tensor } from "../tensor"
 import { Activation } from '../layer'
 import { random } from './random'
 import { zeros } from './zeros'
-import snips from './snips'
+import snips from './tensor/ops/snips'
 
 import { wgsl } from 'wgsl-preprocessor/wgsl-preprocessor.js'
 

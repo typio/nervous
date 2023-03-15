@@ -17,8 +17,9 @@
     let init_test_acc = "";
     let final_test_acc = "";
     let fit_btn_text = "▶";
-    let backend = 'js'
-    $: nv.init({backend})
+
+    $: nv.init()
+
 
     let weight_vals: number[][] = [[0]];
     let bias_vals: number[] = [];

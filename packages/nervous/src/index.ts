@@ -1,9 +1,10 @@
 /// <reference types="@webgpu/types" />
 //
 
-import { fnn } from './fnn'
+export let gpuAdapter: null | GPUAdapter = null
+export let gpuDevice: null | GPUDevice = null
 
-const webgpuAvailable = (): boolean => {
+export const webgpuAvailable = (): boolean => {
     try {
         if ('gpu' in navigator) {
             return true
@@ -14,20 +15,16 @@ const webgpuAvailable = (): boolean => {
     return false
 }
 
-export let backend: any
-
-export let gpuAdapter: null | GPUAdapter = null
-export let gpuDevice: null | GPUDevice = null
-
-const init = async () => {
+export const init = async () => {
     try {
         if (!('gpu' in navigator)) {
             console.error("User agent doesn't support WebGPU.")
+            return
         }
         gpuAdapter = await navigator.gpu.requestAdapter()
         if (!gpuAdapter) {
             console.error('No WebGPU adapters found.')
-            return null
+            return
         }
         gpuDevice = await gpuAdapter.requestDevice()
     } catch (error) {
@@ -36,9 +33,6 @@ const init = async () => {
 }
 
 
-export default {
-    init,
-    webgpuAvailable,
+export * from './tensor/_index'
 
-    fnn,
-}
+// export * from './fnn'

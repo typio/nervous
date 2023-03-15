@@ -1,11 +1,42 @@
 import { Tensor } from '../../tensor'
 import { flatLengthFromShape, padShape } from '../../tensorUtils'
 
-import {wgsl} from 'wgsl-preprocessor/wgsl-preprocessor.js'
+import { wgsl } from 'wgsl-preprocessor/wgsl-preprocessor.js'
 
 import { gpuDevice } from '../../..'
 
-export const fill = (_shape: number | number[], value: number) => {
+export enum CreateMethod {
+    fill,
+}
+
+type CommonArgs = {
+    method: CreateMethod
+    shape: number[]
+}
+
+type FillArgs = CommonArgs & {
+    value: number
+}
+
+type DiagArgs = CommonArgs & {
+    values: number[]
+}
+
+type RandomArgs = CommonArgs & {
+    seed: number,
+    min: number,
+    max: number,
+    integer?: boolean
+}
+
+type RandomNormalArgs = CommonArgs & {
+    mean: number,
+    std: number,
+}
+
+type CreateTensorArgs = FillArgs | DiagArgs | RandomArgs | RandomNormalArgs
+
+export const createTensor = (args: CreateTensorArgs): Tensor => {
     // @ts-ignore
     let shape: number[] = padShape(_shape)
     let shapeArray = new Float32Array(shape)

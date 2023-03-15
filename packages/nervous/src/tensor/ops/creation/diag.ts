@@ -1,10 +1,8 @@
-import { Tensor } from '../tensor'
-
+import { Tensor } from '../../tensor'
 import {wgsl} from 'wgsl-preprocessor/wgsl-preprocessor.js'
 
-import { gpuDevice } from '..'
-import { shape } from './shape'
-import { toArr } from '../tensorUtils'
+import { gpuDevice } from '../../..'
+import { toArr } from '../../tensorUtils'
 
 export const diag = async (values: number[]) => {
     let valuesArray = new Float32Array(values)

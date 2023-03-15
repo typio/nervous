@@ -7,6 +7,8 @@
   import type { Tensor } from "nervous/types/tensor";
   import type { fnnParams } from "nervous/types/backend-webgpu/fnn";
 
+  console.log(nv)
+
 
   let stop_signal = true;
   let main = () => {};
