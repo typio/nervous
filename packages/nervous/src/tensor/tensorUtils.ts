@@ -31,7 +31,8 @@ export const flatLengthFromShape = (shape: number[]) => {
     return shape.reduce((previousValue, currentValue) => Math.max(1, previousValue) * Math.max(1, currentValue), 1)
 }
 
-export const toNested = (values: number[], shape: number[]) => {
+export const toNested = (values: number[], _shape: number[]) => {
+    let shape = unpadShape(_shape)
     // if (flatLengthFromShape(shape) !== values.length)
     // 	throw new Error(
     // 		`New shape is not compatible with initial values length: shape: ${shape} values.length: ${values.length}.`
@@ -66,12 +67,21 @@ export const arrMax = (arr: number[]): number => {
 
 /** formats a shape in the 4 element left padded 0 array form*/
 export const padShape = (_shape: number | number[], _pV?: number) => {
+    // pV is padding value
     let pV = _pV === undefined ? 0 : _pV
     if (_shape.constructor === Number) return [pV, pV, pV, _shape]
     _shape = _shape as number[]
     if (_shape.length > 4) throw new Error('shape length should be less than or equal to 4')
     let shape = [pV, pV, pV, pV]
     for (let i = 4 - _shape.length; i < 4; i++) shape[i] = _shape[i - 4 + _shape.length]
+    return shape
+}
 
+/** formats a shape in the 4 element left padded 0 array form*/
+export const unpadShape = (_shape: number[]) => {
+    let shape = []
+    for (let i = 0; i < _shape.length; i++) {
+        if (_shape[i] !== 0) shape.push(_shape[i])
+    }
     return shape
 }

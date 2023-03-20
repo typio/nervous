@@ -81,25 +81,16 @@ let tests = [
                 ],
             },
             {
-                name: "eye()",
+                name: "random()",
                 code: async () => {
                     let results = [];
-                    let t = await nv.eye([3, 3]);
+                    let t = await nv.random([4, 3, 2, 5]);
                     results.push(await t.rank());
                     results.push(await t.shape());
-                    results.push(await t.values());
                     return results;
                 },
                 expects: async () => {
-                    return [
-                        2,
-                        [3, 3],
-                        [
-                            [1, 0, 0],
-                            [0, 1, 0],
-                            [0, 0, 1],
-                        ],
-                    ];
+                    return [4, [4, 3, 2, 5]];
                 },
             },
             {
@@ -208,17 +199,25 @@ let tests = [
                 },
             },
             {
-                name: "random()",
+                name: "eye()",
                 code: async () => {
-                    // TODO: think of better tasks
                     let results = [];
-                    let t = await nv.random([4, 3, 2, 5]);
+                    let t = await nv.eye([3, 3]);
                     results.push(await t.rank());
                     results.push(await t.shape());
+                    results.push(await t.values());
                     return results;
                 },
                 expects: async () => {
-                    return [4, [4, 3, 2, 5]];
+                    return [
+                        2,
+                        [3, 3],
+                        [
+                            [1, 0, 0],
+                            [0, 1, 0],
+                            [0, 0, 1],
+                        ],
+                    ];
                 },
             },
         ],
@@ -317,8 +316,6 @@ let tests = [
                         ],
                     ]);
                     results.push(await (await a.add(b)).values());
-
-                    // await new Promise(r => setTimeout(r, 20000));
                     return results;
                 },
 

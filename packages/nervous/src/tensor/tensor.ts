@@ -1,12 +1,21 @@
-import { toNested, calcShape, flatLengthFromShape, padShape, toArr } from './tensorUtils'
+import { toNested, calcShape, flatLengthFromShape, padShape, toArr, unpadShape } from './tensorUtils'
 import { gpuDevice } from '..'
 
-// import { unaryOp} from './ops/unary/_index'
+import { unaryOp} from './ops/unary/_index'
 import { binaryOp } from './ops/binary/_index'
-// import { reductionOp} from './ops/reduction/_index'
-// import { matrixOp} from './ops/matrix/_index'
+import { reductionOp } from './ops/reduction/_index'
+import { dot, transpose } from './ops/matrix/_index'
 
 export type Rank1To4Array = number[] | number[][] | number[][][] | number[][][][]
+
+export enum UnaryOp {
+    log = 0,
+    exp,
+
+    relu,
+
+    softmax
+}
 
 export enum BinaryOp {
     add = 0,
@@ -20,15 +29,15 @@ export enum BinaryOp {
     lt,
 }
 
-export enum ScalarElementwiseOP {
+export enum ScalarElementwiseOp {
     log = 0,
-    pow = 1,
-    applyMax = 2,
-    applyMin = 3,
-    exp = 4
+    pow,
+    applyMax,
+    applyMin,
+    exp,
 }
 
-export enum ReduceOP {
+export enum ReductionOp {
     sum = 0,
     argmax,
     argmin,
@@ -141,9 +150,9 @@ export class Tensor {
 
     /** returns nested number array of tensor values, returns type number if scalar */
     values = async (decimals?: number) => {
-        let [v, _s, _gV] = await this.toJS()
+        let [v, s, _gV] = await this.toJS()
         if (v.length === 1) return v[0]
-        return toNested(toArr(v, decimals), this.shape())
+        return toNested(toArr(v, decimals), unpadShape(toArr(s)))
     }
 
     /** returns flat tensor values */
@@ -193,10 +202,10 @@ export class Tensor {
     // ─── matrix ops ──────────────────────────────────────────────────────────────────────────────
 
     /** switch rows and columns of a >=2d Tensor */
-    // transpose = () => backend.default.transpose(this)
+    transpose = () => transpose(this)
 
     /** create tensor of dot product */
-    // dot = (m: Tensor) => backend.default.dot(this, m)
+    dot = (m: Tensor) => dot(this, m)
 
     /** Reshape tensor into provided shape */
     // reshape = (shape: number[]) => backend.default.reshape(this, shape)
@@ -228,19 +237,20 @@ export class Tensor {
 
     pow = (exp: number) => binaryOp(BinaryOp.pow, this, ensureTensor(exp))
 
-    eq = (b: Tensor, axis: 0 | 1) => binaryOp(BinaryOp.eq, this, ensureTensor(b), axis)
+    /** to compare rows, columns, etc. use compare() a reduction operation */
+    eq = (b: Tensor) => binaryOp(BinaryOp.eq, this, ensureTensor(b))
 
-    lt = (b: Tensor, axis: 0 | 1) => binaryOp(BinaryOp.lt, this, ensureTensor(b), axis)
+    lt = (b: Tensor) => binaryOp(BinaryOp.lt, this, ensureTensor(b))
 
-    gt = (b: Tensor, axis: 0 | 1) => binaryOp(BinaryOp.gt, this, ensureTensor(b), axis)
+    gt = (b: Tensor) => binaryOp(BinaryOp.gt, this, ensureTensor(b))
 
     // ─── unary ops ───────────────────────────────────────────────────────────────────────────────
 
     /** create tensor of exponentials of all values on e, or given base  */
-    // exp = (base?: number) => backend.default.exp(this, base)
+    exp = (base?: number) => unaryOp(UnaryOp.exp, this, base)
 
     /** create tensor of log on all values */
-    // log = (base: number) => backend.default.log(this, base)
+    log = (base: number) => unaryOp(UnaryOp.log,this, base)
 
     /** returns tensor with elementwise max of old value vs input number */
     // applyMax = (n: number) => backend.default.applyMax(this, n)
@@ -249,7 +259,7 @@ export class Tensor {
     // applyMin = (n: number) => backend.default.applyMin(this, n)
 
     /** create tensor with relu done to all values  */
-    // reLU = () => backend.default.reLU(this)
+    relu = () => unaryOp(UnaryOp.relu, this)
 
     /** create tensor with relu done to all values  */
     // gradientReLU = (b: Tensor) => backend.default.gradientReLU(this, b)
@@ -261,7 +271,7 @@ export class Tensor {
     // softplus = () => backend.default.softplus(this)
 
     // return softmax
-    // softmax = (dim) => backend.default.softmax(this, dim)
+    softmax = (dim: number) => unaryOp(UnaryOp.softmax, this, dim)
 
     /** returns maximum vlaue in tensor, pass axis for tensor of maximums per an axis (only 2d, 0 for cols 1 for rows) */
     // getmax = (axis?: 0 | 1) => backend.default.getmax(this, axis)
@@ -275,17 +285,17 @@ export class Tensor {
 
     // ─── reduction ops ───────────────────────────────────────────────────────────────────────────
 
-    // argmax = (axis?: 0 | 1) => backend.default.argmax(this, axis)
+    argmax = (axis?: 0 | 1) => reductionOp(ReductionOp.argmax, this, axis)
 
-    // argmin = (axis?: 0 | 1) => backend.default.argmin(this, axis)
+    argmin = (axis?: 0 | 1) => reductionOp(ReductionOp.argmin, this, axis)
 
-    // max = (axis?: 0 | 1) => backend.default.max(this, axis)
+    max = (axis?: 0 | 1) => reductionOp(ReductionOp.max, this, axis)
 
-    // min = (axis?: 0 | 1) => backend.default.min(this, axis)
+    min = (axis?: 0 | 1) => reductionOp(ReductionOp.min, this, axis)
 
     /** get the mean of all values */
-    // mean = () => backend.default.mean(this)
+    mean = (axis?: 0 | 1) => reductionOp(ReductionOp.mean, this, axis)
 
     /** returns sum in Tensor of all tensor values, if 2d matrix axis can be specified: 0 for columns 1 for rows*/
-    // sum = (axis?: 0 | 1) => backend.default.sum(this, axis)
+    sum = (axis?: 0 | 1) => reductionOp(ReductionOp.sum, this, axis)
 }

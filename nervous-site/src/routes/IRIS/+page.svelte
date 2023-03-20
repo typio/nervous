@@ -1,12 +1,12 @@
 <script lang="ts">
-    import nv from "nervous";
+    import * as nv from "nervous";
+
     import P5 from "p5-svelte";
     import type { Sketch } from "p5-svelte";
     import Katex from "$lib/components/Katex.svelte";
 
     import iris_raw_data from "./iris.data?raw";
     import { browser } from "$app/environment";
-    import type { Tensor } from "nervous/types/tensor";
 
     let prettyData = "";
     let stop_signal = true;
@@ -17,9 +17,6 @@
     let init_test_acc = "";
     let final_test_acc = "";
     let fit_btn_text = "▶";
-
-    $: nv.init()
-
 
     let weight_vals: number[][] = [[0]];
     let bias_vals: number[] = [];
@@ -33,7 +30,7 @@
 
     if (browser) {
         (async () => {
-            await nv.init({ backend });
+            await nv.init();
 
             let data = iris_raw_data.split("\n");
             data = data.filter((row) => (row === "" ? false : true)); // remove empty lines
@@ -68,7 +65,7 @@
                 W: Tensor,
                 b: Tensor
             ): Promise<Tensor> => {
-                let output = await (await input.dot(W)).add(b,1);
+                let output = await (await input.dot(W)).add(b, 1);
                 return output;
             };
 
@@ -87,8 +84,12 @@
             ): Promise<[Tensor, number]> => {
                 let output = await forward(inputData, W, b);
 
-                let outputArgmaxValues = await(await output.argmax(1)).flatValues()
-                let correctArgmaxValues = await(await inputLabels.argmax(1)).flatValues()
+                let outputArgmaxValues = await (
+                    await output.argmax(1)
+                ).flatValues();
+                let correctArgmaxValues = await (
+                    await inputLabels.argmax(1)
+                ).flatValues();
 
                 let correctN = 0;
                 for (let i = 0; i < outputArgmaxValues.length; i++) {
@@ -98,7 +99,11 @@
 
                 return [
                     output,
-                    Number(((correctN / outputArgmaxValues.length) * 100).toFixed(2)),
+                    Number(
+                        ((correctN / outputArgmaxValues.length) * 100).toFixed(
+                            2
+                        )
+                    ),
                 ];
             };
 
@@ -109,11 +114,11 @@
             main = async () => {
                 accuracies = [];
 
-                const STEP_SIZE = 1
+                const STEP_SIZE = 1;
 
                 step_count = 0;
                 let W = await nv.random([4, 3]);
-                let b = await nv.zeros([1,3]);
+                let b = await nv.zeros([1, 3]);
 
                 let [trainData, trainLabels, testData, testLabels] =
                     await prepareData();
@@ -147,10 +152,10 @@
                     )[1] + "%";
                 final_test_acc = "";
 
-                weight_vals = await W.values() as unknown as number[][];
+                weight_vals = (await W.values()) as unknown as number[][];
                 bias_vals = await b.flatValues();
                 const fit = async () => {
-                    let t1 = performance.now()
+                    let t1 = performance.now();
                     let [output, accuracy] = await evaluate(
                         trainDataTensor,
                         trainLabelsTensor,
@@ -158,23 +163,28 @@
                         b
                     );
 
-                    let t2 = performance.now()
+                    let t2 = performance.now();
                     accuracies.push(accuracy);
 
                     let probs = await output.softmax(1);
 
-                    let correct_logprobs = await (await (await (await probs
-                        .mul(trainLabelsTensor))
-                        .sum(1))
-                        .log())
-                        .mul(-1);
+                    let correct_logprobs = await (
+                        await (
+                            await (await probs.mul(trainLabelsTensor)).sum(1)
+                        ).log()
+                    ).mul(-1);
 
-                    let t3 = performance.now()
-                    let data_loss = await (await correct_logprobs.sum()).values() / train_samples_n;
-                    let reg_loss = 0.5 * LR * await (await (await W.mul(W)).sum()).values();
+                    let t3 = performance.now();
+                    let data_loss =
+                        (await (await correct_logprobs.sum()).values()) /
+                        train_samples_n;
+                    let reg_loss =
+                        0.5 *
+                        LR *
+                        (await (await (await W.mul(W)).sum()).values());
                     let loss = data_loss + reg_loss;
 
-                    let t4 = performance.now()
+                    let t4 = performance.now();
                     step_count++;
 
                     let dOutput = await probs.minus(trainLabelsTensor);
@@ -182,22 +192,22 @@
                     dOutput = await dOutput.div(train_samples_n);
 
                     let trainDataTranspose = await trainDataTensor.transpose();
-                    let dW = await (trainDataTranspose).dot(dOutput);
+                    let dW = await trainDataTranspose.dot(dOutput);
 
                     let db = await dOutput.sum(0);
 
                     dW = await dW.add(await W.mul(LR));
 
-                    let t5 = performance.now()
+                    let t5 = performance.now();
                     // perform a parameter update
                     W = await W.minus(await dW.mul(STEP_SIZE));
                     b = await b.minus(await db.mul(STEP_SIZE));
 
-                    weight_vals = await W.values(3) as unknown as number[][];
+                    weight_vals = (await W.values(3)) as unknown as number[][];
                     bias_vals = await b.flatValues(3);
                     output_vals = await output.flatValues(3);
 
-                    let t6 = performance.now()
+                    let t6 = performance.now();
                     /* console.log(`${t2-t1}, ${t3-t2}, ${t4-t3}, ${t5-t4}, ${t6-t5}`) */
                     if (step_count < training_steps && !stop_signal) {
                         requestAnimationFrame(fit);
@@ -326,25 +336,10 @@
     <title>Iris Classifier</title>
 </head>
 
-<body class="text-slate-700 ">
-    <nav class="mt-6 ml-6 mb-6">
-        <a class="text-3xl text-red-600" href="/">Demos</a>
-    </nav>
-
+<body>
     <div class="max-w-3xl mx-auto mb-12">
         <h1 class="text-2xl ">Iris Dataset Classification</h1>
 
-    <label for="backend-select ">Backend: </label>
-    <select
-        name="backend"
-        id="backend-select"
-        bind:value={backend}
-        class="bg-stone-100 rounded p-2 shadow"
-    >
-        <option value="auto">Auto</option>
-        <option value="js">JS</option>
-        <option value="webgpu" disabled={!nv.webgpuAvailable()}>WebGPU</option>
-    </select>
         <h1 class="text-lg ">Linear Classifier</h1>
         <label for="training_steps"># Training Steps:</label>
 
@@ -353,7 +348,8 @@
             min="0"
             name=""
             id="training_steps"
-            class="ring-2 rounded"
+            class="border-b-2 border-slate-300 dark:border-slate-500 dark:bg-slate-800 rounded decoration-none
+            outline-none text-center w-16"
             bind:value={training_steps}
         />
         <label for="learning_rate">Learning Rate (0-1):</label>
@@ -364,7 +360,8 @@
             min="0"
             max="1"
             name=""
-            class="ring-2 rounded"
+            class="border-b-2 border-slate-300 dark:border-slate-500 dark:bg-slate-800 rounded decoration-none
+            outline-none text-center w-24"
             bind:value={LR}
         />
         <button

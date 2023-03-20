@@ -3,8 +3,11 @@
     import { browser } from "$app/environment";
 
     import tests from "./tests";
+    import { afterUpdate, onMount } from "svelte";
 
     let testResults: any[] = [];
+
+    let randomValues: any[] = [];
 
     const runTests = async () => {
         await nv.init();
@@ -77,46 +80,69 @@
     if (browser) {
         runTests();
         const main = async () => {
-
             await nv.init();
 
-
-            let n = nv.tensor([[0.2092, 0.7759, 0.2435],
-                [0.8961, 0.2709, 0.1214],
-                [0.6656, 0.8564, 0.1361],
-                [0.2711, 0.0584, 0.9985]])
-
-            let m = nv.tensor([[0.6967, 0.7826, 0.7711, 0.5963],
-                [0.9383, 0.6905, 0.6512, 0.7466],
-                [0.3205, 0.0348, 0.5097, 0.5673]])
-
-            console.log(await n.add(m))
-
-            // let l = await nv.random([120, 3])
-            // let k = await (await nv.random([120, 3])).transpose()
-
-            // for (let i = 0; i < 1000; i++) {
-            //     l = await l.transpose()
-            //     console.log(i)
+            // let times = [];
+            // const a = await nv.random([2048, 2047]);
+            // let s;
+            // for (let i = 0; i < 5; i++) {
+            //     const p1 = performance.now();
+            //     s = await a.sum();
+            //     const p2 = performance.now();
+            //     // await s.print()
+            //
+            //     times.push(p2 - p1);
             // }
-            // await l.print()
+            // await s.print();
+            // console.log(times.reduce((a, b) => a + b, 0) / times.length);
         };
         main();
     }
+    let randomLoaded = false;
+
+    const thingy = async (el) => {
+        const c = document.getElementById("canvas") as HTMLCanvasElement;
+        if (c === null) return;
+        let ctx = c.getContext("2d", { willReadFrequently: true });
+        if (ctx === null) return;
+        c.width = c.getBoundingClientRect().width;
+        c.height = c.getBoundingClientRect().height;
+
+        let scaleFactor = 3;
+        c.width = Math.ceil(c.width * scaleFactor);
+        c.height = Math.ceil(c.height * scaleFactor);
+        ctx.scale(scaleFactor, scaleFactor);
+
+        let canvasWidth = c.width;
+        let canvasHeight = c.height;
+
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        let id = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+        let pixels = id.data;
+        randomValues = await nv.random([canvasWidth, canvasHeight]).values();
+        for (let i = 0; i < canvasWidth; i++) {
+            for (let j = 0; j < canvasHeight; j++) {
+                let off = (j * id.width + i) * 4;
+                // pixels[off] = randomValues[i][j] * 255;
+                pixels[off + 1] = randomValues[i][j] * 255;
+                // pixels[off + 2] = randomValues[i][j][2] * 255;
+                pixels[off + 3] = 255;
+            }
+        }
+        ctx.putImageData(id, 0, 0);
+    };
 </script>
 
 <head>
     <title>Tests</title>
 </head>
 
-<nav class="mt-6 ml-6">
-    <a class="text-3xl text-red-600" href="/">Demos</a>
-</nav>
-
 <body class="max-w-3xl mx-auto mb-12 mt-4 text-stone-900">
     <button
         class="rounded shadow text-white bg-green-500 active:bg-green-600 p-2"
-        on:click={()=>{runTests}}
+        on:click={() => {
+            runTests;
+        }}
     >
         Run Tests
     </button>
@@ -134,11 +160,20 @@
 
     {#each testResults as suite}
         {#if suite}
-            <h3 class="text-xl font-medium mt-4">{suite.name}</h3>
+            <h3 class="text-xl dark:text-slate-200 font-medium mt-4">
+                {suite.name}
+            </h3>
             <div class="max-w-xl mx-auto">
                 {#each suite.results || [] as result}
-                    <div class="my-4 ring ring-red-300 rounded flex flex-col">
-                        <p class="py-1 pl-4 font-medium">{result.name}</p>
+                    <div
+                        class="my-4 ring ring-red-600 dark:ring-red-400 rounded flex flex-col"
+                    >
+                        <p class="py-1 dark:text-slate-200 pl-4 font-medium">
+                            {result.name}
+                        </p>
+                        {#if result.name === "random()"}
+                            <canvas id="canvas" use:thingy />
+                        {/if}
                         <div class="flex flex-row">
                             {#if result.res === null}
                                 <div class="flex ml-auto mb-2">

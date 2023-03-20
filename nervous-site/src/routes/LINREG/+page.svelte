@@ -198,10 +198,6 @@
     <title>Linear Regression</title>
 </head>
 
-<nav class="mt-6 ml-6 mb-6">
-    <a class="text-3xl text-red-600" href="/">Demos</a>
-</nav>
-
 <div class="max-w-xl mx-auto">
     <h1>Click to add points</h1>
     <div
