@@ -1,5 +1,11 @@
 /// <reference types="@webgpu/types" />
 export type Rank1To4Array = number[] | number[][] | number[][][] | number[][][][];
+export declare enum UnaryOp {
+    log = 0,
+    exp = 1,
+    relu = 2,
+    softmax = 3
+}
 export declare enum BinaryOp {
     add = 0,
     minus = 1,
@@ -7,16 +13,18 @@ export declare enum BinaryOp {
     div = 3,
     mod = 4,
     pow = 5,
-    compare = 6
+    eq = 6,
+    gt = 7,
+    lt = 8
 }
-export declare enum ScalarElementwiseOP {
+export declare enum ScalarElementwiseOp {
     log = 0,
     pow = 1,
     applyMax = 2,
     applyMin = 3,
     exp = 4
 }
-export declare enum ReduceOP {
+export declare enum ReductionOp {
     sum = 0,
     argmax = 1,
     argmin = 2
@@ -43,7 +51,9 @@ export declare class Tensor {
     /** returns tensor shape, scalar ➡️ shape [0], vector ➡️ [1, N] */
     shape: () => number[];
     /** switch rows and columns of a >=2d Tensor */
+    transpose: () => Promise<Tensor>;
     /** create tensor of dot product */
+    dot: (m: Tensor) => Promise<Tensor>;
     /** Reshape tensor into provided shape */
     /** Repeat tensor along dimensions */
     /** create tensor with number a OR each value of a tensor
@@ -62,5 +72,30 @@ export declare class Tensor {
     * m mod with each value of input tensor  */
     mod: (m: Tensor | number) => Tensor;
     pow: (exp: number) => Tensor;
-    compare: (b: Tensor, axis: 0 | 1) => Tensor;
+    /** to compare rows, columns, etc. use compare() a reduction operation */
+    eq: (b: Tensor) => Tensor;
+    lt: (b: Tensor) => Tensor;
+    gt: (b: Tensor) => Tensor;
+    /** create tensor of exponentials of all values on e, or given base  */
+    exp: (base?: number) => Tensor;
+    /** create tensor of log on all values */
+    log: (base: number) => Tensor;
+    /** returns tensor with elementwise max of old value vs input number */
+    /** returns tensor with elementwise min of old value vs input number */
+    /** create tensor with relu done to all values  */
+    relu: () => Tensor;
+    /** create tensor with relu done to all values  */
+    /** create tensor with sigmoid done to all values  */
+    /** create tensor with softplus done to all values  */
+    softmax: (dim: number) => Tensor;
+    /** returns maximum vlaue in tensor, pass axis for tensor of maximums per an axis (only 2d, 0 for cols 1 for rows) */
+    /** returns minimum vlaue in tensor, pass axis for tensor of minimums per an axis (only 2d, 0 for cols 1 for rows)*/
+    argmax: (axis?: 0 | 1) => Tensor;
+    argmin: (axis?: 0 | 1) => Tensor;
+    max: (axis?: 0 | 1) => Tensor;
+    min: (axis?: 0 | 1) => Tensor;
+    /** get the mean of all values */
+    mean: (axis?: 0 | 1) => Tensor;
+    /** returns sum in Tensor of all tensor values, if 2d matrix axis can be specified: 0 for columns 1 for rows*/
+    sum: (axis?: 0 | 1) => Tensor;
 }

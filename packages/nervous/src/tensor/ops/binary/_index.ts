@@ -69,6 +69,10 @@ export const binaryOp = (op: BinaryOp, a: Tensor, b: Tensor, axis?: 0 | 1): Tens
                     o.v[u32(lI)] = f32(aV > bV);
                 #elif ${op === BinaryOp.lt}
                     o.v[u32(lI)] = f32(aV < bV);
+                #elif ${op === BinaryOp.gradientRelu}
+                    o.v[u32(lI)] = select(aV, 0, bV < 0.);
+                #elif ${op === BinaryOp.gradientLeakyRelu}
+                    o.v[u32(lI)] = select(aV, 0.01 * aV, bV < 0.);
                 #else
                     o.v[u32(lI)] = 0.;
                 #endif

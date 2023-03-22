@@ -84,41 +84,45 @@ export const reductionOp = (op: ReductionOp, a: Tensor, axis: -1 | 0 | 1 = -1): 
                         }
                         o.v[0] = sum;
                     }
-
-
-                #elif ${op === ReductionOp.argmax || op === ReductionOp.argmin}
+                #elif ${op === ReductionOp.argmax || op === ReductionOp.argmin || op === ReductionOp.max || op === ReductionOp.min}
                     var arg: u32 = 0u;
+                    var val: f32 = 0.0;
 
                     if (axis == 1) {
                         for (var i = 0u; i < row_length; i++) {
                             let idx = global_id.x * row_length + i;
                             if (a.v[idx]
-                                ${op === ReductionOp.argmax ? '>' : '<'}
-                                a.v[global_id.x * row_length + arg]){
+                                ${op === ReductionOp.argmax || op === ReductionOp.max ? '>' : '<'}
+                                a.v[global_id.x * row_length + arg]) {
                                 arg = i;
+                                val = a.v[idx];
                             }
                         }
-                        o.v[global_id.x] = f32(arg);
+
+                        o.v[global_id.x] = ${op === ReductionOp.argmax || op === ReductionOp.argmin ? 'f32(arg)' : 'val'};
                     } else if (axis == 0) {
                         for (var i = 0u; i < col_length; i++) {
                             let idx = u32(global_id.x + row_length * i);
                             if (a.v[idx]
-                                ${op === ReductionOp.argmax ? '>' : '<'}
-                                a.v[global_id.x + row_length * arg]){
+                                ${op === ReductionOp.argmax || op === ReductionOp.max ? '>' : '<'}
+                                a.v[global_id.x + row_length * arg]) {
                                 arg = i;
+                                val = a.v[idx];
                             }
                         }
-                        o.v[global_id.x] = f32(arg);
+
+                        o.v[global_id.x] = ${op === ReductionOp.argmax || op === ReductionOp.argmin ? 'f32(arg)' : 'val'};
                     } else {
                         let length = u32(max(1., a.s.x) * max(1., a.s.y) * max(1., a.s.z) * max(1., a.s.w));
-                        for (var i = 0u; i < length; i ++){
+                        for (var i = 0u; i < length; i ++) {
                             if (a.v[i]
-                                ${op === ReductionOp.argmax ? '>' : '<'}
+                                ${op === ReductionOp.argmax || op === ReductionOp.max ? '>' : '<'}
                                 a.v[arg]) {
                                 arg = i;
+                                val = a.v[i];
                             }
                         }
-                        o.v[0] = f32(arg);
+                        o.v[0] = ${op === ReductionOp.argmax || op === ReductionOp.argmin ? 'f32(arg)' : 'val'};
                     }
                 #endif
             }

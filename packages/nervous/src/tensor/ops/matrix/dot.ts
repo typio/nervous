@@ -6,7 +6,7 @@ import { gpuDevice } from '../../..'
 import { flatLengthFromShape, padShape } from '../../tensorUtils'
 
 /** create tensor of dot product */
-export const dot = async (a: Tensor, m: Tensor) => {
+export const dot = (a: Tensor, m: Tensor) => {
     if (typeof m === 'number') throw new Error('Please use Tensor.mul() for tensor scalar multiplication.')
 
     let aShape = a.tensorShape.map((e) => (e === 0 ? 1 : e)) // replacing 0s helps recognize a row vector

@@ -223,7 +223,89 @@ let tests = [
         ],
     },
     {
-        suite: "Tensor OPs",
+        suite: "Unary Ops",
+        tests: [{
+            name: "softmax()",
+            code: async () => {
+                let results = [];
+                results.push(
+                    await (
+                        await nv
+                            .tensor([
+                                [0.7705, 10, 0.7223, 0.6692, 0.6393, 0.3074],
+                                [0.8244, 0.7386, 0.9349, 0.14, 0.5285, 0.347],
+                                [0.3912, 0.9231, 0.7564, 5, 0.1069, 0.1061],
+                                [0.0137, 0.4552, 0.3269, 0.3487, 0.7259, 0.2248],
+                                [0.5707, 0.8687, 1000, 0.3989, 0.8752, 0.532],
+                            ])
+                            .softmax(0)
+                    ).values(3)
+                );
+                results.push(
+                    await (
+                        await nv
+                            .tensor([
+                                [0.1287, 0.4939, 0.5098, 0.2415, 0.6209, 0.7721],
+                                [0.0871, 0.5332, 0.3772, 0.6079, 0.5549, 0.8888],
+                                [0.8369, 0.9244, 0.2351, 0.5985, 0.7353, 0.5346],
+                            ])
+                            .softmax(1)
+                    ).values(3)
+                );
+
+                return results;
+            },
+
+            expects: async () => [
+                await nv
+                    .tensor([
+                        [2.4828e-1, 9.9961e-1, 0.0, 1.2645e-2, 2.0666e-1, 1.9878e-1],
+                        [2.6203e-1, 9.4985e-5, 0.0, 7.4488e-3, 1.8499e-1, 2.0681e-1],
+                        [1.6991e-1, 1.1423e-4, 0.0, 9.6108e-1, 1.2135e-1, 1.6254e-1],
+                        [1.1648e-1, 7.1545e-5, 0.0, 9.1775e-3, 2.2536e-1, 1.8302e-1],
+                        [2.0331e-1, 1.0818e-4, 1.0, 9.65e-3, 2.6164e-1, 2.4884e-1],
+                    ])
+                    .values(3),
+                await nv
+                    .tensor([
+                        [0.1168, 0.1683, 0.171, 0.1307, 0.1911, 0.2222],
+                        [0.1063, 0.166, 0.1421, 0.1789, 0.1697, 0.237],
+                        [0.1972, 0.2153, 0.1081, 0.1554, 0.1782, 0.1458],
+                    ])
+                    .values(3),
+            ],
+        },
+        {
+            name: "relu()",
+            code: async () => {
+                let results = [];
+                let a
+                a = nv.tensor([
+                    [0, -1, 2, 4, -19, 9],
+                    [4, 3, -5, 4, 19, 1],
+                    [0, 8, -2, 2, 19, 9],
+                ]);
+                results.push(await (a.relu().values()))
+                a.print()
+                console.log(results)
+
+                return results
+            },
+
+            expects: async () => [
+                await nv
+                    .tensor([
+                        [0, 0, 2, 4, 0, 9],
+                        [4, 3, 0, 4, 19, 1],
+                        [0, 8, 0, 2, 19, 9],
+                    ])
+                    .values(),
+            ],
+        },
+        ],
+    },
+    {
+        suite: "Binary Ops",
         tests: [
             {
                 name: "add()",
@@ -422,57 +504,6 @@ let tests = [
                 ],
             },
             {
-                name: "softmax()",
-                code: async () => {
-                    let results = [];
-                    results.push(
-                        await (
-                            await nv
-                                .tensor([
-                                    [0.7705, 10, 0.7223, 0.6692, 0.6393, 0.3074],
-                                    [0.8244, 0.7386, 0.9349, 0.14, 0.5285, 0.347],
-                                    [0.3912, 0.9231, 0.7564, 5, 0.1069, 0.1061],
-                                    [0.0137, 0.4552, 0.3269, 0.3487, 0.7259, 0.2248],
-                                    [0.5707, 0.8687, 1000, 0.3989, 0.8752, 0.532],
-                                ])
-                                .softmax(0)
-                        ).values(3)
-                    );
-                    results.push(
-                        await (
-                            await nv
-                                .tensor([
-                                    [0.1287, 0.4939, 0.5098, 0.2415, 0.6209, 0.7721],
-                                    [0.0871, 0.5332, 0.3772, 0.6079, 0.5549, 0.8888],
-                                    [0.8369, 0.9244, 0.2351, 0.5985, 0.7353, 0.5346],
-                                ])
-                                .softmax(1)
-                        ).values(3)
-                    );
-
-                    return results;
-                },
-
-                expects: async () => [
-                    await nv
-                        .tensor([
-                            [2.4828e-1, 9.9961e-1, 0.0, 1.2645e-2, 2.0666e-1, 1.9878e-1],
-                            [2.6203e-1, 9.4985e-5, 0.0, 7.4488e-3, 1.8499e-1, 2.0681e-1],
-                            [1.6991e-1, 1.1423e-4, 0.0, 9.6108e-1, 1.2135e-1, 1.6254e-1],
-                            [1.1648e-1, 7.1545e-5, 0.0, 9.1775e-3, 2.2536e-1, 1.8302e-1],
-                            [2.0331e-1, 1.0818e-4, 1.0, 9.65e-3, 2.6164e-1, 2.4884e-1],
-                        ])
-                        .values(3),
-                    await nv
-                        .tensor([
-                            [0.1168, 0.1683, 0.171, 0.1307, 0.1911, 0.2222],
-                            [0.1063, 0.166, 0.1421, 0.1789, 0.1697, 0.237],
-                            [0.1972, 0.2153, 0.1081, 0.1554, 0.1782, 0.1458],
-                        ])
-                        .values(3),
-                ],
-            },
-            {
                 name: "argmax()",
                 code: async () => {
                     let results = [];
@@ -517,6 +548,59 @@ let tests = [
                     await nv.tensor([1, 0, 0], [1, 3]).values(),
                     await nv.tensor([[2], [0]]).values(),
                 ],
+            },
+        ],
+    },
+    {
+        suite: "Matrix OPs",
+        tests: [
+            {
+                name: "dot()",
+                code: async () => {
+                    let results = [];
+
+                    let m, n;
+                    m = nv.tensor([
+                        [4, 1],
+                        [2, 2],
+                    ]);
+                    n = nv.tensor([
+                        [5, 3],
+                        [27, 9],
+                    ]);
+
+                    results.push(await (await m.dot(n)).values());
+
+                    results.push(
+                        await (
+                            await nv.tensor([10, 20, 30]).dot(nv.tensor([[1], [2], [3]]))
+                        ).values()
+                    );
+
+                    results.push(
+                        await (
+                            await nv.tensor([10, 20, 30]).dot(
+                                nv.tensor([
+                                    [1, 2, 3],
+                                    [4, 5, 6],
+                                    [4, 5, 6],
+                                ])
+                            )
+                        ).values()
+                    );
+
+                    return results;
+                },
+                expects: async () => {
+                    return [
+                        [
+                            [47, 21],
+                            [64, 24],
+                        ],
+                        140,
+                        [210, 270, 330],
+                    ];
+                },
             },
             {
                 name: "tranpose()",
@@ -582,60 +666,7 @@ let tests = [
                         ])
                         .values(),
                 ],
-            },
-        ],
-    },
-    {
-        suite: "Matrix Multiplication",
-        tests: [
-            {
-                name: "dot()",
-                code: async () => {
-                    let results = [];
-
-                    let m, n;
-                    m = nv.tensor([
-                        [4, 1],
-                        [2, 2],
-                    ]);
-                    n = nv.tensor([
-                        [5, 3],
-                        [27, 9],
-                    ]);
-
-                    results.push(await (await m.dot(n)).values());
-
-                    results.push(
-                        await (
-                            await nv.tensor([10, 20, 30]).dot(nv.tensor([[1], [2], [3]]))
-                        ).values()
-                    );
-
-                    results.push(
-                        await (
-                            await nv.tensor([10, 20, 30]).dot(
-                                nv.tensor([
-                                    [1, 2, 3],
-                                    [4, 5, 6],
-                                    [4, 5, 6],
-                                ])
-                            )
-                        ).values()
-                    );
-
-                    return results;
-                },
-                expects: async () => {
-                    return [
-                        [
-                            [47, 21],
-                            [64, 24],
-                        ],
-                        140,
-                        [210, 270, 330],
-                    ];
-                },
-            },
+            }
         ],
     },
 ];

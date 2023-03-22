@@ -28,16 +28,15 @@ export const unaryOp = (op: UnaryOp, a: Tensor, dim: number = 1): Tensor => {
             fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
                 const dim = ${dim};
 
-                if (global_id.x >= u32(a.s[3 - dim])) {
-                    return;
-                }
-
                 let row_n = u32(a.s[2]);
                 let col_n = u32(a.s[3]);
 
                 o.s = a.s;
 
                 #if ${op === UnaryOp.softmax}
+                    if (global_id.x >= u32(a.s[3 - dim])) {
+                        return;
+                    }
                     var sum :f32 = 0.0;
                     var max = -0x1p-126f;
                     if (dim == 1) {
@@ -78,6 +77,12 @@ export const unaryOp = (op: UnaryOp, a: Tensor, dim: number = 1): Tensor => {
                         }
                     }
                 #elif ${op === UnaryOp.log}
+                #elif ${op === UnaryOp.exp}
+                    o.v[global_id.x] = exp(a.v[global_id.x]);
+                #elif ${op === UnaryOp.relu}
+                    o.v[global_id.x] = select(0.0, a.v[global_id.x], a.v[global_id.x] > 0.0);
+                #elif ${op === UnaryOp.leakyRelu}
+                    o.v[global_id.x] = select(0.01 * a.v[global_id.x], a.v[global_id.x], a.v[global_id.x] > 0.0);
                 #endif
             }
         `,

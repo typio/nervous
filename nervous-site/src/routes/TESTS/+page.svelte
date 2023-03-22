@@ -22,6 +22,7 @@
 
             for (let j = 0; j < suite.tests.length; j++) {
                 let test = suite.tests[j];
+                if (test === undefined) continue;
                 testResults[i].results.push({
                     name: test.name,
                     res: null,

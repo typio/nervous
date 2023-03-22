@@ -30,11 +30,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="../stolen-favicon.png" type="image/png" />
 
-    <title>Demos</title>;
+    <title>nervous</title>;
 </head>
 
 <nav class="mt-8 w-full flex">
-    <a class="ml-6 text-3xl text-red-600" href="/">Demos</a>
+    <a class="ml-6 text-3xl text-red-600" href="/">nervous</a>
 
     <button
         aria-label="Toggle dark mode"

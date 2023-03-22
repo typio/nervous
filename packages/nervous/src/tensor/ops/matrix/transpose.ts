@@ -43,7 +43,7 @@ export const transpose = async (a: Tensor) => {
                 o.v[global_id.x + u32(a.s[2]) * global_id.y] = a.v[global_id.x * u32(a.s[3]) + global_id.y];
             }
         `,
-        [Math.ceil(resShape[2] / 8), Math.ceil(resShape[3] / 8), 1],
+        [Math.ceil(resShape[3] / 8), Math.ceil(resShape[2] / 8), 1],
     )
     return new Tensor(resultGPUBuffer, resShape)
 }

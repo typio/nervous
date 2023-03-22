@@ -35,4 +35,4 @@ export const init = async () => {
 
 export * from './tensor/_index'
 
-// export * from './fnn'
+ export * from './fnn'

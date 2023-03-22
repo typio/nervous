@@ -1,7 +1,7 @@
 import { toNested, calcShape, flatLengthFromShape, padShape, toArr, unpadShape } from './tensorUtils'
 import { gpuDevice } from '..'
 
-import { unaryOp} from './ops/unary/_index'
+import { unaryOp } from './ops/unary/_index'
 import { binaryOp } from './ops/binary/_index'
 import { reductionOp } from './ops/reduction/_index'
 import { dot, transpose } from './ops/matrix/_index'
@@ -13,6 +13,7 @@ export enum UnaryOp {
     exp,
 
     relu,
+    leakyRelu,
 
     softmax
 }
@@ -27,6 +28,9 @@ export enum BinaryOp {
     eq,
     gt,
     lt,
+
+    gradientRelu,
+    gradientLeakyRelu
 }
 
 export enum ScalarElementwiseOp {
@@ -41,6 +45,8 @@ export enum ReductionOp {
     sum = 0,
     argmax,
     argmin,
+    max,
+    min,
 }
 
 const createBuffer = (data: Float32Array): GPUBuffer => {
@@ -244,13 +250,17 @@ export class Tensor {
 
     gt = (b: Tensor) => binaryOp(BinaryOp.gt, this, ensureTensor(b))
 
+    gradientRelu = (b: Tensor) => binaryOp(BinaryOp.gradientRelu, this, b)
+
+    gradientLeakyRelu = (b: Tensor) => binaryOp(BinaryOp.gradientLeakyRelu, this, b)
+
     // ─── unary ops ───────────────────────────────────────────────────────────────────────────────
 
     /** create tensor of exponentials of all values on e, or given base  */
     exp = (base?: number) => unaryOp(UnaryOp.exp, this, base)
 
     /** create tensor of log on all values */
-    log = (base: number) => unaryOp(UnaryOp.log,this, base)
+    log = (base: number) => unaryOp(UnaryOp.log, this, base)
 
     /** returns tensor with elementwise max of old value vs input number */
     // applyMax = (n: number) => backend.default.applyMax(this, n)
@@ -262,7 +272,7 @@ export class Tensor {
     relu = () => unaryOp(UnaryOp.relu, this)
 
     /** create tensor with relu done to all values  */
-    // gradientReLU = (b: Tensor) => backend.default.gradientReLU(this, b)
+    leakyRelu = () => unaryOp(UnaryOp.leakyRelu, this)
 
     /** create tensor with sigmoid done to all values  */
     // sigmoid = () => backend.default.sigmoid(this)
@@ -273,11 +283,6 @@ export class Tensor {
     // return softmax
     softmax = (dim: number) => unaryOp(UnaryOp.softmax, this, dim)
 
-    /** returns maximum vlaue in tensor, pass axis for tensor of maximums per an axis (only 2d, 0 for cols 1 for rows) */
-    // getmax = (axis?: 0 | 1) => backend.default.getmax(this, axis)
-
-    /** returns minimum vlaue in tensor, pass axis for tensor of minimums per an axis (only 2d, 0 for cols 1 for rows)*/
-    // getmin = (axis?: 0 | 1) => backend.default.getmin(this, axis)
 
     // round(decimals: number) {
     //     return this.broadcast((n: number) => Math.floor(n * (10 ** decimals)) / 10 ** decimals)
@@ -289,8 +294,10 @@ export class Tensor {
 
     argmin = (axis?: 0 | 1) => reductionOp(ReductionOp.argmin, this, axis)
 
+    /** returns maximum vlaue in tensor, pass axis for tensor of maximums per an axis (only 2d, 0 for cols 1 for rows) */
     max = (axis?: 0 | 1) => reductionOp(ReductionOp.max, this, axis)
 
+    /** returns minimum vlaue in tensor, pass axis for tensor of minimums per an axis (only 2d, 0 for cols 1 for rows)*/
     min = (axis?: 0 | 1) => reductionOp(ReductionOp.min, this, axis)
 
     /** get the mean of all values */
