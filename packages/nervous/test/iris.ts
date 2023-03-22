@@ -30,8 +30,8 @@
 // }
 
 // const forward = (input: nv.Tensor, W1: nv.Tensor, b1: nv.Tensor, W2: nv.Tensor, b2: nv.Tensor) => {
-//     let hidden_layer = input.matmul(W1).add(b1, 1).reLU()
-//     let scores = hidden_layer.matmul(W2).add(b2, 1)
+//     let hidden_layer = input.dot(W1).add(b1, 1).reLU()
+//     let scores = hidden_layer.dot(W2).add(b2, 1)
 //     return [hidden_layer, scores]
 // }
 
@@ -69,7 +69,7 @@
 //     let [trainData, trainLabels, testData, testLabels] = await prepareData()
 //     let vocab = Array.from(new Set(trainLabels.concat(testLabels)))
 //     console.log(vocab);
-    
+
 //     trainLabels = trainLabels.map((t: any) => oneHotEncode(vocab, t))
 //     testLabels = testLabels.map((t: any) => oneHotEncode(vocab, t))
 
@@ -105,12 +105,12 @@
 //         let dscores = probs.minus(trainLabels) // subtracts 1 from every correct label index
 //         dscores = dscores.div(train_samples_n)
 
-//         let dW2 = hidden_layer.transpose().matmul(dscores)
+//         let dW2 = hidden_layer.transpose().dot(dscores)
 //         let db2 = dscores.sum(0) // axis = 0
-//         let dhidden = dscores.matmul(W2.transpose())
+//         let dhidden = dscores.dot(W2.transpose())
 //         dhidden = dhidden.reLU()
 //         // finally into W,b
-//         let dW1 = trainData.transpose().matmul(dhidden)
+//         let dW1 = trainData.transpose().dot(dhidden)
 //         let db1 = dhidden.sum(0)
 
 //         // add regularization gradient contribution

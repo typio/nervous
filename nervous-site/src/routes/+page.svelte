@@ -2,10 +2,6 @@
     <title>Demos</title>
 </head>
 
-<nav class="mt-6 ml-6">
-    <a class="text-3xl text-red-600" href="/">Demos</a>
-</nav>
-
 <div class="max-w-5xl mx-auto">
     <p class="px-4 pt-4 text-red-900">
         Demonstrations of the <a
@@ -15,7 +11,9 @@
         > machine learning framework.
     </p>
     <div class="flex flex-wrap">
-        <div class="rounded shadow  p-6 mt-4 mx-4 w-screen sm:w-auto max-w-sm">
+        <div
+            class="rounded shadow dark:shadow-none dark:border-red-500 dark:border-2  p-6 mt-4 mx-4 w-screen sm:w-auto max-w-sm"
+        >
             <a
                 href="/TESTS"
                 class="font-medium text-red-500 hover:border-b-4 border-red-500"
@@ -26,7 +24,9 @@
                 benchmarks.
             </p>
         </div>
-        <div class="rounded shadow  p-6 mt-4 mx-4 w-screen sm:w-auto max-w-sm">
+        <div
+            class="rounded shadow dark:shadow-none dark:border-red-500 dark:border-2  p-6 mt-4 mx-4 w-screen sm:w-auto max-w-sm"
+        >
             <a
                 href="/IRIS"
                 class="font-medium text-red-500 hover:border-b-4 border-red-500"
@@ -36,7 +36,20 @@
                 Linear classifier for the famous Iris dataset.
             </p>
         </div>
-        <div class="rounded shadow  p-6 mt-4 mx-4 w-screen sm:w-auto max-w-sm">
+        <div
+            class="rounded shadow dark:shadow-none dark:border-red-500 dark:border-2 p-6 mt-4 mx-4 w-screen sm:w-auto max-w-sm"
+        >
+            <a
+                href="/IRIS2"
+                class="font-medium text-red-500 hover:border-b-4 border-red-500"
+                >Iris Classifier v2</a
+            >
+            <p class="text-red-900 text-sm">
+                Linear classifier for the famous Iris dataset, redone with a
+                implementation focusing on WebGPU.
+            </p>
+        </div>
+        <div class="rounded shadow dark:shadow-none dark:border-red-500 dark:border-2 p-6 mt-4 mx-4 w-screen sm:w-auto max-w-sm">
             <a
                 href="/MNIST"
                 class="font-medium text-red-500 hover:border-b-4 border-red-500"
@@ -44,7 +57,7 @@
             >
             <p class="text-red-900 text-sm">Working on this...</p>
         </div>
-        <div class="rounded shadow  p-6 mt-4 mx-4 w-screen sm:w-auto max-w-sm">
+        <div class="rounded shadow dark:shadow-none dark:border-red-500 dark:border-2  p-6 mt-4 mx-4 w-screen sm:w-auto max-w-sm">
             <a
                 href="/LINREG"
                 class="font-medium text-red-500 hover:border-b-4 border-red-500"
@@ -52,7 +65,7 @@
             >
             <p class="text-red-900 text-sm">Working on this...</p>
         </div>
-        <div class=" rounded shadow  p-6 mt-4 mx-4 w-screen sm:w-auto max-w-sm">
+        <div class=" rounded shadow dark:shadow-none dark:border-red-500 dark:border-2  p-6 mt-4 mx-4 w-screen sm:w-auto max-w-sm">
             <a
                 href="/XOR"
                 class=" font-medium text-red-500 hover:border-b-4 border-red-500"

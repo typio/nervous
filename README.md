@@ -1,32 +1,38 @@
 # nervous
 
-> a minimal, functional, ML framework
+>  Web Machine Learning Framework
 
 [Docs](https://nervous-docs.vercel.app) • [Demos](https://nervous-demos.vercel.app)
 
 ## Overview
 
-An ML framework for the browser with the goal of being simple yet efficient, and less convoluted than popular production grade frameworks. I provide [example models](https://nervous-demos.vercel.app) and the building blocks to create your own.
+An ML framework for the browser, with these goals:
+* simple yet efficient
+* less convoluted than TensorFlow and pyTorch
+* supporting levels of interaction from tensor operations to full neural nets.
 
-Features GPU acceleration using WebGPU _<sup>WebGPU is currently available behind a flag on [Chrome Canary](https://www.google.com/chrome/canary/) and [Firefox Nightly (untested)](https://www.mozilla.org/en-US/firefox/channel/desktop/)</sup>_.
+Features GPU acceleration using WebGPU and compute shaders.
 
-The JS backend is developed secondarily to the WebGPU backend and is more likely to have issues.
+I decided to remove the dual-backend system supporting JavaScript and WebGPU and go forward with
+just WebGPU. It's a hard choice because I've invested so much in the JS backend, but it will be
+useless outside of educational purposes once WebGPU is released and removing the multiple backend
+support will reduce the architectural complexity of the library and the lag time of new features.
 
-<h2 style="display:inline; margin:0 1rem 1rem 0;">Usage <img width="45" alt="NV sign" style="vertical-align:middle" src="https://user-images.githubusercontent.com/26017543/209094491-6dc7f5aa-4a29-4b89-a06c-969455bbceb5.png"></h2>
+## Usage
 
+*package is not yet published*
 ```typescript
 import nv from "@typio/nervous";
 
 const main = async () => {
-  await nv.init({ backend: "webgpu" });
+    await nv.init();
+    const [n, m] = await Promise.all([
+        nv.random([2047, 512]),
+        nv.random([512, 2047]),
+    ]);
+    let res = await n.dot(m);
 
-  const [n, m] = await Promise.all([
-    nv.random([2047, 512]),
-    nv.random([512, 2047]),
-  ]);
-  let res = await n.matmul(m);
-
-  await res.print(4);
+    await res.print(4);
 };
 
 main();
