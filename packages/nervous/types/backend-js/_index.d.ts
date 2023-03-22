@@ -19,14 +19,15 @@ declare const _default: {
     gradientReLU: (a: import("../tensor").Tensor) => import("../tensor").Tensor;
     log: (a: import("../tensor").Tensor) => import("../tensor").Tensor;
     lpNorm: (a: import("../tensor").Tensor, p?: number) => number;
-    matmul: (a: import("../tensor").Tensor, m: import("../tensor").Tensor) => import("../tensor").Tensor;
+    dot: (a: import("../tensor").Tensor, m: import("../tensor").Tensor) => import("../tensor").Tensor;
     mean: (a: import("../tensor").Tensor) => number;
     minus: (a: import("../tensor").Tensor, s: number | import("../tensor").Tensor) => import("../tensor").Tensor;
-    mod: (a: import("../tensor").Tensor, m: number | import("../tensor").Tensor, axis?: number) => import("../tensor").Tensor;
+    mod: (a: import("../tensor").Tensor, m: number | import("../tensor").Tensor) => import("../tensor").Tensor;
     mul: (a: import("../tensor").Tensor, m: number | import("../tensor").Tensor, axis?: number) => import("../tensor").Tensor;
     oneHot: (dim: number | number[], index: number | number[]) => never;
     ones: (shape: number | number[]) => import("../tensor").Tensor;
     pow: (a: import("../tensor").Tensor, exp: number) => import("../tensor").Tensor;
+    print: (t: any, decimals: any) => Promise<void>;
     random: (shape: number[], seed: number, min?: number, max?: number, integer?: boolean) => import("../tensor").Tensor;
     randomNormal: (shape: number[], mean?: number, std?: number) => import("../tensor").Tensor;
     reLU: (a: import("../tensor").Tensor) => import("../tensor").Tensor;
