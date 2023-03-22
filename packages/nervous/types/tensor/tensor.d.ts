@@ -4,7 +4,8 @@ export declare enum UnaryOp {
     log = 0,
     exp = 1,
     relu = 2,
-    softmax = 3
+    leakyRelu = 3,
+    softmax = 4
 }
 export declare enum BinaryOp {
     add = 0,
@@ -15,7 +16,9 @@ export declare enum BinaryOp {
     pow = 5,
     eq = 6,
     gt = 7,
-    lt = 8
+    lt = 8,
+    gradientRelu = 9,
+    gradientLeakyRelu = 10
 }
 export declare enum ScalarElementwiseOp {
     log = 0,
@@ -27,7 +30,10 @@ export declare enum ScalarElementwiseOp {
 export declare enum ReductionOp {
     sum = 0,
     argmax = 1,
-    argmin = 2
+    argmin = 2,
+    max = 3,
+    min = 4,
+    mean = 5
 }
 export declare class Tensor {
     /**  first 4 values are shape, most to least significant dimensions, left-padded with 0's, rest are tensor values */
@@ -53,7 +59,7 @@ export declare class Tensor {
     /** switch rows and columns of a >=2d Tensor */
     transpose: () => Promise<Tensor>;
     /** create tensor of dot product */
-    dot: (m: Tensor) => Promise<Tensor>;
+    dot: (m: Tensor) => Tensor;
     /** Reshape tensor into provided shape */
     /** Repeat tensor along dimensions */
     /** create tensor with number a OR each value of a tensor
@@ -76,6 +82,8 @@ export declare class Tensor {
     eq: (b: Tensor) => Tensor;
     lt: (b: Tensor) => Tensor;
     gt: (b: Tensor) => Tensor;
+    gradientRelu: (b: Tensor) => Tensor;
+    gradientLeakyRelu: (b: Tensor) => Tensor;
     /** create tensor of exponentials of all values on e, or given base  */
     exp: (base?: number) => Tensor;
     /** create tensor of log on all values */
@@ -85,14 +93,15 @@ export declare class Tensor {
     /** create tensor with relu done to all values  */
     relu: () => Tensor;
     /** create tensor with relu done to all values  */
+    leakyRelu: () => Tensor;
     /** create tensor with sigmoid done to all values  */
     /** create tensor with softplus done to all values  */
     softmax: (dim: number) => Tensor;
-    /** returns maximum vlaue in tensor, pass axis for tensor of maximums per an axis (only 2d, 0 for cols 1 for rows) */
-    /** returns minimum vlaue in tensor, pass axis for tensor of minimums per an axis (only 2d, 0 for cols 1 for rows)*/
     argmax: (axis?: 0 | 1) => Tensor;
     argmin: (axis?: 0 | 1) => Tensor;
+    /** returns maximum vlaue in tensor, pass axis for tensor of maximums per an axis (only 2d, 0 for cols 1 for rows) */
     max: (axis?: 0 | 1) => Tensor;
+    /** returns minimum vlaue in tensor, pass axis for tensor of minimums per an axis (only 2d, 0 for cols 1 for rows)*/
     min: (axis?: 0 | 1) => Tensor;
     /** get the mean of all values */
     mean: (axis?: 0 | 1) => Tensor;

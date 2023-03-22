@@ -47,6 +47,7 @@ export enum ReductionOp {
     argmin,
     max,
     min,
+    mean,
 }
 
 const createBuffer = (data: Float32Array): GPUBuffer => {

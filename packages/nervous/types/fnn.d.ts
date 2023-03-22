@@ -1,5 +1,5 @@
-import { Tensor } from "../tensor";
-import { Activation } from '../layer';
+import { Tensor } from './tensor/tensor';
+import { Activation } from './layer/layer';
 export type fnnHyperParams = {
     layers: number[];
     activation: Activation;
