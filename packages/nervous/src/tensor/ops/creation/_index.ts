@@ -1,11 +1,11 @@
-import { flatLengthFromShape, padShape } from '../../tensorUtils'
+import { flatLengthFromShape } from '../../tensorUtils'
 import { runComputeShader, createMappedBuffer } from '../../../webGPU/_index'
 
 import { wgsl } from 'wgsl-preprocessor/wgsl-preprocessor.js'
 
 import { gpuDevice } from '../../..'
 
-import { Rank1To4Array, Tensor } from "../../tensor"
+import { Tensor, TensorDataValues } from "../../tensor"
 
 type CommonArgs = {
     method: CreateMethod
@@ -47,7 +47,7 @@ export const scalar = (value: number): Tensor => {
     return new Tensor(value)
 }
 
-export const tensor = (value: number | Rank1To4Array, shape?: number[]): Tensor => {
+export const tensor = (value: TensorDataValues, shape?: number[]): Tensor => {
     return new Tensor(value, shape)
 }
 
@@ -78,7 +78,7 @@ export const ones = (shape: number[]) => {
 export const diag = (values: number[]) => {
     return createTensor({
         method: CreateMethod.diag,
-        shape: [0, 0, values.length, values.length],
+        shape: [values.length, values.length],
         values
     })
 }
@@ -114,7 +114,7 @@ export const randomNormal = (shape: number[], seed?: number, mean?: number, std?
 }
 
 export const createTensor = (args: CreateTensorArgs): Tensor => {
-    let shape = padShape(args.shape)
+    let shape = args.shape
 
     let values = new Float32Array(1);
     const maxParams = 6
@@ -155,6 +155,10 @@ export const createTensor = (args: CreateTensorArgs): Tensor => {
         usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
     })
 
+    if (CreateMethod.diag === args.method) {
+        console.log(shape)
+    }
+
     runComputeShader(
         gpuDevice,
         [
@@ -180,7 +184,6 @@ export const createTensor = (args: CreateTensorArgs): Tensor => {
 
 const headerWGSL = (valuesLength: number, maxParams: number): string => wgsl`
     struct Matrix {
-        shape: vec4<f32>,
         values: array<f32>
     };
 
@@ -196,10 +199,10 @@ const fillWGSL = wgsl`
         // consume inputs to avoid dead code elimination
         let p = params[0];
         let v = values[0];
-
-        outMatrix.shape = shape;
+        let s = shape[0];
 
         outMatrix.values[global_id.x] = values[0];
+
     }
 `
 
@@ -208,13 +211,12 @@ const diagWGSL = (valuesLength: number) => wgsl`
     fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
         let p = params[0];
         let v = values[0];
+        let s = shape[0];
 
-        outMatrix.shape = shape;
-
-        if (global_id.x > u32(shape.w)) {
+        if (global_id.x > u32(shape.y)) {
             return;
         }
-        outMatrix.values[global_id.x * u32(shape.w + 1)] = values[global_id.x % ${valuesLength}];
+        outMatrix.values[global_id.x * u32(shape.y + 1)] = values[global_id.x % ${valuesLength}];
     }
 `
 
@@ -223,15 +225,13 @@ const randomWGSL = wgsl`
     fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
         let p = params[0];
         let v = values[0];
-
-        outMatrix.shape = shape;
+        let s = shape[0];
 
         // https://indico.cern.ch/event/93877/contributions/2118070/attachments/1104200/1575343/acat3_revised_final.pdf
         // "quick and dirty LCG which has a period of 2^32"
         let seedInput = u32(params[0]);
         let seed = seedInput * (global_id.x + 1u) * 1099087573u;
         let outIndex: vec2<u32> = vec2(global_id.x, global_id.y);
-        outMatrix.shape = shape;
 
         var z1: u32;
         var z2: u32;

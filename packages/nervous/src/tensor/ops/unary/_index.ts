@@ -5,7 +5,14 @@ import { UnaryOp, Tensor } from '../../tensor'
 import { gpuDevice } from '../../..'
 import { flatLengthFromShape } from '../../tensorUtils'
 
-export const unaryOp = (op: UnaryOp, a: Tensor, dim: number = 1): Tensor => {
+interface Args {
+    dim?: number,
+    base?: number,
+    value?: number,
+}
+
+export const unaryOp = (op: UnaryOp, a: Tensor,
+    { dim = 1, base = 0, value = 0 }: Args = {}): Tensor => {
     let resSize = (4 + flatLengthFromShape(a.tensorShape)) * Float32Array.BYTES_PER_ELEMENT
 
     const resultGPUBuffer = gpuDevice.createBuffer({
@@ -83,6 +90,17 @@ export const unaryOp = (op: UnaryOp, a: Tensor, dim: number = 1): Tensor => {
                     o.v[global_id.x] = select(0.0, a.v[global_id.x], a.v[global_id.x] > 0.0);
                 #elif ${op === UnaryOp.leakyRelu}
                     o.v[global_id.x] = select(0.01 * a.v[global_id.x], a.v[global_id.x], a.v[global_id.x] > 0.0);
+                #elif ${op === UnaryOp.tril}
+                    if (global_id.x >= u32(a.s[2] * a.s[3])) {
+                        return;
+                    }
+                    let row = global_id.x / col_n;
+                    let col = global_id.x % col_n; // - row * col_n;
+                    o.v[global_id.x] = select(
+                        a.v[global_id.x],
+                        ${value},
+                        col > row
+                    );
                 #endif
             }
         `,

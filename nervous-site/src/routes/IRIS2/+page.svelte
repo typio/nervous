@@ -19,8 +19,10 @@
     let final_test_acc = "";
     let fit_btn_text = "▶";
 
+
     let training_steps = 200;
     let LR = 0.001;
+    let log_step_count = 20
 
     let predictSepalLength = 6.1;
     let predictSepalWidth = 2.8;
@@ -164,7 +166,7 @@
                 W2 = await W2.add(await dW2.mul(-STEP_SIZE));
                 b2 = await b2.add(await db2.mul(-STEP_SIZE));
 
-                if (step_count % 20 == 0) {
+                if (step_count % log_step_count == 0) {
                     // console.log(
                     //     "acc: ",
                     //     await evaluate(trainDataTensor, trainLabelsTensor),
@@ -223,6 +225,7 @@
 
             p.draw = () => {
                 p.background(240);
+                p.background(60, 230, 90);
 
                 p.translate(p.width / 2, p.height / 2);
                 for (let i = 0; i < 3; i++) {
@@ -285,6 +288,19 @@
             name=""
             bind:value={LR}
         />
+
+        <label for="log_step_count">Log Every: </label>
+        <input
+            type="number"
+            step="1"
+            class="border-b-2 border-slate-300 dark:border-slate-500 dark:bg-slate-800 rounded decoration-none
+            outline-none text-center w-24"
+            min="0"
+            name=""
+            id="log_step_count"
+            bind:value={log_step_count}
+        />
+
         <button
             class="rounded-full bg-red-500 text-white w-12 h-12 hover:bg-red-600 active:bg-red-700"
             on:click={() => {

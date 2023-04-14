@@ -1,4 +1,4 @@
-import { Rank1To4Array } from './tensor'
+import { TensorDataValues } from "./tensor"
 
 /** Convert FloatArray to Array (Array.from() and slice are slow...) */
 export const toArr = (floatArr: Float32Array, decimals?: number, startIndex = 0): number[] => {
@@ -8,10 +8,11 @@ export const toArr = (floatArr: Float32Array, decimals?: number, startIndex = 0)
     return arr
 }
 
-export const calcShape = (values: Rank1To4Array): number[] => {
-    // TODO: check for and warn if tensor is jagged
+export const calcShape = (values: TensorDataValues): number[] => {
+    if (values.constructor !== Array) return [1]
+
     let shape: number[] = []
-    let subValues: Rank1To4Array | number = values
+    let subValues: TensorDataValues = values
     while (subValues.constructor === Array) {
         shape.push(subValues.length)
 
@@ -27,7 +28,7 @@ export const calcShape = (values: Rank1To4Array): number[] => {
 }
 
 export const flatLengthFromShape = (shape: number[]) => {
-    // reduce is fine considering max array length is 4
+    // reduce is fine considering max array length is short
     return shape.reduce((previousValue, currentValue) => Math.max(1, previousValue) * Math.max(1, currentValue), 1)
 }
 
@@ -38,9 +39,9 @@ export const toNested = (values: number[], _shape: number[]) => {
     // 		`New shape is not compatible with initial values length: shape: ${shape} values.length: ${values.length}.`
     // 	)
     //
-    if (shape.length === 1) {
+    if (shape.length === 1)
         return values
-    }
+
     let nestedArr = []
     let subArrSize = 1
     for (let i = 1; i < shape.length; i++) {
@@ -48,6 +49,7 @@ export const toNested = (values: number[], _shape: number[]) => {
     }
     let subArrStartIndex = 0
     while (subArrStartIndex < values.length) {
+    if (shape.length === 0) return nestedArr
         let subArrEndIndex = subArrStartIndex + subArrSize
         nestedArr.push(toNested(values.slice(subArrStartIndex, subArrEndIndex), shape.slice(1)))
         subArrStartIndex = subArrEndIndex
@@ -55,29 +57,19 @@ export const toNested = (values: number[], _shape: number[]) => {
     return nestedArr
 }
 
-export const arrMax = (arr: number[]): number => {
-    let max = -Infinity
-    let c = -Infinity
-    for (let i = 0; i < arr.length; i++) {
-        c = arr[i]
-        if (c > max) max = c
-    }
-    return max
-}
-
-/** formats a shape in the 4 element left padded 0 array form*/
+/** formats a shape in a fixed size 7 array, right padded with 0's*/
 export const padShape = (_shape: number | number[], _pV?: number) => {
     // pV is padding value
     let pV = _pV === undefined ? 0 : _pV
-    if (_shape.constructor === Number) return [pV, pV, pV, _shape]
+    if (_shape.constructor === Number)
+        return [_shape, pV, pV, pV, pV, pV, pV]
     _shape = _shape as number[]
-    if (_shape.length > 4) throw new Error('shape length should be less than or equal to 4')
-    let shape = [pV, pV, pV, pV]
-    for (let i = 4 - _shape.length; i < 4; i++) shape[i] = _shape[i - 4 + _shape.length]
+    if (_shape.length > 7) throw new Error('shape length should be less than or equal to 7')
+    let shape = [pV, pV, pV, pV, pV, pV, pV]
+    for (let i = 0; i < _shape.length; i++) shape[i] = _shape[i]
     return shape
 }
 
-/** formats a shape in the 4 element left padded 0 array form*/
 export const unpadShape = (_shape: number[]) => {
     let shape = []
     for (let i = 0; i < _shape.length; i++) {

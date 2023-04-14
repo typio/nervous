@@ -1,7 +1,7 @@
 import { wgsl } from 'wgsl-preprocessor/wgsl-preprocessor.js'
 import { runComputeShader, createMappedBuffer } from '../../../webGPU/_index'
 
-import { BinaryOp, Tensor } from '../../tensor'
+import { Tensor } from '../../tensor'
 import { gpuDevice } from '../../..'
 import { flatLengthFromShape, padShape } from '../../tensorUtils'
 
@@ -26,7 +26,6 @@ export const dot = (a: Tensor, m: Tensor) => {
         gpuDevice,
         [a.buffer, m.buffer, resultGPUBuffer],
         wgsl`
-            // https://web.dev/gpu-compute/
             struct Matrix {
                 s: vec4<f32>,
                 v: array<f32>

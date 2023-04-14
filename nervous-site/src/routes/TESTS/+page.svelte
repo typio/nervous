@@ -7,7 +7,7 @@
 
     let testResults: any[] = [];
 
-    let randomValues: any[] = [];
+    let randomValues: any = [];
 
     const runTests = async () => {
         await nv.init();
@@ -96,12 +96,17 @@
             // }
             // await s.print();
             // console.log(times.reduce((a, b) => a + b, 0) / times.length);
+
+            let a = await nv.ones([8, 8]);
+            a = a.tril()
+            a = a.div(a.sum(1))
+            a.print()
+
         };
         main();
     }
-    let randomLoaded = false;
 
-    const thingy = async (el) => {
+    const drawRandom = async () => {
         const c = document.getElementById("canvas") as HTMLCanvasElement;
         if (c === null) return;
         let ctx = c.getContext("2d", { willReadFrequently: true });
@@ -173,7 +178,7 @@
                             {result.name}
                         </p>
                         {#if result.name === "random()"}
-                            <canvas id="canvas" use:thingy />
+                            <canvas id="canvas" use:drawRandom />
                         {/if}
                         <div class="flex flex-row">
                             {#if result.res === null}

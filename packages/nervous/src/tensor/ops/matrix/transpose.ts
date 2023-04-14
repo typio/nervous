@@ -1,7 +1,7 @@
 import { wgsl } from 'wgsl-preprocessor/wgsl-preprocessor.js'
 import { runComputeShader, createMappedBuffer } from '../../../webGPU/_index'
 
-import { BinaryOp, Tensor } from '../../tensor'
+import { Tensor } from '../../tensor'
 import { gpuDevice } from '../../..'
 import { flatLengthFromShape, padShape } from '../../tensorUtils'
 
@@ -38,7 +38,6 @@ export const transpose = async (a: Tensor) => {
                     return;
                 }
 
-                // TODO: try to speed up with shared memory
                 o.s = vec4(0, 0, a.s[3], a.s[2]);
                 o.v[global_id.x + u32(a.s[2]) * global_id.y] = a.v[global_id.x * u32(a.s[3]) + global_id.y];
             }

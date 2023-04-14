@@ -4,9 +4,17 @@ import { gpuDevice } from '..'
 import { unaryOp } from './ops/unary/_index'
 import { binaryOp } from './ops/binary/_index'
 import { reductionOp } from './ops/reduction/_index'
-import { dot, transpose } from './ops/matrix/_index'
+import { dot, transpose, slice } from './ops/matrix/_index'
 
-export type Rank1To4Array = number[] | number[][] | number[][][] | number[][][][]
+export type TensorDataValues =
+    number |
+    number[] |
+    number[][] |
+    number[][][] |
+    number[][][][] |
+    number[][][][][] |
+    number[][][][][][] |
+    number[][][][][][][]
 
 export enum UnaryOp {
     log = 0,
@@ -15,7 +23,9 @@ export enum UnaryOp {
     relu,
     leakyRelu,
 
-    softmax
+    softmax,
+
+    tril,
 }
 
 export enum BinaryOp {
@@ -61,7 +71,7 @@ const createBuffer = (data: Float32Array): GPUBuffer => {
     return buffer
 }
 
-const ensureTensor = (input: Tensor | number | Rank1To4Array): Tensor => {
+const ensureTensor = (input: Tensor | TensorDataValues): Tensor => {
     if (input instanceof Tensor) {
         return input
     } else {
@@ -70,27 +80,38 @@ const ensureTensor = (input: Tensor | number | Rank1To4Array): Tensor => {
 }
 
 export class Tensor {
-    /**  first 4 values are shape, most to least significant dimensions, left-padded with 0's, rest are tensor values */
-    readonly buffer: GPUBuffer
-    /** doesn't include shape, gradient shape is defined by first 4 of buffer */
-    readonly gradientBuffer: GPUBuffer | undefined
-    /** util to decide if tensor OPs are legal inside JS while values are away on GPU */
-    readonly tensorShape: number[]
+    readonly shape: number[]
+    readonly strides: number[]
+    readonly offset: number
+
+    readonly data: GPUBuffer
+    readonly gradientData: GPUBuffer | undefined
 
     /** Construct tensor, pass value array, nested or un-nested, and optional shape if un-nested,
      * or pass raw Float32Array already in internal Tensor data form. */
-    constructor(values: number | Rank1To4Array | Float32Array | GPUBuffer, shape?: number[]) {
+    constructor(
+        values: TensorDataValues | GPUBuffer,
+        shape?: number[],
+        strides?: number[],
+        offset?: number,
+        gradientValues?: TensorDataValues | GPUBuffer,
+    ) {
         let _shape: number[] = []
         let _values: number[] = []
 
-        if (values.constructor === Float32Array) {
-            this.tensorShape = toArr(values.slice(0, 4))
-            this.buffer = createBuffer(values)
-            return
-        } else if (values.constructor === GPUBuffer) {
-            // TODO: feels like inconsistent handling of shape, expectation of input format
-            this.tensorShape = shape
-            this.buffer = values
+        if (values.constructor === GPUBuffer) {
+            this.data = values
+
+            if (gradientValues !== undefined)
+                if (gradientValues.constructor !== GPUBuffer)
+                    throw new Error('gradientValues must be GPUBuffer if values arg is GPUBuffer.')
+                else
+                    this.gradientData = gradientValues
+
+            this.shape = shape
+            this.strides = strides
+            this.offset = offset
+
             return
         }
 
@@ -105,7 +126,8 @@ export class Tensor {
             }
             if (values.constructor === Array) {
                 // This used to only require one flat()
-                _values = values.flat().flat().flat() as number[]
+                _values = values.flat(7) as number[]
+                // _values = values.flat().flat().flat().flat().flat().flat().flat() as number[]
             }
         } else if (values !== undefined && shape !== undefined) {
             if (values.constructor === Array && values[0].constructor === Array)
@@ -120,34 +142,45 @@ export class Tensor {
             _values = flatValues
         }
 
-        _shape = padShape(_shape)
 
-        this.buffer = createBuffer(new Float32Array([..._shape, ..._values]))
-        this.tensorShape = _shape
+        if (this.strides === undefined) {
+            let localShape = unpadShape(_shape)
+            this.strides = new Array(localShape.length).fill(0)
+            this.strides[this.strides.length - 1] = 1;
+            for (let i = this.strides.length - 2; i >= 0; i--) {
+                this.strides[i] = this.strides[i + 1] * localShape[i + 1];
+            }
+        }
+
+        this.offset = offset !== undefined ? offset : 0
+
+        this.data = createBuffer(new Float32Array([..._values]))
+
+        this.shape = _shape
     }
 
-    /** returns [values, shape, gradientValues]*/
-    toJS = async (): Promise<[Float32Array, Float32Array, Float32Array]> => {
-        let bufferSize = Math.max(32, this.buffer.size)
+    /** returns [values, gradientValues] */
+    toJS = async (): Promise<[Float32Array, Float32Array]> => {
+        let bufferSize = Math.max(32, this.data.size)
 
         const readGPUBuffer = gpuDevice.createBuffer({
             size: bufferSize,
             usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
         })
         const commandEncoder = gpuDevice.createCommandEncoder()
-        commandEncoder.copyBufferToBuffer(this.buffer, 0, readGPUBuffer, 0, bufferSize)
+        commandEncoder.copyBufferToBuffer(this.data, 0, readGPUBuffer, 0, bufferSize)
         gpuDevice.queue.submit([commandEncoder.finish()])
         await readGPUBuffer.mapAsync(GPUMapMode.READ)
 
         let result = new Float32Array(readGPUBuffer.getMappedRange())
 
         // buffer may have been right padded to make minimum size, undo that
-        let tensorSize = 4 + flatLengthFromShape(toArr(result.slice(0, 4)))
+        let tensorSize = flatLengthFromShape(this.shape)
         if (bufferSize > tensorSize * Float32Array.BYTES_PER_ELEMENT) result = result.slice(0, tensorSize)
 
         // TODO: gradient
 
-        return [result.slice(4), result.slice(0, 4), new Float32Array(0)]
+        return [result, new Float32Array(0)]
     }
 
 
@@ -157,14 +190,14 @@ export class Tensor {
 
     /** returns nested number array of tensor values, returns type number if scalar */
     values = async (decimals?: number) => {
-        let [v, s, _gV] = await this.toJS()
+        let [v, _gV] = await this.toJS()
         if (v.length === 1) return v[0]
-        return toNested(toArr(v, decimals), unpadShape(toArr(s)))
+        return toNested(toArr(v, decimals), unpadShape(this.shape))
     }
 
     /** returns flat tensor values */
     flatValues = async (decimals?: number) => {
-        let [v, _s, _gV] = await this.toJS()
+        let [v, _gV] = await this.toJS()
         if (v.length === 1) return v[0]
         return toArr(v, decimals)
     }
@@ -175,31 +208,8 @@ export class Tensor {
 
     /** returns tensor rank */
     rank = () => {
-        let shape: number[]
-        shape = this.tensorShape
-
-        if (shape[3] === 1 && shape[2] === 0) return 0 // scalar
-
-        let i = 3
-        while (i > 0) {
-            if (shape[i - 1] === 0) {
-                break
-            }
-            i--
-        }
-        return 4 - i
-    }
-
-    /** returns tensor shape, scalar ➡️ shape [0], vector ➡️ [1, N] */
-    shape = () => {
-        // remove leading 0's in shape segement of data
-        let shape: number[]
-        shape = this.tensorShape
-
-        let i = 0
-        while (i < 3 && shape[i] === 0) i++
-
-        return shape.slice(i, 4)
+        if (this.shape[0] === 1) return 0
+        return this.shape.length
     }
 
     //
@@ -219,6 +229,8 @@ export class Tensor {
 
     /** Repeat tensor along dimensions */
     // repeat = (scales: number[]) => backend.default.repeat(this, scales)
+
+    slice = (startIndices: number[], outputShape: number[]) => slice(this, startIndices, outputShape)
 
     // ─── binary ops ──────────────────────────────────────────────────────────────────────────────
 
@@ -258,10 +270,10 @@ export class Tensor {
     // ─── unary ops ───────────────────────────────────────────────────────────────────────────────
 
     /** create tensor of exponentials of all values on e, or given base  */
-    exp = (base?: number) => unaryOp(UnaryOp.exp, this, base)
+    exp = (base?: number) => unaryOp(UnaryOp.exp, this, { base })
 
     /** create tensor of log on all values */
-    log = (base: number) => unaryOp(UnaryOp.log, this, base)
+    log = (base: number) => unaryOp(UnaryOp.log, this, { base })
 
     /** returns tensor with elementwise max of old value vs input number */
     // applyMax = (n: number) => backend.default.applyMax(this, n)
@@ -282,7 +294,9 @@ export class Tensor {
     // softplus = () => backend.default.softplus(this)
 
     // return softmax
-    softmax = (dim: number) => unaryOp(UnaryOp.softmax, this, dim)
+    softmax = (dim: number) => unaryOp(UnaryOp.softmax, this, { dim })
+
+    tril = (value: number) => unaryOp(UnaryOp.tril, this, { value })
 
 
     // round(decimals: number) {

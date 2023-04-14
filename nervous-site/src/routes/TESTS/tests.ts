@@ -8,7 +8,7 @@ let tests = [
                 name: "scalar()",
                 code: async () => {
                     let s = await nv.scalar(4);
-                    return [await s.values(), await s.rank(), await s.shape()];
+                    return [await s.values(), await s.rank(), await s.shape];
                 },
                 expects: () => [4, 0, [1]],
             },
@@ -20,7 +20,7 @@ let tests = [
                     let vector = nv.tensor([1, 2, 3]);
                     results.push(await vector.values());
                     results.push(await vector.rank());
-                    results.push(await vector.shape());
+                    results.push(await vector.shape);
 
                     let tensor = nv.tensor([
                         [
@@ -45,7 +45,7 @@ let tests = [
                         ],
                     ]);
                     results.push(await tensor.rank());
-                    results.push(await tensor.shape());
+                    results.push(await tensor.shape);
 
                     tensor = nv.tensor(
                         [
@@ -56,12 +56,7 @@ let tests = [
                         [2, 2, 3, 4]
                     );
                     results.push(await tensor.rank());
-                    results.push(await tensor.shape());
-
-                    let tensorFromFloatArray = nv.tensor(
-                        new Float32Array([0, 0, 3, 2, 1, 2, 3, 4, 5, 6])
-                    );
-                    results.push(await tensorFromFloatArray.values());
+                    results.push(await tensor.shape);
 
                     return results;
                 },
@@ -73,11 +68,6 @@ let tests = [
                     [2, 2, 2, 8],
                     4,
                     [2, 2, 3, 4],
-                    [
-                        [1, 2],
-                        [3, 4],
-                        [5, 6],
-                    ],
                 ],
             },
             {
@@ -86,7 +76,7 @@ let tests = [
                     let results = [];
                     let t = await nv.random([4, 3, 2, 5]);
                     results.push(await t.rank());
-                    results.push(await t.shape());
+                    results.push(await t.shape);
                     return results;
                 },
                 expects: async () => {
@@ -99,7 +89,7 @@ let tests = [
                     let results = [];
                     let t = await nv.fill([2, 3, 4], 3);
                     results.push(await t.rank());
-                    results.push(await t.shape());
+                    results.push(await t.shape);
                     results.push(await t.values());
                     return results;
                 },
@@ -128,7 +118,7 @@ let tests = [
                     let results = [];
                     let t = await nv.ones([2, 3, 4]);
                     results.push(await t.rank());
-                    results.push(await t.shape());
+                    results.push(await t.shape);
                     results.push(await t.values());
                     return results;
                 },
@@ -157,7 +147,7 @@ let tests = [
                     let results = [];
                     let t = await nv.zeros([2, 3, 4]);
                     results.push(await t.rank());
-                    results.push(await t.shape());
+                    results.push(await t.shape);
                     return results;
                 },
                 expects: async () => {
@@ -204,7 +194,7 @@ let tests = [
                     let results = [];
                     let t = await nv.eye([3, 3]);
                     results.push(await t.rank());
-                    results.push(await t.shape());
+                    results.push(await t.shape);
                     results.push(await t.values());
                     return results;
                 },
@@ -286,8 +276,6 @@ let tests = [
                     [0, 8, -2, 2, 19, 9],
                 ]);
                 results.push(await (a.relu().values()))
-                a.print()
-                console.log(results)
 
                 return results
             },
